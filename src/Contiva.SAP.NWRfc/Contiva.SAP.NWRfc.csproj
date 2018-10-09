@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net471</TargetFramework>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Contiva.Functional" Version="1.0.0" />
+    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Contiva.SAP.NWRfc.Native.clr\Contiva.SAP.NWRfc.Native.clr.vcxproj" />
+    <ProjectReference Include="..\Contiva.SAP.NWRfc.Primitives\Contiva.SAP.NWRfc.Primitives.csproj" />
+  </ItemGroup>
+
+</Project>
