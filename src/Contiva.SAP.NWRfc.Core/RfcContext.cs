@@ -14,7 +14,7 @@ namespace Contiva.SAP.NWRfc
 
         }
 
-        public Task<Either<RfcErrorInfo, Unit>> InvokeFunction(Function function)
+        public Task<Either<RfcErrorInfo, Unit>> InvokeFunction(IFunction function)
         {
             return _connection.InvokeFunction(function);            
         }
@@ -26,7 +26,7 @@ namespace Contiva.SAP.NWRfc
                 .MapAsync(r => (IRfcContext) this );
         }
 
-        public Task<Either<RfcErrorInfo, Function>> CreateFunction(string name) => _connection.CreateFunction(name);
+        public Task<Either<RfcErrorInfo, IFunction>> CreateFunction(string name) => _connection.CreateFunction(name);
 
         public Task<Either<RfcErrorInfo, Unit>> Commit() => _connection.Commit();
 

@@ -5,12 +5,12 @@
     <RootNamespace>Contiva.SAP.NWRfc</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Contiva.Functional" Version="1.0.0" />
+  </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
+    <ProjectReference Include="..\Contiva.SAP.NWRfc.Primitives\Contiva.SAP.NWRfc.Primitives.csproj" />
   </ItemGroup>
 
 </Project>

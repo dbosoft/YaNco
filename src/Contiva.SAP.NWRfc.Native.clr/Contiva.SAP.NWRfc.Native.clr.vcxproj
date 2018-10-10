@@ -176,6 +176,14 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Contiva.SAP.NWRfc.Abstractions\Contiva.SAP.NWRfc.Abstractions.csproj">
+      <Project>{706737b6-bd69-4aee-b7fe-dc8f9008c91a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Contiva.SAP.NWRfc.Primitives\Contiva.SAP.NWRfc.Primitives.csproj">
+      <Project>{fd098742-7f5a-4820-8022-d24617cc1380}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -6,12 +6,12 @@ namespace Contiva.SAP.NWRfc
 {
     public class TableRowEnumerator : IEnumerator<Structure>
     {
-        private Option<TableHandle> _handle;
+        private Option<ITableHandle> _handle;
         private readonly IRfcRuntime _rfcRuntime;
         private Option<Structure> _currentRow;
         private bool _first = true;
 
-        public TableRowEnumerator(IRfcRuntime rfcRuntime, Option<TableHandle> handle)
+        public TableRowEnumerator(IRfcRuntime rfcRuntime, Option<ITableHandle> handle)
         {
             _rfcRuntime = rfcRuntime;
             _handle = handle;
