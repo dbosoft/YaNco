@@ -1,43 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using LanguageExt;
 
 namespace Contiva.SAP.NWRfc
 {
-    public interface IDataContainerHandle
-    {
-    }
-
-    public interface ITableHandle: IDataContainerHandle, IDisposable
-    {
-
-    }
-
-    public interface IStructureHandle : IDataContainerHandle
-    {
-
-    }
-
-    public interface IFunctionHandle : IDataContainerHandle, IDisposable
-    {
-
-    }
-
-    public interface IFunctionDescriptionHandle
-    {
-
-    }
-
-    public interface ITypeDescriptionHandle
-    {
-
-    }
-
-    public interface IConnectionHandle: IDisposable
-    {
-
-    }
-
     public interface IRfcRuntime
     {
         Either<RfcErrorInfo, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle, StartProgramDelegate callback);

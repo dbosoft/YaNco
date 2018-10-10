@@ -1,22 +1,36 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace Contiva.SAP.NWRfc
 {
+
     public class RfcContext : IRfcContext
     {
+        private readonly Func<Task<IConnection>> _connectionBuilder;
+        private Option<IConnection> _connection;
 
-        private Connection _connection;
-
-        public RfcContext(Connection connection)
+        public RfcContext(Func<Task<IConnection>> connectionBuilder)
         {
-            _connection = connection;
+            _connectionBuilder = connectionBuilder;
+        }
+
+        private Task<IConnection> GetConnection()
+        {
+            return _connection.MatchAsync(s => s,
+                async () =>
+                {
+                    var res = await _connectionBuilder();
+                    _connection = Prelude.Some(res);
+                    return res;
+                });
 
         }
 
-        public Task<Either<RfcErrorInfo, Unit>> InvokeFunction(IFunction function)
+
+public Task<Either<RfcErrorInfo, Unit>> InvokeFunction(IFunction function)
         {
-            return _connection.InvokeFunction(function);            
+            return GetConnection().MapAsync(conn => conn.InvokeFunction(function));            
         }
 
         public Task<Either<RfcErrorInfo, IRfcContext>> Ping()
@@ -26,20 +40,22 @@ namespace Contiva.SAP.NWRfc
                 .MapAsync(r => (IRfcContext) this );
         }
 
-        public Task<Either<RfcErrorInfo, IFunction>> CreateFunction(string name) => _connection.CreateFunction(name);
+        public Task<Either<RfcErrorInfo, IFunction>> CreateFunction(string name) => GetConnection().MapAsync(conn => conn.CreateFunction(name));
 
-        public Task<Either<RfcErrorInfo, Unit>> Commit() => _connection.Commit();
+        public Task<Either<RfcErrorInfo, Unit>> Commit() => GetConnection().MapAsync(conn => conn.Commit());
 
-        public Task<Either<RfcErrorInfo, Unit>> CommitAndWait() => _connection.CommitAndWait();
+        public Task<Either<RfcErrorInfo, Unit>> CommitAndWait() => GetConnection().MapAsync(conn => conn.CommitAndWait());
 
-        public Task<Either<RfcErrorInfo, Unit>> Rollback() => _connection.Rollback();
+        public Task<Either<RfcErrorInfo, Unit>> Rollback() => GetConnection().MapAsync(conn => conn.Rollback());
 
 
         public void Dispose()
         {
-            _connection?.Rollback().ConfigureAwait(false).GetAwaiter().GetResult();
-            _connection?.Dispose();
-            _connection = null;
+            if (_connection.IsSome)
+                _connection.Map(conn => conn.Rollback().GetAwaiter().GetResult());
+
+            _connection.IfSome(conn => conn.Dispose());
+            _connection = Prelude.None;
         }
     }
 }

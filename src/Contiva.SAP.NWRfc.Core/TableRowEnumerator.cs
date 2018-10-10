@@ -4,7 +4,7 @@ using LanguageExt;
 
 namespace Contiva.SAP.NWRfc
 {
-    public class TableRowEnumerator : IEnumerator<Structure>
+    internal class TableRowEnumerator : IEnumerator<Structure>
     {
         private Option<ITableHandle> _handle;
         private readonly IRfcRuntime _rfcRuntime;

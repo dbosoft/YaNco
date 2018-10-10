@@ -6,8 +6,7 @@ using LanguageExt;
 
 namespace Contiva.SAP.NWRfc
 {
-
-    public class Connection : IDisposable
+    public class Connection : IConnection
     {
         private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
         private bool _disposed;
@@ -36,7 +35,7 @@ namespace Contiva.SAP.NWRfc
                                 var result =
                                     from desc in rfcRuntime.GetFunctionDescription(handle,createFunctionMessage.FunctionName)
                                     from func in rfcRuntime.CreateFunction(desc)
-                                    select new Function(func, rfcRuntime);
+                                    select new Function(func, rfcRuntime) as object;
 
                                 return (handle, result);
 
@@ -45,7 +44,7 @@ namespace Contiva.SAP.NWRfc
                             case InvokeFunctionMessage invokeFunctionMessage:
                             {
                                
-                                var result = rfcRuntime.Invoke(handle, invokeFunctionMessage.Function.Handle);
+                                var result = rfcRuntime.Invoke(handle, invokeFunctionMessage.Function.Handle).Map(u => (object) u);
                                 return (handle, result);
 
                             }
@@ -53,8 +52,8 @@ namespace Contiva.SAP.NWRfc
                             case AllowStartOfProgramsMessage allowStartOfProgramsMessage:
                             {
                                 var result = rfcRuntime.AllowStartOfPrograms(handle,
-                                    allowStartOfProgramsMessage.Callback);
-                                return (handle, result);
+                                    allowStartOfProgramsMessage.Callback).Map(u => (object)u);
+                                return (handle, result) ;
 
                             }
 
@@ -74,9 +73,9 @@ namespace Contiva.SAP.NWRfc
                 });
         }
 
-        public static Either<RfcErrorInfo,Connection> Create(IDictionary<string, string> connectionParams, IRfcRuntime runtime)
+        public static Either<RfcErrorInfo,IConnection> Create(IDictionary<string, string> connectionParams, IRfcRuntime runtime)
         {
-            return runtime.OpenConnection(connectionParams).Map(handle => new Connection(handle, runtime));
+            return runtime.OpenConnection(connectionParams).Map(handle => (IConnection) new Connection(handle, runtime));
         }
 
         public Task<Either<RfcErrorInfo, Unit>> CommitAndWait()
@@ -107,13 +106,13 @@ namespace Contiva.SAP.NWRfc
 
 
         public Task<Either<RfcErrorInfo, IFunction>> CreateFunction(string name) =>
-            _stateAgent.Tell(new CreateFunctionMessage(name)).BindAsync(r => (Either<RfcErrorInfo, IFunction>) r);
+            _stateAgent.Tell(new CreateFunctionMessage(name)).MapAsync(r => (IFunction) r);
 
         public Task<Either<RfcErrorInfo, Unit>> InvokeFunction(IFunction function) =>
-            _stateAgent.Tell(new InvokeFunctionMessage(function)).BindAsync(r => (Either<RfcErrorInfo, Unit>) r);
+            _stateAgent.Tell(new InvokeFunctionMessage(function)).MapAsync(r => Unit.Default);
 
         public Task<Either<RfcErrorInfo, Unit>> AllowStartOfPrograms(StartProgramDelegate callback) =>
-            _stateAgent.Tell(new AllowStartOfProgramsMessage(callback)).BindAsync(r => (Either<RfcErrorInfo, Unit>)r);
+            _stateAgent.Tell(new AllowStartOfProgramsMessage(callback)).MapAsync(r => Unit.Default);
 
 
         private class AgentMessage

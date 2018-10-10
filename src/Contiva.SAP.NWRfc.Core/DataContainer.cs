@@ -3,7 +3,7 @@ using LanguageExt;
 
 namespace Contiva.SAP.NWRfc
 {
-    public class DataContainer : IDataContainer
+    internal class DataContainer : IDataContainer
     {
         private readonly IDataContainerHandle _handle;
         private readonly IRfcRuntime _rfcRuntime;

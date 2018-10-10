@@ -3,7 +3,7 @@ using LanguageExt;
 
 namespace Contiva.SAP.NWRfc
 {
-    public class Function : DataContainer, IFunction
+    internal class Function : DataContainer, IFunction
     {
         public IFunctionHandle Handle { get; private set; }
         //private readonly IRfcRuntime _rfcRuntime;

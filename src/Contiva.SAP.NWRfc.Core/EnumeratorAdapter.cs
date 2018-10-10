@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Contiva.SAP.NWRfc
 {
-    public class EnumeratorAdapter<T> : IEnumerable<T>
+    internal class EnumeratorAdapter<T> : IEnumerable<T>
     {
         private readonly IEnumerator<T> _enumerator;
         public EnumeratorAdapter(IEnumerator<T> e)
