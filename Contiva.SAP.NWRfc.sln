@@ -12,6 +12,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contiva.SAP.NWRfc.Abstractions", "src\Contiva.SAP.NWRfc.Abstractions\Contiva.SAP.NWRfc.Abstractions.csproj", "{706737B6-BD69-4AEE-B7FE-DC8F9008C91A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contiva.SAP.NWRfc.Native", "src\Contiva.SAP.NWRfc.Native\Contiva.SAP.NWRfc.Native.csproj", "{C8070A27-49A2-4301-91A6-872BB4637150}"
+	ProjectSection(ProjectDependencies) = postProject
+		{387F75D1-AA3E-44EB-BB83-A29E6340BFCA} = {387F75D1-AA3E-44EB-BB83-A29E6340BFCA}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
