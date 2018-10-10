@@ -4,14 +4,15 @@
     <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
     <RootNamespace>Contiva.SAP.NWRfc</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
+    <PackageReference Include="Contiva.Functional" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Contiva.SAP.NWRfc.Primitives\Contiva.SAP.NWRfc.Primitives.csproj" />
   </ItemGroup>
 
 </Project>

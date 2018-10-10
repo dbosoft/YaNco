@@ -22,7 +22,7 @@ namespace Contiva.SAP.NWRfc
             return self.BindAsync(res => context.CommitAndWait().MapAsync(u => res));
         }
 
-        public static Task<Either<RfcErrorInfo, Function>> HandleReturn(this Task<Either<RfcErrorInfo, Function>> self)
+        public static Task<Either<RfcErrorInfo, IFunction>> HandleReturn(this Task<Either<RfcErrorInfo, IFunction>> self)
         {
             return self.BindAsync(f =>
                 from ret in f.GetStructure("RETURN")
@@ -49,7 +49,7 @@ namespace Contiva.SAP.NWRfc
         }
 
         // ReSharper disable InconsistentNaming
-        public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TRInput,TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, Function>>, Task<Either<RfcErrorInfo, TRInput>>> Input, Func<Task<Either<RfcErrorInfo, Function>>, Task<Either<RfcErrorInfo, TResult>>> Output)
+        public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TRInput,TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TResult>>> Output)
         {
             return context.CreateFunction(functionName).Use(
                 func => func
@@ -59,7 +59,7 @@ namespace Contiva.SAP.NWRfc
 
         }
 
-        public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, Function>>, Task<Either<RfcErrorInfo, TResult>>> Output)
+        public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TResult>>> Output)
         {
             return context.CreateFunction(functionName).Use(
                 func => func
@@ -67,7 +67,7 @@ namespace Contiva.SAP.NWRfc
                     .Apply(Output));
         }
 
-        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnit<TRInput>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, Function>>, Task<Either<RfcErrorInfo, TRInput>>> Input)
+        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnit<TRInput>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input)
         {
             return context.CreateFunction(functionName).Use(
                 func => func
@@ -75,7 +75,7 @@ namespace Contiva.SAP.NWRfc
                     .BindAsync(context.InvokeFunction));
         }
 
-        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnit<TRInput,TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, Function>>, Task<Either<RfcErrorInfo, TRInput>>> Input, Func<Task<Either<RfcErrorInfo, Function>>, Task<Either<RfcErrorInfo, TResult>>> Output)
+        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnit<TRInput,TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TResult>>> Output)
         {
             return context.CreateFunction(functionName).Use(
                 func => func

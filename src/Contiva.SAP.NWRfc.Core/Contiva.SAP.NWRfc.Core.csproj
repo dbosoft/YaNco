@@ -1,12 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>7.1</LangVersion>
+    <RootNamespace>Contiva.SAP.NWRfc</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Contiva.SAP.NWRfc.Native.clr\Contiva.SAP.NWRfc.Native.clr.vcxproj" />
-    <ProjectReference Include="..\Contiva.SAP.NWRfc.Primitives\Contiva.SAP.NWRfc.Primitives.csproj" />
+    <ProjectReference Include="..\Contiva.SAP.NWRfc.Abstractions\Contiva.SAP.NWRfc.Abstractions.csproj" />
+    <ProjectReference Include="..\Contiva.SAP.NWRfc.Native\Contiva.SAP.NWRfc.Native.csproj" />
   </ItemGroup>
 
 </Project>

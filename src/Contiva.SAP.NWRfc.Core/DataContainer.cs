@@ -3,7 +3,7 @@ using LanguageExt;
 
 namespace Contiva.SAP.NWRfc
 {
-    public class DataContainer
+    internal class DataContainer : IDataContainer
     {
         private readonly IDataContainerHandle _handle;
         private readonly IRfcRuntime _rfcRuntime;
@@ -36,14 +36,14 @@ namespace Contiva.SAP.NWRfc
         }
 
 
-        public Either<RfcErrorInfo, Structure> GetStructure(string name)
+        public Either<RfcErrorInfo, IStructure> GetStructure(string name)
         {
-            return _rfcRuntime.GetStructure(_handle, name).Map(handle => new Structure(handle, _rfcRuntime));
+            return _rfcRuntime.GetStructure(_handle, name).Map(handle => (IStructure) new Structure(handle, _rfcRuntime));
         }
 
-        public Either<RfcErrorInfo, Table> GetTable(string name)
+        public Either<RfcErrorInfo, ITable> GetTable(string name)
         {
-            return _rfcRuntime.GetTable(_handle, name).Map(handle => new Table(handle, _rfcRuntime));
+            return _rfcRuntime.GetTable(_handle, name).Map(handle => (ITable) new Table(handle, _rfcRuntime));
         }
     }
 }

@@ -9,18 +9,20 @@ using namespace msclr::interop;
 namespace Contiva {
 	namespace SAP {
 		namespace NWRfc {
-			ref class NativeConverter
-			{
-			private:
-				NativeConverter();
+			namespace Native {
 
-			internal:
-				static RfcErrorInfo NativeRfcErrorInfoToManaged(RFC_ERROR_INFO nativeErrorInfo);
-				static void ManagedRfcErrorInfoToNative(RfcErrorInfo errorInfo, RFC_ERROR_INFO* nativeErrorInfo);
-				static RfcParameterInfo^ NativeRfcParameterInfoToManaged(RFC_PARAMETER_DESC nativeParameterDesc);
-				static RfcFieldInfo^ NativeRfcFieldInfoToManaged(RFC_FIELD_DESC nativeFieldDesc);
-			};
+				ref class NativeConverter
+				{
+				private:
+					NativeConverter();
 
+				internal:
+					static RfcErrorInfo NativeRfcErrorInfoToManaged(RFC_ERROR_INFO nativeErrorInfo);
+					static void ManagedRfcErrorInfoToNative(RfcErrorInfo errorInfo, RFC_ERROR_INFO* nativeErrorInfo);
+					static RfcParameterInfo^ NativeRfcParameterInfoToManaged(RFC_PARAMETER_DESC nativeParameterDesc);
+					static RfcFieldInfo^ NativeRfcFieldInfoToManaged(RFC_FIELD_DESC nativeFieldDesc);
+				};
+			}
 		}
 	}
 }
