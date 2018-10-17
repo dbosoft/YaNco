@@ -199,5 +199,43 @@ namespace Contiva.SAP.NWRfc
             return ResultOrError(result, rc, errorInfo);
 
         }
+
+        public Either<RfcErrorInfo, Unit> SetInt(IDataContainerHandle containerHandle, string name, int value)
+        {
+            var rc = NativeApi.SetInt(containerHandle as Native.IDataContainerHandle, name, value, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
+        }
+
+        public Either<RfcErrorInfo, int> GetInt(IDataContainerHandle containerHandle, string name)
+        {
+            var rc = NativeApi.GetInt(containerHandle as Native.IDataContainerHandle, name, out var result, out var errorInfo);
+            return ResultOrError(result, rc, errorInfo);
+        }
+
+        public Either<RfcErrorInfo, Unit> SetLong(IDataContainerHandle containerHandle, string name, long value)
+        {
+            var rc = NativeApi.SetLong(containerHandle as Native.IDataContainerHandle, name, value, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
+        }
+
+        public Either<RfcErrorInfo, long> GetLong(IDataContainerHandle containerHandle, string name)
+        {
+            var rc = NativeApi.GetLong(containerHandle as Native.IDataContainerHandle, name, out var result, out var errorInfo);
+            return ResultOrError(result, rc, errorInfo);
+        }
+
+        public Either<RfcErrorInfo, Unit> SetBytes(IDataContainerHandle containerHandle, string name, byte[] buffer, long bufferLength)
+        {
+            var rc = NativeApi.SetBytes(containerHandle as Native.IDataContainerHandle, name, buffer, (uint) bufferLength, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
+
+        }
+
+        public Either<RfcErrorInfo, byte[]> GetBytes(IDataContainerHandle containerHandle, string name)
+        {
+
+            var rc = NativeApi.GetBytes(containerHandle as Native.IDataContainerHandle, name, out var result, out var errorInfo);
+            return ResultOrError(result, rc, errorInfo);
+        }
     }
 }

@@ -91,5 +91,10 @@ namespace Contiva.SAP.NWRfc
                 func => func.BindAsync(context.InvokeFunction));
 
         }
+
+        public static Task<Either<RfcErrorInfo, T>> GetField<T>(this Task<Either<RfcErrorInfo, IFunction>> self, string name)
+        {
+            return self.BindAsync(s => s.GetField<T>(name));
+        }
     }
 }

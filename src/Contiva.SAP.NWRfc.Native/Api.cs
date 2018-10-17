@@ -167,6 +167,75 @@ namespace Contiva.SAP.NWRfc.Native
 
         }
 
+        public static RfcRc SetInt(IDataContainerHandle containerHandle, string name, int value, out
+            RfcErrorInfo errorInfo)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public static RfcRc GetInt(IDataContainerHandle containerHandle, string name, out int value, out
+            RfcErrorInfo errorInfo)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public static RfcRc SetLong(IDataContainerHandle containerHandle, string name, long value, out
+            RfcErrorInfo errorInfo)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public static RfcRc GetLong(IDataContainerHandle containerHandle, string name, out long value, out
+            RfcErrorInfo errorInfo)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public static RfcRc SetDateString(IDataContainerHandle containerHandle, string name, string value, out
+            RfcErrorInfo errorInfo)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public static RfcRc GetDateString(IDataContainerHandle containerHandle, string name, out string value, out
+            RfcErrorInfo errorInfo)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public static RfcRc SetTimeString(IDataContainerHandle containerHandle, string name, string value, out
+            RfcErrorInfo errorInfo)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public static RfcRc GetTimeString(IDataContainerHandle containerHandle, string name, out string value, out
+            RfcErrorInfo errorInfo)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public static RfcRc SetBytes(IDataContainerHandle containerHandle, string name, byte[] buffer, uint bufferLength, out
+            RfcErrorInfo errorInfo)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public static RfcRc GetBytes(IDataContainerHandle containerHandle, string name, out byte[] buffer, out
+            RfcErrorInfo errorInfo)
+        {
+            throw new NotImplementedException();
+
+        }
 
     }
 }

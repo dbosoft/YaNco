@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Contiva.SAP.NWRfc.Abstractions\Contiva.SAP.NWRfc.Abstractions.csproj" />
-    <ProjectReference Include="..\Contiva.SAP.NWRfc.Native\Contiva.SAP.NWRfc.Native.csproj" />
   </ItemGroup>
 
 </Project>
