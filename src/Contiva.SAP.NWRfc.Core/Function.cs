@@ -14,12 +14,6 @@ namespace Contiva.SAP.NWRfc
             _rfcRuntime = rfcRuntime;
         }
 
-        public void Dispose()
-        {
-            Handle?.Dispose();
-            Handle = null;
-        }
-
         protected override Either<RfcErrorInfo, RfcFieldInfo> GetFieldInfo(string name)
         {
             return _rfcRuntime.GetFunctionDescription(Handle)
