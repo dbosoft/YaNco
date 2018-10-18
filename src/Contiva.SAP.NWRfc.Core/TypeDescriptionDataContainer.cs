@@ -15,8 +15,8 @@ namespace Contiva.SAP.NWRfc
 
         protected override Either<RfcErrorInfo, RfcFieldInfo> GetFieldInfo(string name)
         {
-            return _rfcRuntime.GetTypeDescription(_handle)
-                .Bind(handle => _rfcRuntime.GetTypeFieldDescription(handle, name));
+            return _rfcRuntime.GetTypeDescription(_handle).Use(used => used
+                .Bind(handle => _rfcRuntime.GetTypeFieldDescription(handle, name)));
 
         }
     }

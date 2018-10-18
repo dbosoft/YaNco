@@ -1,6 +1,8 @@
-﻿namespace Contiva.SAP.NWRfc
+﻿using System;
+
+namespace Contiva.SAP.NWRfc
 {
-    public interface IDataContainerHandle
+    public interface IDataContainerHandle: IDisposable
     {
     }
 }

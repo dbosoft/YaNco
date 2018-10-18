@@ -32,10 +32,8 @@ namespace Contiva.SAP.NWRfc
                         {
                             case CreateFunctionMessage createFunctionMessage:
                             {
-                                var result =
-                                    from desc in rfcRuntime.GetFunctionDescription(handle,createFunctionMessage.FunctionName)
-                                    from func in rfcRuntime.CreateFunction(desc)
-                                    select new Function(func, rfcRuntime) as object;
+                                var result = rfcRuntime.GetFunctionDescription(handle, createFunctionMessage.FunctionName).Use(
+                                    used => used.Bind(rfcRuntime.CreateFunction)).Map(f => (object) new Function(f,rfcRuntime));
 
                                 return (handle, result);
 

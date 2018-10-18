@@ -23,7 +23,7 @@ namespace Contiva.SAP.NWRfc
         public static Task<Either<RfcErrorInfo, TDataContainer>> SetStructure<TDataContainer>(this Task<Either<RfcErrorInfo, TDataContainer>> self, string structureName, Func<Either<RfcErrorInfo, IStructure>, Either<RfcErrorInfo, IStructure>> map)
             where TDataContainer : IDataContainer
         {
-            return self.BindAsync(dc => dc.GetStructure(structureName).Apply(map).Map(u => dc));
+            return self.BindAsync(dc => dc.GetStructure(structureName).Use(used => used.Apply(map).Map(u => dc)));
         }
 
         public static Task<Either<RfcErrorInfo, TDataContainer>> SetTable<TDataContainer, TInput>(
@@ -36,11 +36,11 @@ namespace Contiva.SAP.NWRfc
         public static Task<Either<RfcErrorInfo, TDataContainer>> SetTable<TDataContainer, TInput>(this Task<Either<RfcErrorInfo, TDataContainer>> self, string tableName, Func<IEnumerable<TInput>> inputListFunc, Func<Either<RfcErrorInfo, IStructure>, TInput, Either<RfcErrorInfo, IStructure>> map)
             where TDataContainer : IDataContainer
         {
-            return self.BindAsync(dc => dc.GetTable(tableName).Map(table => (dc, table, inputListFunc))
+            return self.BindAsync(dc => dc.GetTable(tableName).Use(used=> used.Map(table => (dc, table, inputListFunc))
 
                     .Bind(t => t.inputListFunc().Map(
                         input => t.table.AppendRow().Apply(row=>map(row,input))
-                    ).Traverse(l => l).Map(_ => dc)));
+                    ).Traverse(l => l).Map(_ => dc))));
 
         }
     }
