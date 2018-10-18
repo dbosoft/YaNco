@@ -186,7 +186,19 @@ namespace Contiva.SAP.NWRfc
         }
 
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _handle?.Dispose();
+            }
+        }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 
 }
