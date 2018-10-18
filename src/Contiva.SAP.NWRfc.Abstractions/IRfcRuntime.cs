@@ -29,5 +29,20 @@ namespace Contiva.SAP.NWRfc
         Either<RfcErrorInfo, IConnectionHandle> OpenConnection(IDictionary<string, string> connectionParams);
         Either<RfcErrorInfo, Unit> SetString(IDataContainerHandle containerHandle, string name, string value);
         Either<RfcErrorInfo, string> GetString(IDataContainerHandle containerHandle, string name);
+
+        Either<RfcErrorInfo, Unit> SetInt(IDataContainerHandle containerHandle, string name, int value);
+        Either<RfcErrorInfo, int> GetInt(IDataContainerHandle containerHandle, string name);
+
+        Either<RfcErrorInfo, Unit> SetLong(IDataContainerHandle containerHandle, string name, long value);
+        Either<RfcErrorInfo, long> GetLong(IDataContainerHandle containerHandle, string name);
+        Either<RfcErrorInfo, Unit> SetBytes(IDataContainerHandle containerHandle, string name, byte[] buffer, long bufferLength);
+        Either<RfcErrorInfo, byte[]> GetBytes(IDataContainerHandle containerHandle, string name);
+
+        Either<RfcErrorInfo, Unit> SetDateString(IDataContainerHandle containerHandle, string name, string value);
+        Either<RfcErrorInfo, string> GetDateString(IDataContainerHandle containerHandle, string name);
+
+        Either<RfcErrorInfo, Unit> SetTimeString(IDataContainerHandle containerHandle, string name, string value);
+        Either<RfcErrorInfo, string> GetTimeString(IDataContainerHandle containerHandle, string name);
+
     }
 }

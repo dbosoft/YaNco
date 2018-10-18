@@ -10,15 +10,16 @@ namespace Contiva.SAP.NWRfc
         public static Either<RfcErrorInfo, TDataContainer> SetField<TDataContainer, T>(this Either<RfcErrorInfo, TDataContainer> self, string name, T value)
             where TDataContainer : IDataContainer
         {
-            return self.Bind(s => s.SetField(name, value?.ToString()).Map(u=> s));
+            return self.Bind(s => s.SetField(name, value).Map(u=> s));
         }
 
         public static Task<Either<RfcErrorInfo, TDataContainer>> SetField<TDataContainer, T>(this Task<Either<RfcErrorInfo, TDataContainer>> self, string name, T value)
             where TDataContainer : IDataContainer
         {
-            return self.BindAsync(s => s.SetField(name, value?.ToString()).Map(u => s));
+            return self.BindAsync(s => s.SetField(name, value).Map(u => s));
         }
 
+        
         public static Task<Either<RfcErrorInfo, TDataContainer>> SetStructure<TDataContainer>(this Task<Either<RfcErrorInfo, TDataContainer>> self, string structureName, Func<Either<RfcErrorInfo, IStructure>, Either<RfcErrorInfo, IStructure>> map)
             where TDataContainer : IDataContainer
         {
