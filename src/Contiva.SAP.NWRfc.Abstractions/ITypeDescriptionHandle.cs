@@ -1,6 +1,8 @@
-﻿namespace Contiva.SAP.NWRfc
+﻿using System;
+
+namespace Contiva.SAP.NWRfc
 {
-    public interface ITypeDescriptionHandle
+    public interface ITypeDescriptionHandle : IDisposable
     {
 
     }

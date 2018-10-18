@@ -2,7 +2,7 @@
 
 namespace Contiva.SAP.NWRfc
 {
-    public interface ITableHandle: IDataContainerHandle, IDisposable
+    public interface ITableHandle: IDataContainerHandle
     {
 
     }
