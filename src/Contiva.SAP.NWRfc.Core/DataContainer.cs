@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using LanguageExt;
 
 namespace Contiva.SAP.NWRfc
@@ -22,8 +23,28 @@ namespace Contiva.SAP.NWRfc
                     return _rfcRuntime.SetInt(_handle, name, intValue);
                 case long longValue:
                     return _rfcRuntime.SetLong(_handle, name, longValue);
+                case DateTime dateTime:
+                    return GetFieldInfo(name)
+                        .Bind(typeDesc =>
+                        {
+                            switch (typeDesc.Type)
+                            {
+                                case RfcType.DATE:
+                                    return SetFieldAsDate(name, dateTime);
+                                case RfcType.TIME:
+                                    return SetFieldAsTime(name, dateTime);
+                                default:
+                                    return _rfcRuntime.SetString(_handle, name,
+                                        (string)Convert.ChangeType(value, typeof(string)));
+                            }
+                        });
+
                 default:
-                    return _rfcRuntime.SetString(_handle, name, (string)Convert.ChangeType(value, typeof(string)));
+                {
+                    return _rfcRuntime.SetString(_handle, name,
+                        (string)Convert.ChangeType(value, typeof(string)));
+
+                }
             }
         }
 
@@ -48,6 +69,10 @@ namespace Contiva.SAP.NWRfc
                             return GetFieldAsInt<T>(name);
                         case RfcType.INT8:
                             return GetFieldAsLong<T>(name);
+                        case RfcType.DATE:
+                            return GetFieldAsDate<T>(name);
+                        case RfcType.TIME:
+                            return GetFieldAsTime<T>(name);
                         default:
                             return GetFieldAsString<T>(name);
                     }
@@ -67,6 +92,18 @@ namespace Contiva.SAP.NWRfc
 
                 return (T)Convert.ChangeType(value, typeof(T));
             });
+        }
+
+        private Either<RfcErrorInfo, Unit> SetFieldAsDate(string name, DateTime value)
+        {
+            var dateString = value.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            return _rfcRuntime.SetDateString(_handle, name, dateString);
+        }
+
+        private Either<RfcErrorInfo, Unit> SetFieldAsTime(string name, DateTime value)
+        {
+            var dateString = value.ToString("HHmmss", CultureInfo.InvariantCulture);
+            return _rfcRuntime.SetDateString(_handle, name, dateString);
         }
 
         private Either<RfcErrorInfo, T> GetFieldAsInt<T>(string name)
@@ -94,6 +131,34 @@ namespace Contiva.SAP.NWRfc
                 {
                     value = r != 0;
                 }
+
+                return (T)Convert.ChangeType(value, typeof(T));
+            });
+        }
+
+        private Either<RfcErrorInfo, T> GetFieldAsDate<T>(string name)
+        {
+            return _rfcRuntime.GetDateString(_handle, name).Map(r =>
+            {
+                object value;
+                if (typeof(T) == typeof(string))
+                    value = r;
+                else
+                    value = DateTime.ParseExact(r, "yyyyMMdd", CultureInfo.InvariantCulture);
+                
+                return (T)Convert.ChangeType(value, typeof(T));
+            });
+        }
+
+        private Either<RfcErrorInfo, T> GetFieldAsTime<T>(string name)
+        {
+            return _rfcRuntime.GetDateString(_handle, name).Map(r =>
+            {
+                object value;
+                if (typeof(T) == typeof(string))
+                    value = r;
+                else
+                    value = DateTime.ParseExact(r, "HHmmss", CultureInfo.InvariantCulture);
 
                 return (T)Convert.ChangeType(value, typeof(T));
             });

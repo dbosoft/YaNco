@@ -38,6 +38,11 @@ namespace Contiva.SAP.NWRfc
         Either<RfcErrorInfo, Unit> SetBytes(IDataContainerHandle containerHandle, string name, byte[] buffer, long bufferLength);
         Either<RfcErrorInfo, byte[]> GetBytes(IDataContainerHandle containerHandle, string name);
 
+        Either<RfcErrorInfo, Unit> SetDateString(IDataContainerHandle containerHandle, string name, string value);
+        Either<RfcErrorInfo, string> GetDateString(IDataContainerHandle containerHandle, string name);
+
+        Either<RfcErrorInfo, Unit> SetTimeString(IDataContainerHandle containerHandle, string name, string value);
+        Either<RfcErrorInfo, string> GetTimeString(IDataContainerHandle containerHandle, string name);
 
     }
 }

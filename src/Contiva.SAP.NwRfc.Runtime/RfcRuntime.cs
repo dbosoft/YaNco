@@ -200,6 +200,36 @@ namespace Contiva.SAP.NWRfc
 
         }
 
+        public Either<RfcErrorInfo, Unit> SetDateString(IDataContainerHandle containerHandle, string name,
+            string value)
+        {
+            var rc = NativeApi.SetDateString(containerHandle as Native.IDataContainerHandle, name, value, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
+
+        }
+
+        public Either<RfcErrorInfo, string> GetDateString(IDataContainerHandle containerHandle, string name)
+        {
+            var rc = NativeApi.GetDateString(containerHandle as Native.IDataContainerHandle, name, out var result, out var errorInfo);
+            return ResultOrError(result, rc, errorInfo);
+
+        }
+
+        public Either<RfcErrorInfo, Unit> SetTimeString(IDataContainerHandle containerHandle, string name,
+            string value)
+        {
+            var rc = NativeApi.SetTimeString(containerHandle as Native.IDataContainerHandle, name, value, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
+
+        }
+
+        public Either<RfcErrorInfo, string> GetTimeString(IDataContainerHandle containerHandle, string name)
+        {
+            var rc = NativeApi.GetTimeString(containerHandle as Native.IDataContainerHandle, name, out var result, out var errorInfo);
+            return ResultOrError(result, rc, errorInfo);
+
+        }
+
         public Either<RfcErrorInfo, Unit> SetInt(IDataContainerHandle containerHandle, string name, int value)
         {
             var rc = NativeApi.SetInt(containerHandle as Native.IDataContainerHandle, name, value, out var errorInfo);
