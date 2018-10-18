@@ -39,5 +39,11 @@
     <None Include="..\..\nwrfcsdk\x64\lib\sapnwrfc.dll" Pack="true" PackagePath="runtimes\win7-x64\native\sapnwrfc.dll" />
     <None Include="..\..\nwrfcsdk\x64\lib\sapnwrfc.pdb" Pack="true" PackagePath="runtimes\win7-x64\native\sapnwrfc.pdb" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GitVersionTask" Version="4.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>
