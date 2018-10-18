@@ -5,6 +5,8 @@
     <LangVersion>7.1</LangVersion>
     <RootNamespace>Contiva.SAP.NWRfc</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageOutputPath>..\..\build-packages</PackageOutputPath>
+
   </PropertyGroup>
 
   <ItemGroup>

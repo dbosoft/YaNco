@@ -4,6 +4,7 @@
     <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
     <RootNamespace>Contiva.SAP.NWRfc</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageOutputPath>..\..\build-packages</PackageOutputPath>
     <Version>1.1.0</Version>
   </PropertyGroup>
 

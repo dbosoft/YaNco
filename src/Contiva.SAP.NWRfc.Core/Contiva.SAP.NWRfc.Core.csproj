@@ -5,6 +5,9 @@
     <LangVersion>7.1</LangVersion>
     <RootNamespace>Contiva.SAP.NWRfc</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageOutputPath>..\..\build-packages</PackageOutputPath>
+    <PackageOutputPath>..\..\build-packages</PackageOutputPath>
+
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

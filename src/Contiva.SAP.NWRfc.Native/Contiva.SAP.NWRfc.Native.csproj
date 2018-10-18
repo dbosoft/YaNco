@@ -6,6 +6,7 @@
     <NoBuild>false</NoBuild>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.1.1</Version>
+    <PackageOutputPath>..\..\build-packages</PackageOutputPath>
 
   </PropertyGroup>
 
