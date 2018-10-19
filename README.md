@@ -23,14 +23,72 @@ You can therefore always use the newest version released on Service Marketplace 
 ## Usage examples
 
 In order to call remote enabled ABAP function module (ABAP RFM), first a connection must be opened.
+The connection settings have to be build from a string/string dictionary, for example from a ConfigurationBuilder.
+
+```csharp
+var configurationBuilder =
+    new ConfigurationBuilder();
+
+configurationBuilder.AddUserSecrets<Program>();
+var config = configurationBuilder.Build();
+
+var settings = new Dictionary<string, string>
+{
+    {"ashost", config["saprfc:ashost"]},
+    {"sysnr", config["saprfc:sysnr"]},
+    {"client", config["saprfc:client"]},
+    {"user", config["saprfc:username"]},
+    {"passwd", config["saprfc:password"]},
+    {"lang", "EN"}
+
+};
+```
+
+To open the connection create a runtime instance and a connection opening function.
+
+```csharp
+var runtime = new RfcRuntime();
+
+Task<IConnection> ConnFunc() =>
+    (from c in Connection.Create(settings, runtime)
+        select c).MatchAsync(c => c, error => { return null; });
+            using (var context = new RfcContext(ConnFunc))
+            {
+                await context.Ping();
+                [...]   
+            }
+```
 
 
-Using an open connection, we can invoke remote function calls (RFC).
+Using the create function you can now create a RfcContext to call RFC functions.
+
+```csharp
+using (var context = new RfcContext(ConnFunc))
+{
+    await context.Ping();
+
+    var resStructure = await context.CallFunction("BAPI_DOCUMENT_GETDETAIL2",
+        Input: func => func
+            .SetField("DOCUMENTTYPE", "AW")
+            .SetField("DOCUMENTNUMBER", "AW001200")
+            .SetField("DOCUMENTVERSION", "01")
+            .SetField("DOCUMENTPART", "000"),
+        Output: func=> func.BindAsync(f => f.GetStructure("DOCUMENTDATA"))
+            .BindAsync(s =>s.GetField<string>("DOCUMENTVERSION")));
+
+    resStructure.Match(r =>
+        {
+
+        },
+        l =>
+        {
+
+        });
+
+}
+  ```
+  
+  
 
 
-## Installation & Documentation
 
-For further details on connection parameters, _pyrfc_ installation and usage,
-please refer to [_pyrfc_ documentation](http://sap.github.io/PyRFC),
-complementing _SAP NW RFC Library_ [programming guide and documentation](http://service.sap.com/rfc-library)
-provided on SAP Service Marketplace.
