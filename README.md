@@ -6,9 +6,9 @@ This library provides a alternative SAP .NET Connector based on the _SAP NetWeav
 
 ## Platforms & Prerequisites
 
-The _pyrfc_ has been initially built with Python 2.6 and wheels are provided for Python 2.7 and 3.6, on 64 bit Linux and Windows platform.
-
-OS X and ARM platforms are currently not supported either, as _SAP NW RFC Library_ is not available for those platforms.
+The library requires .NET Framework 4.7.1. 
+Even if the library itself is compatible with .NET Standard 2.0, only Windows is supported as runtime environment.
+The background is that the native library is implemented with Managed C++/CLI. 
 
 On Windows platforms the Microsoft Visual C++ 2005 Service Pack 1 Redistributable Package (KB973544), or [newer](https://www.microsoft.com/en-us/download/details.aspx?id=48145), must be installed, per [SAP Note 1375494 - SAP system does not start after applying SAP kernel patch](https://launchpad.support.sap.com/#/notes/1375494).
 
