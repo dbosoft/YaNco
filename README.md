@@ -52,13 +52,7 @@ var runtime = new RfcRuntime();
 Task<IConnection> ConnFunc() =>
     (from c in Connection.Create(settings, runtime)
         select c).MatchAsync(c => c, error => { return null; });
-            using (var context = new RfcContext(ConnFunc))
-            {
-                await context.Ping();
-                [...]   
-            }
 ```
-
 
 Using the create function you can now create a RfcContext to call RFC functions.
 
