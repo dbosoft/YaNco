@@ -1,7 +1,7 @@
 # Contiva.SAP.NWRfc - .NET SAP RFC API based on SAP Netweaver RFC SDK
 ## Description
 
-This library provides a alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_,
+This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_,
 
 
 ## Platforms & Prerequisites
