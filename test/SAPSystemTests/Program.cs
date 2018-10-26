@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Contiva.SAP.NWRfc;
+using LanguageExt;
 using Microsoft.Extensions.Configuration;
 
 namespace SAPSystemTests
@@ -30,9 +31,7 @@ namespace SAPSystemTests
 
             var runtime = new RfcRuntime();
 
-            Task<IConnection> ConnFunc() =>
-                (from c in Connection.Create(settings, runtime)
-                    select c).MatchAsync(c => c, error => { return null; });
+            Task<Either<RfcErrorInfo, IConnection>> ConnFunc() => Connection.Create(settings, runtime);
 
             using (var context = new RfcContext(ConnFunc))
             {

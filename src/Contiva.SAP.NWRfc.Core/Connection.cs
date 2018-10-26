@@ -71,9 +71,9 @@ namespace Contiva.SAP.NWRfc
                 });
         }
 
-        public static Either<RfcErrorInfo,IConnection> Create(IDictionary<string, string> connectionParams, IRfcRuntime runtime)
+        public static Task<Either<RfcErrorInfo,IConnection>> Create(IDictionary<string, string> connectionParams, IRfcRuntime runtime)
         {
-            return runtime.OpenConnection(connectionParams).Map(handle => (IConnection) new Connection(handle, runtime));
+            return runtime.OpenConnection(connectionParams).Map(handle => (IConnection) new Connection(handle, runtime)).AsTask();
         }
 
         public Task<Either<RfcErrorInfo, Unit>> CommitAndWait()
