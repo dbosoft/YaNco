@@ -21,7 +21,7 @@ namespace Contiva.SAP.NWRfc
                 async () =>
                 {
                     var res = await _connectionBuilder();
-                    res.Map(connection => _connection);
+                    res.Map(connection => _connection = Prelude.Some(connection));
                     return res;
                 });
 
