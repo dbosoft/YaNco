@@ -60,9 +60,6 @@ namespace Contiva.SAP.NWRfc
 
         public void Dispose()
         {
-            if (_connection.IsSome)
-                _connection.Map(conn => conn.Rollback().GetAwaiter().GetResult());
-
             _connection.IfSome(conn => conn.Dispose());
             _connection = Prelude.None;
         }
