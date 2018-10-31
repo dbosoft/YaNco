@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 
@@ -9,22 +10,30 @@ namespace Contiva.SAP.NWRfc
     {
         private readonly Func<Task<Either<RfcErrorInfo, IConnection>>> _connectionBuilder;
         private Option<IConnection> _connection;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 
         public RfcContext(Func<Task<Either<RfcErrorInfo, IConnection>>> connectionBuilder)
         {
             _connectionBuilder = connectionBuilder;
         }
 
-        private Task<Either<RfcErrorInfo, IConnection>> GetConnection()
+        private async Task<Either<RfcErrorInfo, IConnection>> GetConnection()
         {
-            return _connection.MatchAsync(s => Prelude.Right(s),
-                async () =>
-                {
-                    var res = await _connectionBuilder();
-                    res.Map(connection => _connection = Prelude.Some(connection));
-                    return res;
-                });
-
+            await _semaphore.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                return await _connection.MatchAsync(s => Prelude.Right(s),
+                    async () =>
+                    {
+                        var res = await _connectionBuilder();
+                        res.Map(connection => _connection = Prelude.Some(connection));
+                        return res;
+                    }).ConfigureAwait(false);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
 
