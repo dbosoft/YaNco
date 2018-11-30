@@ -19,8 +19,6 @@ namespace Contiva.SAP.NWRfc
             _stateAgent = Agent.Start<IConnectionHandle, AgentMessage, Either<RfcErrorInfo, object>>(
                 connectionHandle, (handle, msg) =>
                 {
-                    Console.WriteLine($"Agent: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
-
                     if (handle == null)
                         return (null,
                             new RfcErrorInfo(RfcRc.RFC_INVALID_HANDLE, RfcErrorGroup.EXTERNAL_RUNTIME_FAILURE,
@@ -64,7 +62,7 @@ namespace Contiva.SAP.NWRfc
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex);
+                        rfcRuntime.Logger.IfSome(l => l.LogException(ex));
                     }
 
                     throw new InvalidOperationException();
@@ -75,6 +73,7 @@ namespace Contiva.SAP.NWRfc
         {
             return runtime.OpenConnection(connectionParams).Map(handle => (IConnection) new Connection(handle, runtime)).AsTask();
         }
+
 
         public Task<Either<RfcErrorInfo, Unit>> CommitAndWait()
         {

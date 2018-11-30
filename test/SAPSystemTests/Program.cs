@@ -29,7 +29,7 @@ namespace SAPSystemTests
 
             };
 
-            var runtime = new RfcRuntime();
+            var runtime = new RfcRuntime(new SimpleConsoleLogger());
 
             Task<Either<RfcErrorInfo, IConnection>> ConnFunc() => Connection.Create(settings, runtime);
 

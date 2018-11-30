@@ -1,4 +1,7 @@
 #pragma once
+#include <sstream> //for std::stringstream 
+#include <string>  //for std::string
+
 
 using namespace System;
 
@@ -48,6 +51,17 @@ namespace Contiva {
 
 				protected:
 					virtual void DestroyHandle(T handle) abstract;
+
+				public:
+					virtual String^ ToString() override
+					{
+						const void * address = static_cast<const void*>(Handle);
+						std::stringstream ss;
+						ss << address;
+						std::string name = ss.str();
+
+						return gcnew String(name.c_str());
+					}
 				};
 
 				template<typename T>

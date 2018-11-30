@@ -44,5 +44,6 @@ namespace Contiva.SAP.NWRfc
         Either<RfcErrorInfo, Unit> SetTimeString(IDataContainerHandle containerHandle, string name, string value);
         Either<RfcErrorInfo, string> GetTimeString(IDataContainerHandle containerHandle, string name);
 
+        Option<ILogger> Logger { get; }
     }
 }
