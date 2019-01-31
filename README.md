@@ -81,8 +81,15 @@ using (var context = new RfcContext(ConnFunc))
 
 }
   ```
-  
-  
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/contiva/Contiva.SAP.NWRfc/tags). 
+
+## Authors
+
+* **Frank Wagner** - *Initial work* - [fw2568](https://github.com/fw2568)
+
+See also the list of [contributors](https://github.com/contiva/Contiva.SAP.NWRfc/contributors) who participated in this project.
 
 
 
