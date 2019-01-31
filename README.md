@@ -10,7 +10,7 @@ The library requires .NET Framework 4.7.1.
 Even if the library itself is compatible with .NET Standard 2.0, only Windows is supported as runtime environment.
 
 
-On Windows platforms the Microsoft C Runtime DLLs version 12.0, or [newer](https://www.microsoft.com/en-US/download/details.aspx?id=40784), must be installed, see also [SAP Note 2573790 - Installation, Support and Availability of the SAP NetWeaver RFC Library 7.50](https://launchpad.support.sap.com/#/notes/2573790).
+The the Microsoft C Runtime DLLs version 12.0, or [newer](https://www.microsoft.com/en-US/download/details.aspx?id=40784), must be installed, see also [SAP Note 2573790 - Installation, Support and Availability of the SAP NetWeaver RFC Library 7.50](https://launchpad.support.sap.com/#/notes/2573790).
 
 To build _Contiva.SAP.NWRfc_ you need to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_.
 
