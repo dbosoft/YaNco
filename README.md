@@ -17,7 +17,7 @@ To build _Contiva.SAP.NWRfc_ you need to obtain _SAP NW RFC Library 750_ from _S
 A prerequisite to download is having a **customer or partner account** on _SAP Service Marketplace_ and if you
 are SAP employee please check [SAP Note 1037575 - Software download authorizations for SAP employees](https://launchpad.support.sap.com/#/notes/1037575).
 
-_SAP NW RFC Library_ is fully backwards compatible, supporting all NetWeaver systems, from today, down to release R/3 4.0.
+_SAP NW RFC Library_ is fully backwards compatible, supporting all NetWeaver systems, from today, down to release R/3 4.6C.
 You can therefore always use the newest version released on Service Marketplace and connect to older systems as well.
 
 ## Usage examples
