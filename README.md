@@ -9,7 +9,7 @@ This library provides an alternative SAP .NET Connector based on the _SAP NetWea
 The library requires .NET Framework 4.7.1. 
 Even if the core library itself is compatible with .NET Standard 2.0, only Windows is supported as runtime environment.
 
-The Visual Studio 2013 (VC++ 12.0) library and the Visual Studio 2017 VC runtime library have be installed, too.  
+The Visual Studio 2013 (VC++ 12.0) library and the Visual Studio 2017 VC runtime library have be installed.  
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
 
 ## Build
@@ -17,6 +17,7 @@ To build _Contiva.SAP.NWRfc_ you need to obtain _SAP NW RFC Library 750_ from _S
 
 A prerequisite to download is having a **customer or partner account** on _SAP Service Marketplace_ and if you
 are SAP employee please check [SAP Note 1037575 - Software download authorizations for SAP employees](https://launchpad.support.sap.com/#/notes/1037575).
+Download both the x64 and the x86 versions and place then in the repository folder nwrfcsdk/x64 and nwrfcsdk/x86.
 
 _SAP NW RFC Library_ is fully backwards compatible, supporting all NetWeaver systems, from today, down to release R/3 4.6C.
 You can therefore always use the newest version released on Service Marketplace and connect to older systems as well.
@@ -82,6 +83,8 @@ using (var context = new RfcContext(ConnFunc))
 
 }
   ```
+  
+  
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/contiva/Contiva.SAP.NWRfc/tags). 
