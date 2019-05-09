@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Contiva.SAP.NWRfc;
+using Dbosoft.SAP.NWRfc;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
 
