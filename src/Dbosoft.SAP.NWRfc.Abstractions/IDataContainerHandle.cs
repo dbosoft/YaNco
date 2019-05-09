@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Contiva.SAP.NWRfc
+namespace Dbosoft.SAP.NWRfc
 {
     public interface IDataContainerHandle: IDisposable
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using LanguageExt;
 
-namespace Contiva.SAP.NWRfc
+namespace Dbosoft.SAP.NWRfc
 {
     public interface IDataContainer : IDisposable
     {

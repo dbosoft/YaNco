@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using LanguageExt;
 
-namespace Contiva.SAP.NWRfc
+namespace Dbosoft.SAP.NWRfc
 {
     public interface ITable : IDataContainer
     {

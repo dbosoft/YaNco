@@ -5,13 +5,13 @@
 
 using namespace System;
 
-namespace Contiva {
+namespace Dbosoft {
 	namespace SAP {
 		namespace NWRfc {
 
 			namespace Native {
 
-				public interface class IDataContainerHandle: Contiva::SAP::NWRfc::IDataContainerHandle
+				public interface class IDataContainerHandle: Dbosoft::SAP::NWRfc::IDataContainerHandle
 				{
 					property DATA_CONTAINER_HANDLE DCHandle {
 						DATA_CONTAINER_HANDLE get();
@@ -79,7 +79,7 @@ namespace Contiva {
 
 
 
-				public ref class ConnectionHandle : HandleBase<RFC_CONNECTION_HANDLE>, Contiva::SAP::NWRfc::IConnectionHandle
+				public ref class ConnectionHandle : HandleBase<RFC_CONNECTION_HANDLE>, Dbosoft::SAP::NWRfc::IConnectionHandle
 				{
 				internal:
 					ConnectionHandle(RFC_CONNECTION_HANDLE handle) : HandleBase(handle, true) { }
@@ -88,7 +88,7 @@ namespace Contiva {
 					virtual void DestroyHandle(RFC_CONNECTION_HANDLE handle) override;
 				};
 
-				public ref class FunctionDescriptionHandle : HandleBase<RFC_FUNCTION_DESC_HANDLE>, Contiva::SAP::NWRfc::IFunctionDescriptionHandle
+				public ref class FunctionDescriptionHandle : HandleBase<RFC_FUNCTION_DESC_HANDLE>, Dbosoft::SAP::NWRfc::IFunctionDescriptionHandle
 				{
 				internal:
 					FunctionDescriptionHandle(RFC_FUNCTION_DESC_HANDLE handle, bool selfDestroy) : HandleBase(handle, selfDestroy) { }
@@ -97,7 +97,7 @@ namespace Contiva {
 					virtual void DestroyHandle(RFC_FUNCTION_DESC_HANDLE handle) override;
 				};
 
-				public ref class TypeDescriptionHandle : HandleBase<RFC_TYPE_DESC_HANDLE>, Contiva::SAP::NWRfc::ITypeDescriptionHandle
+				public ref class TypeDescriptionHandle : HandleBase<RFC_TYPE_DESC_HANDLE>, Dbosoft::SAP::NWRfc::ITypeDescriptionHandle
 				{
 				internal:
 					TypeDescriptionHandle(RFC_TYPE_DESC_HANDLE handle, bool selfDestroy) : HandleBase(handle, selfDestroy) { }
@@ -106,7 +106,7 @@ namespace Contiva {
 					virtual void DestroyHandle(RFC_TYPE_DESC_HANDLE handle) override;
 				};
 
-				public ref class FunctionHandle : DataContainerBase<RFC_FUNCTION_HANDLE>, Contiva::SAP::NWRfc::IFunctionHandle
+				public ref class FunctionHandle : DataContainerBase<RFC_FUNCTION_HANDLE>, Dbosoft::SAP::NWRfc::IFunctionHandle
 				{
 				internal:
 					FunctionHandle(RFC_FUNCTION_HANDLE handle) : DataContainerBase(handle, true) { }
@@ -115,7 +115,7 @@ namespace Contiva {
 					virtual void DestroyHandle(RFC_FUNCTION_HANDLE handle) override;
 				};
 
-				public ref class StructureHandle : DataContainerBase<RFC_STRUCTURE_HANDLE>, Contiva::SAP::NWRfc::IStructureHandle
+				public ref class StructureHandle : DataContainerBase<RFC_STRUCTURE_HANDLE>, Dbosoft::SAP::NWRfc::IStructureHandle
 				{
 				internal:
 					StructureHandle(RFC_STRUCTURE_HANDLE handle, bool selfDestroy) : DataContainerBase(handle, selfDestroy) { }
@@ -124,7 +124,7 @@ namespace Contiva {
 					virtual void DestroyHandle(RFC_STRUCTURE_HANDLE handle) override;
 				};
 
-				public ref class TableHandle : DataContainerBase<RFC_TABLE_HANDLE>, Contiva::SAP::NWRfc::ITableHandle
+				public ref class TableHandle : DataContainerBase<RFC_TABLE_HANDLE>, Dbosoft::SAP::NWRfc::ITableHandle
 				{
 				internal:
 					TableHandle(RFC_TABLE_HANDLE handle, bool selfDestroy) : DataContainerBase(handle, selfDestroy) { }

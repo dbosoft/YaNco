@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Contiva.SAP.NWRfc;
+using Dbosoft.SAP.NWRfc;
 using Newtonsoft.Json;
 
 namespace SAPSystemTests
@@ -71,8 +71,8 @@ namespace SAPSystemTests
             {
                 if(objectType.BaseType  != null 
                    && objectType.BaseType.FullName != null 
-                   && (objectType.BaseType.FullName.StartsWith("Contiva.SAP.NWRfc.Native.HandleBase") 
-                   || objectType.BaseType.FullName.StartsWith("Contiva.SAP.NWRfc.Native.DataContainerBase")))
+                   && (objectType.BaseType.FullName.StartsWith("Dbosoft.SAP.NWRfc.Native.HandleBase") 
+                   || objectType.BaseType.FullName.StartsWith("Dbosoft.SAP.NWRfc.Native.DataContainerBase")))
                     return true;
                 return false;
             }

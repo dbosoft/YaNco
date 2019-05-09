@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Contiva.SAP.NWRfc.Native
+namespace Dbosoft.SAP.NWRfc.Native
 {
     public static class Api
     {

@@ -1,4 +1,4 @@
-﻿namespace Contiva.SAP.NWRfc
+﻿namespace Dbosoft.SAP.NWRfc
 {
     internal class Structure : TypeDescriptionDataContainer, IStructure
     {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Contiva.Functional;
+using Dbosoft.Functional;
 using LanguageExt;
 
-namespace Contiva.SAP.NWRfc
+namespace Dbosoft.SAP.NWRfc
 {
     public class Connection : IConnection
     {

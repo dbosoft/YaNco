@@ -1,6 +1,6 @@
 ﻿using LanguageExt;
 
-namespace Contiva.SAP.NWRfc
+namespace Dbosoft.SAP.NWRfc
 {
     internal abstract class TypeDescriptionDataContainer : DataContainer
     {

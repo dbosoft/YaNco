@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Contiva.SAP.NWRfc.Core\Contiva.SAP.NWRfc.Core.csproj" />
-    <ProjectReference Include="..\..\src\Contiva.SAP.NwRfc.Runtime.win-x86\Contiva.SAP.NwRfc.Runtime.win-x86.csproj" />
+    <ProjectReference Include="..\..\src\Dbosoft.SAP.NWRfc.Core\Dbosoft.SAP.NWRfc.Core.csproj" />
+    <ProjectReference Include="..\..\src\Dbosoft.SAP.NwRfc.Runtime.win-x86\Dbosoft.SAP.NwRfc.Runtime.win-x86.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace Contiva.SAP.NWRfc
+﻿namespace Dbosoft.SAP.NWRfc
 {
     /// <summary>
     /// <para>Used in all functions of the NW RFC library to return detailed information about</para>

@@ -3,7 +3,7 @@
 
 #include "HandleWrappers.h"
 
-namespace Contiva {
+namespace Dbosoft {
 	namespace SAP {
 		namespace NWRfc {
 

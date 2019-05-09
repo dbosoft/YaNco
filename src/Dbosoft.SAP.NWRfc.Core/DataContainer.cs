@@ -2,7 +2,7 @@
 using System.Globalization;
 using LanguageExt;
 
-namespace Contiva.SAP.NWRfc
+namespace Dbosoft.SAP.NWRfc
 {
     internal abstract class DataContainer : IDataContainer
     {

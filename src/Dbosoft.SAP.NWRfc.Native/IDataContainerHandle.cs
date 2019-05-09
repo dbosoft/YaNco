@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Contiva.SAP.NWRfc.Native
+namespace Dbosoft.SAP.NWRfc.Native
 {
     public interface IDataContainerHandle : NWRfc.IDataContainerHandle
     {

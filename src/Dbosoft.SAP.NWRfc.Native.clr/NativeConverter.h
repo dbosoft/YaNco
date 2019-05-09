@@ -6,7 +6,7 @@ using namespace System;
 using namespace msclr::interop;
 
 
-namespace Contiva {
+namespace Dbosoft {
 	namespace SAP {
 		namespace NWRfc {
 			namespace Native {

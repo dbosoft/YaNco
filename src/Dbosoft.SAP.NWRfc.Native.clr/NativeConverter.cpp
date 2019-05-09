@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "NativeConverter.h"
 
-namespace Contiva {
+namespace Dbosoft {
 	namespace SAP {
 		namespace NWRfc {
 			namespace Native {

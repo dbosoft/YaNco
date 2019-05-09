@@ -1,4 +1,4 @@
-﻿namespace Contiva.SAP.NWRfc.Native
+﻿namespace Dbosoft.SAP.NWRfc.Native
 {
     public class TypeDescriptionHandle : ITypeDescriptionHandle
     {

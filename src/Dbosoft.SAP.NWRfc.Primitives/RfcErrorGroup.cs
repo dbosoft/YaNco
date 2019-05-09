@@ -4,7 +4,7 @@ using System.Security;
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 
-namespace Contiva.SAP.NWRfc
+namespace Dbosoft.SAP.NWRfc
 {
     /// <summary>
     /// <para>Groups several error conditions together, depending on the &quot;layer&quot; to which they belong.</para>

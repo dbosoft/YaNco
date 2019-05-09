@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using LanguageExt;
 
-namespace Contiva.SAP.NWRfc
+namespace Dbosoft.SAP.NWRfc
 {
     internal class TableRowEnumerator : IEnumerator<Structure>
     {
