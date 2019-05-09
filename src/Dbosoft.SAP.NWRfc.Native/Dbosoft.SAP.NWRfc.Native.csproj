@@ -11,15 +11,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Contiva.SAP.NWRfc.Abstractions\Contiva.SAP.NWRfc.Abstractions.csproj" />
+    <ProjectReference Include="..\Dbosoft.SAP.NWRfc.Abstractions\Dbosoft.SAP.NWRfc.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="$(OutputPath)Contiva.SAP.NWRfc.Native.dll" Pack="true" PackagePath="ref\net40\Contiva.SAP.NWRfc.Native.dll" />
+    <None Include="$(OutputPath)Dbosoft.SAP.NWRfc.Native.dll" Pack="true" PackagePath="ref\net40\Dbosoft.SAP.NWRfc.Native.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Contiva.SAP.NWRfc.Native.clr\$(Configuration)\x86\Contiva.SAP.NWRfc.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\net40\Contiva.SAP.NWRfc.Native.dll" />
-    <None Include="..\Contiva.SAP.NWRfc.Native.clr\$(Configuration)\x64\Contiva.SAP.NWRfc.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\net40\Contiva.SAP.NWRfc.Native.dll" />
+    <None Include="..\Dbosoft.SAP.NWRfc.Native.clr\$(Configuration)\x86\Dbosoft.SAP.NWRfc.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\net40\Dbosoft.SAP.NWRfc.Native.dll" />
+    <None Include="..\Dbosoft.SAP.NWRfc.Native.clr\$(Configuration)\x64\Dbosoft.SAP.NWRfc.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\net40\Dbosoft.SAP.NWRfc.Native.dll" />
   </ItemGroup>
 
   <ItemGroup>

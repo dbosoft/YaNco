@@ -1,4 +1,4 @@
-# Contiva.SAP.NWRfc - .NET SAP RFC API based on SAP Netweaver RFC SDK
+# Dbosoft.SAP.NWRfc - .NET SAP RFC API based on SAP Netweaver RFC SDK
 ## Description
 
 This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_,
@@ -13,7 +13,7 @@ The Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2017 VC
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
 
 ## Build
-To build _Contiva.SAP.NWRfc_ you need to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_.
+To build Dbosoft.SAP.NWRfc_ you need to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_.
 
 A prerequisite to download is having a **customer or partner account** on _SAP Service Marketplace_ and if you
 are SAP employee please check [SAP Note 1037575 - Software download authorizations for SAP employees](https://launchpad.support.sap.com/#/notes/1037575).
@@ -87,13 +87,13 @@ using (var context = new RfcContext(ConnFunc))
   
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/contiva/Contiva.SAP.NWRfc/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/dbosoft/Dbosoft.SAP.NWRfc/tags). 
 
 ## Authors
 
 * **Frank Wagner** - *Initial work* - [fw2568](https://github.com/fw2568)
 
-See also the list of [contributors](https://github.com/contiva/Contiva.SAP.NWRfc/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/Dbosoft/SAP.NWRfc/contributors) who participated in this project.
 
 
 ## License

@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
-    <RootNamespace>Contiva.SAP.NWRfc</RootNamespace>
+    <RootNamespace>Dbosoft.SAP.NWRfc</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
     <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Contiva.Functional" Version="1.1.0" />
+    <PackageReference Include="Dbosoft.Functional" Version="1.1.0" />
     <PackageReference Include="GitVersionTask" Version="4.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Contiva.SAP.NWRfc.Primitives\Contiva.SAP.NWRfc.Primitives.csproj" />
+    <ProjectReference Include="..\Dbosoft.SAP.NWRfc.Primitives\Dbosoft.SAP.NWRfc.Primitives.csproj" />
   </ItemGroup>
 
 </Project>

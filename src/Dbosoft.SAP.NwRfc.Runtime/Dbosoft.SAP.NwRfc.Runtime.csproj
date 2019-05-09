@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>7.1</LangVersion>
-    <RootNamespace>Contiva.SAP.NWRfc</RootNamespace>
+    <RootNamespace>Dbosoft.SAP.NWRfc</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
 
@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Contiva.SAP.NWRfc.Native\Contiva.SAP.NWRfc.Native.csproj" />
+    <ProjectReference Include="..\Dbosoft.SAP.NWRfc.Native\Dbosoft.SAP.NWRfc.Native.csproj" />
   </ItemGroup>
 
 </Project>

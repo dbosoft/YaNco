@@ -24,9 +24,9 @@
     <ProjectGuid>{387F75D1-AA3E-44EB-BB83-A29E6340BFCA}</ProjectGuid>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
-    <RootNamespace>ContivaSAPDmsConnectorFileTransferNative</RootNamespace>
+    <RootNamespace>DbosoftSAPDmsConnectorFileTransferNative</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>Contiva.SAP.NWRfc.Native.clr</ProjectName>
+    <ProjectName>Dbosoft.SAP.NWRfc.Native.clr</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -79,13 +79,13 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>..\..\nwrfcsdk\x86\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\nwrfcsdk\x86\lib;$(LibraryPath)</LibraryPath>
-    <TargetName>Contiva.SAP.NWRfc.Native</TargetName>
+    <TargetName>Dbosoft.SAP.NWRfc.Native</TargetName>
     <OutDir>$(SolutionDir)src\$(ProjectName)\$(Configuration)\x86\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>Contiva.SAP.NWRfc.Native</TargetName>
+    <TargetName>Dbosoft.SAP.NWRfc.Native</TargetName>
     <OutDir>$(SolutionDir)src\$(ProjectName)\$(Configuration)\x64\</OutDir>
     <IncludePath>..\..\nwrfcsdk\x64\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\nwrfcsdk\x64\lib;$(LibraryPath)</LibraryPath>
@@ -94,13 +94,13 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>..\..\nwrfcsdk\x86\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\nwrfcsdk\x86\lib;$(LibraryPath)</LibraryPath>
-    <TargetName>Contiva.SAP.NWRfc.Native</TargetName>
+    <TargetName>Dbosoft.SAP.NWRfc.Native</TargetName>
     <OutDir>$(SolutionDir)src\$(ProjectName)\$(Configuration)\x86\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>Contiva.SAP.NWRfc.Native</TargetName>
+    <TargetName>Dbosoft.SAP.NWRfc.Native</TargetName>
     <OutDir>$(SolutionDir)src\$(ProjectName)\$(Configuration)\x64\</OutDir>
     <IncludePath>..\..\nwrfcsdk\x64\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\nwrfcsdk\x64\lib;$(LibraryPath)</LibraryPath>
@@ -179,10 +179,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Contiva.SAP.NWRfc.Abstractions\Contiva.SAP.NWRfc.Abstractions.csproj">
+    <ProjectReference Include="..\Dbosoft.SAP.NWRfc.Abstractions\Dbosoft.SAP.NWRfc.Abstractions.csproj">
       <Project>{706737b6-bd69-4aee-b7fe-dc8f9008c91a}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Contiva.SAP.NWRfc.Primitives\Contiva.SAP.NWRfc.Primitives.csproj">
+    <ProjectReference Include="..\Dbosoft.SAP.NWRfc.Primitives\Dbosoft.SAP.NWRfc.Primitives.csproj">
       <Project>{fd098742-7f5a-4820-8022-d24617cc1380}</Project>
     </ProjectReference>
   </ItemGroup>

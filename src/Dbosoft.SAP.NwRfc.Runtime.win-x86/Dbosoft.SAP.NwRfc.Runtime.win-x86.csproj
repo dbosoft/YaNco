@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
-    <AssemblyName>Contiva.SAP.NwRfc.Runtime.win-x86</AssemblyName>
-    <RootNamespace>Contiva.SAP.NwRfc</RootNamespace>
+    <AssemblyName>Dbosoft.SAP.NwRfc.Runtime.win-x86</AssemblyName>
+    <RootNamespace>Dbosoft.SAP.NwRfc</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Contiva.SAP.NwRfc.Runtime\RfcRuntime.cs" Link="RfcRuntime.cs" />
+    <Compile Include="..\Dbosoft.SAP.NwRfc.Runtime\RfcRuntime.cs" Link="RfcRuntime.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,7 +50,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Contiva.SAP.NWRfc.Native.clr\Contiva.SAP.NWRfc.Native.clr.vcxproj" />
+    <ProjectReference Include="..\Dbosoft.SAP.NWRfc.Native.clr\Dbosoft.SAP.NWRfc.Native.clr.vcxproj" />
   </ItemGroup>
 
 </Project>
