@@ -6,6 +6,7 @@
     <RootNamespace>Dbosoft.SAP.NWRfc</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
+    <Platforms>AnyCPU;x64;x86</Platforms>
 
   </PropertyGroup>
 

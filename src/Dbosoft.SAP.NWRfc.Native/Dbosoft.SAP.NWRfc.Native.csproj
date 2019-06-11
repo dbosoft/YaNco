@@ -7,7 +7,32 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.1.1</Version>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
+    <Platforms>AnyCPU;x86;x64</Platforms>
 
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,29 +42,12 @@
   <ItemGroup>
     <None Include="$(OutputPath)Dbosoft.SAP.NWRfc.Native.dll" Pack="true" PackagePath="ref\net40\Dbosoft.SAP.NWRfc.Native.dll" />
   </ItemGroup>
-  <ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <None Include="..\Dbosoft.SAP.NWRfc.Native.clr\$(Configuration)\x86\Dbosoft.SAP.NWRfc.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\net40\Dbosoft.SAP.NWRfc.Native.dll" />
     <None Include="..\Dbosoft.SAP.NWRfc.Native.clr\$(Configuration)\x64\Dbosoft.SAP.NWRfc.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\net40\Dbosoft.SAP.NWRfc.Native.dll" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\nwrfcsdk\x86\lib\icudt50.dll" Pack="true" PackagePath="runtimes\win7-x86\native\icudt50.dll" />
-    <None Include="..\..\nwrfcsdk\x86\lib\icuin50.dll" Pack="true" PackagePath="runtimes\win7-x86\native\icuin50.dll" />
-    <None Include="..\..\nwrfcsdk\x86\lib\icuuc50.dll" Pack="true" PackagePath="runtimes\win7-x86\native\icuuc50.dll" />
-    <None Include="..\..\nwrfcsdk\x86\lib\libicudecnumber.dll" Pack="true" PackagePath="runtimes\win7-x86\native\libicudecnumber.dll" />
-    <None Include="..\..\nwrfcsdk\x86\lib\libsapucum.dll" Pack="true" PackagePath="runtimes\win7-x86\native\libsapucum.dll" />
-    <None Include="..\..\nwrfcsdk\x86\lib\sapnwrfc.dll" Pack="true" PackagePath="runtimes\win7-x86\native\sapnwrfc.dll" />
-    <None Include="..\..\nwrfcsdk\x86\lib\sapnwrfc.pdb" Pack="true" PackagePath="runtimes\win7-x86\native\sapnwrfc.pdb" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\nwrfcsdk\x64\lib\icudt50.dll" Pack="true" PackagePath="runtimes\win7-x64\native\icudt50.dll" />
-    <None Include="..\..\nwrfcsdk\x64\lib\icuin50.dll" Pack="true" PackagePath="runtimes\win7-x64\native\icuin50.dll" />
-    <None Include="..\..\nwrfcsdk\x64\lib\icuuc50.dll" Pack="true" PackagePath="runtimes\win7-x64\native\icuuc50.dll" />
-    <None Include="..\..\nwrfcsdk\x64\lib\libicudecnumber.dll" Pack="true" PackagePath="runtimes\win7-x64\native\libicudecnumber.dll" />
-    <None Include="..\..\nwrfcsdk\x64\lib\libsapucum.dll" Pack="true" PackagePath="runtimes\win7-x64\native\libsapucum.dll" />
-    <None Include="..\..\nwrfcsdk\x64\lib\sapnwrfc.dll" Pack="true" PackagePath="runtimes\win7-x64\native\sapnwrfc.dll" />
-    <None Include="..\..\nwrfcsdk\x64\lib\sapnwrfc.pdb" Pack="true" PackagePath="runtimes\win7-x64\native\sapnwrfc.pdb" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GitVersionTask" Version="4.0.0">
       <PrivateAssets>all</PrivateAssets>

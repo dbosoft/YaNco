@@ -6,9 +6,14 @@
     <UserSecretsId>D662BD92-26B8-421C-9C14-33E009457A3B</UserSecretsId>
     <LangVersion>latest</LangVersion>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
+    <Platforms>x86;x64</Platforms>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'=='x86'">
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
@@ -19,7 +24,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Dbosoft.SAP.NWRfc.Core\Dbosoft.SAP.NWRfc.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)'=='x86'">
     <ProjectReference Include="..\..\src\Dbosoft.SAP.NwRfc.Runtime.win-x86\Dbosoft.SAP.NwRfc.Runtime.win-x86.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)'=='x64'">
+    <ProjectReference Include="..\..\src\Dbosoft.SAP.NwRfc.Runtime.win-x64\Dbosoft.SAP.NwRfc.Runtime.win-x64.csproj" />
   </ItemGroup>
 
 </Project>
