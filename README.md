@@ -3,6 +3,12 @@
 
 This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_,
 
+**Features**:
+- .NET Standard / .NET Core Project Support
+- DI container friendly API
+- Functional API (using [Language.Ext](https://github.com/louthy/language-ext))
+- ABAP callbacks support (not possible with sapnco, see SAP note [2297083](https://launchpad.support.sap.com/#/notes/2297083)). 
+
 
 ## Platforms & Prerequisites
 
