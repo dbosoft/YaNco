@@ -8,6 +8,16 @@
     <Version>1.1.1</Version>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
     <Platforms>AnyCPU;x86;x64</Platforms>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/dbosoft/SAP.NwRfc</PackageProjectUrl>
+    <Copyright>Library created by dbosoft; SAP, Netweaver are trademarks of SAP SE</Copyright>
+    <Authors>dbosoft</Authors>
+    <Company>dbosoft GmbH</Company>
+    <Product>dbosoft.SAP.NWRfc</Product>
+    <RepositoryUrl>https://github.com/dbosoft/SAP.NwRfc</RepositoryUrl>
+    <Description>Dbosoft.SAP.NWRfc is a modern alternative to the SAP .NET Connector. 
+This package contains the native implementation.</Description>
 
   </PropertyGroup>
 
