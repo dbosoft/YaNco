@@ -9,12 +9,7 @@ trigger:
 pool:
   name: 'default'
 
-steps:
-- task: NuGetToolInstaller@0
-  inputs:
-    versionSpec: '4.8.2' 
-    checkLatest: true
-    
+steps:   
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
