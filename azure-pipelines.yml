@@ -14,7 +14,7 @@ steps:
 - task: CopyFiles@2
   inputs: 
     sourceFolder: \\dfs\Development\Packages\nwrfcsdk
-    targetFolder: $(Build.SourcesDirectory)
+    targetFolder: $(Build.SourcesDirectory)\nwrfcsdk
     
 - task: MSBuild@1
   inputs:
