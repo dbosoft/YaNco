@@ -24,6 +24,17 @@ This library provides an alternative SAP .NET Connector based on the SAP NetWeav
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitVersionTask" Version="4.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="UtilPack.NuGet.MSBuild" Version="2.9.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\YaNco.Core\YaNco.Core.csproj" />
     <ProjectReference Include="..\YaNco.Runtime\YaNco.Runtime.csproj" />
   </ItemGroup>
