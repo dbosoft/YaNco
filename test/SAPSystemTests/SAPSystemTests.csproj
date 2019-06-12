@@ -22,16 +22,16 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.1.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Dbosoft.SAP.NWRfc.Core\Dbosoft.SAP.NWRfc.Core.csproj" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(Platform)'=='x86'">
-    <ProjectReference Include="..\..\src\Dbosoft.SAP.NwRfc.Runtime.win-x86\Dbosoft.SAP.NwRfc.Runtime.win-x86.csproj" />
+    <ProjectReference Include="..\..\src\YaNco.Runtime.win-x86\YaNco.Runtime.win-x86.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)'=='x64'">
-    <ProjectReference Include="..\..\src\Dbosoft.SAP.NwRfc.Runtime.win-x64\Dbosoft.SAP.NwRfc.Runtime.win-x64.csproj" />
+    <ProjectReference Include="..\..\src\YaNco.Runtime.win-x64\YaNco.Runtime.win-x64.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\YaNco.Core\YaNco.Core.csproj" />
   </ItemGroup>
 
 </Project>

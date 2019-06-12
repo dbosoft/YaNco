@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Dbosoft.YaNco.Native</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <NoBuild>false</NoBuild>
@@ -10,13 +11,13 @@
     <Platforms>AnyCPU;x86;x64</Platforms>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/dbosoft/SAP.NwRfc</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/dbosoft/YaNco</PackageProjectUrl>
     <Copyright>Library created by dbosoft; SAP, Netweaver are trademarks of SAP SE</Copyright>
     <Authors>dbosoft</Authors>
     <Company>dbosoft GmbH</Company>
-    <Product>dbosoft.SAP.NWRfc</Product>
-    <RepositoryUrl>https://github.com/dbosoft/SAP.NwRfc</RepositoryUrl>
-    <Description>Dbosoft.SAP.NWRfc is a modern alternative to the SAP .NET Connector. 
+    <Product>YaNco</Product>
+    <RepositoryUrl>https://github.com/dbosoft/YaNco</RepositoryUrl>
+    <Description>YaNco is a modern alternative to the SAP .NET Connector. 
 This package contains the native implementation.</Description>
 
   </PropertyGroup>
@@ -46,16 +47,16 @@ This package contains the native implementation.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dbosoft.SAP.NWRfc.Abstractions\Dbosoft.SAP.NWRfc.Abstractions.csproj" />
+    <ProjectReference Include="..\YaNco.Abstractions\YaNco.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="$(OutputPath)Dbosoft.SAP.NWRfc.Native.dll" Pack="true" PackagePath="ref\net40\Dbosoft.SAP.NWRfc.Native.dll" />
+    <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\net40\Dbosoft.YaNco.Native.dll" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <None Include="..\Dbosoft.SAP.NWRfc.Native.clr\$(Configuration)\x86\Dbosoft.SAP.NWRfc.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\net40\Dbosoft.SAP.NWRfc.Native.dll" />
-    <None Include="..\Dbosoft.SAP.NWRfc.Native.clr\$(Configuration)\x64\Dbosoft.SAP.NWRfc.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\net40\Dbosoft.SAP.NWRfc.Native.dll" />
+    <None Include="..\YaNco.Native.clr\$(Configuration)\x86\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\net40\Dbosoft.YaNco.Native.dll" />
+    <None Include="..\YaNco.Native.clr\$(Configuration)\x64\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\net40\Dbosoft.YaNco.Native.dll" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,20 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Dbosoft.YaNco.Abstractions</AssemblyName>
     <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
-    <RootNamespace>Dbosoft.SAP.NWRfc</RootNamespace>
+    <RootNamespace>DboSoft.YaNco</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/dbosoft/SAP.NwRfc</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/dbosoft/YaNco</PackageProjectUrl>
     <Copyright>Library created by dbosoft, SAP, Netweaver are trademarks of SAP SE</Copyright>
     <Authors>dbosoft</Authors>
     <Company>dbosoft GmbH</Company>
-    <Product>dbosoft.SAP.NWRfc</Product>
-    <RepositoryUrl>https://github.com/dbosoft/SAP.NwRfc</RepositoryUrl>
-    <Description>Dbosoft.SAP.NWRfc is a modern alternative to the SAP .NET Connector. 
+    <Product>YaNco</Product>
+    <RepositoryUrl>https://github.com/dbosoft/YaNco</RepositoryUrl>
+    <Description>YaNco is a modern alternative to the SAP .NET Connector. 
 This package contains abstraction definitions. 
 </Description>
   </PropertyGroup>
@@ -28,7 +29,7 @@ This package contains abstraction definitions.
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dbosoft.SAP.NWRfc.Primitives\Dbosoft.SAP.NWRfc.Primitives.csproj" />
+    <ProjectReference Include="..\YaNco.Primitives\YaNco.Primitives.csproj" />
   </ItemGroup>
 
 </Project>
