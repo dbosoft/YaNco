@@ -11,10 +11,16 @@ pool:
 
 steps:
 - script: dotnet restore
+- task: CopyFiles@2
+  inputs: 
+    sourceFolder: \\dfs\Development\Packages\nwrfcsdk
+    targetFolder: $(Build.SourcesDirectory)
+    
 - task: MSBuild@1
   inputs:
     platform: x86
     configuration: Release
+    #nuget restore fails for vc project, as workaround use deprecated method
     restoreNuGetPackages: true
    
 - task: MSBuild@1
