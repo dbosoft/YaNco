@@ -29,16 +29,19 @@ steps:
 - task: VSBuild@1
   inputs:
     platform: x86
+    clean: true
     configuration: Release
    
 - task: VSBuild@1
   inputs:
     platform: x64
+    clean: true
     configuration: Release    
     
 - task: VSBuild@1
   inputs:
     platform: AnyCPU
+    clean: true
     configuration: Release      
 
 - task: PublishBuildArtifacts@1
