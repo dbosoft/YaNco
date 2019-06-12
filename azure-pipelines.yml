@@ -30,11 +30,6 @@ steps:
   inputs:
     updateAssemblyInfo: true
     
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    projects: '**/*.Core.csproj'       
-    
 - task: VSBuild@1
   inputs:
     platform: x86
