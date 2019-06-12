@@ -17,7 +17,7 @@ steps:
     
 - task: DeleteFiles@1
   inputs:
-    contents: $(Build.SourcesDirectory)\build-packages
+    contents: $(Build.SourcesDirectory)\build-packages\*
     
 - task: CopyFiles@2
   inputs: 
