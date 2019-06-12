@@ -1,19 +1,22 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- master
+  branches:
+    include:
+      - master
+      - refs/tags/v*
 
 pool:
   name: 'default'
 
-steps:
+steps:   
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
-    projects: '**/*.csproj'   
+    projects: '**/*.csproj'  
+    
+- task: DeleteFiles@1
+  inputs:
+    sourceFolder: $(Build.SourcesDirectory)\build-packages
+    contents: '**'
     
 - task: CopyFiles@2
   inputs: 
@@ -26,24 +29,38 @@ steps:
   inputs:
     updateAssemblyInfo: true
     
+# x86 platform builds
 - task: VSBuild@1
   inputs:
     platform: x86
-    clean: true
+    msbuildArgs: -ignoreprojectextensions:csproj
     configuration: Release
    
+# x64 platform builds
 - task: VSBuild@1
   inputs:
     platform: x64
-    clean: true
-    configuration: Release    
+    msbuildArgs: -ignoreprojectextensions:csproj
+    configuration: Release 
     
+# cleanup packages created in platform builds
+- task: DeleteFiles@1
+  inputs:
+    sourceFolder: $(Build.SourcesDirectory)\build-packages
+    contents: '**'
+
+# final build
 - task: VSBuild@1
   inputs:
-    platform: AnyCPU
-    clean: true
-    configuration: Release      
+    platform: 'Any CPU'
+    configuration: Release   
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: $(Build.SourcesDirectory)\build-packages
+    targetFolder: $(Build.ArtifactStagingDirectory)
+    cleanTargetFolder: true
 
 - task: PublishBuildArtifacts@1
   inputs:
-    ArtifactName: drop
+    ArtifactName: build-packages
