@@ -26,23 +26,27 @@ steps:
   inputs:
     updateAssemblyInfo: true
     
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '**/*.Core.csproj'       
+    
 - task: VSBuild@1
   inputs:
     platform: x86
-    clean: true
+    msbuildArgs: /ignoreprojectextensions:.csproj
     configuration: Release
    
 - task: VSBuild@1
   inputs:
     platform: x64
-    clean: true
-    configuration: Release    
+    msbuildArgs: /ignoreprojectextensions:.csproj
+    configuration: Release 
     
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
   inputs:
-    platform: AnyCPU
-    clean: true
-    configuration: Release      
+    command: 'build'
+    projects: '**/*.Native.csproj'        
 
 - task: PublishBuildArtifacts@1
   inputs:
