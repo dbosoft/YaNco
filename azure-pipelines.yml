@@ -16,21 +16,22 @@ steps:
   inputs:
     command: build
     projects: '**/*.csproj'
-    arguments: '--configuration Release --platform x64 --output $(build.artifactstagingdirectory)'
+    arguments: '--configuration Release --platform win-x64 --output $(build.artifactstagingdirectory)'
 
-- task: DotNetCoreCLI@2
-  displayName: Build
+- task: MSBuild@1
   inputs:
-    command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration Release --platform x86 --output $(build.artifactstagingdirectory)'
-
-- task: DotNetCoreCLI@2
-  displayName: Build
+    platform: x86
+    configuration: Release
+    
+- task: MSBuild@1
   inputs:
-    command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration Release --platform AnyCPU --output $(build.artifactstagingdirectory)'
+    platform: x64
+    configuration: Release    
+    
+- task: MSBuild@1
+  inputs:
+    platform: AnyCPU
+    configuration: Release      
 
 - task: PublishBuildArtifacts@1
   inputs:
