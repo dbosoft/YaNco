@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
 
@@ -31,18 +26,27 @@ steps:
   inputs:
     updateAssemblyInfo: true
     
+# x86 platform builds
 - task: VSBuild@1
   inputs:
     platform: x86
     msbuildArgs: -ignoreprojectextensions:csproj
     configuration: Release
    
+# x64 platform builds
 - task: VSBuild@1
   inputs:
     platform: x64
     msbuildArgs: -ignoreprojectextensions:csproj
     configuration: Release 
     
+# cleanup packages created in platform builds
+- task: DeleteFiles@1
+  inputs:
+    sourceFolder: $(Build.SourcesDirectory)\build-packages
+    contents: '**'
+
+# final build
 - task: VSBuild@1
   inputs:
     platform: 'Any CPU'
