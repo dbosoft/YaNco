@@ -34,13 +34,13 @@ steps:
 - task: VSBuild@1
   inputs:
     platform: x86
-    msbuildArgs: /ignoreprojectextensions:.csproj
+    msbuildArgs: -ignoreprojectextensions:.csproj
     configuration: Release
    
 - task: VSBuild@1
   inputs:
     platform: x64
-    msbuildArgs: /ignoreprojectextensions:.csproj
+    msbuildArgs: -ignoreprojectextensions:.csproj
     configuration: Release 
     
 - task: DotNetCoreCLI@2
