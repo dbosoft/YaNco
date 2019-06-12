@@ -47,10 +47,10 @@ steps:
     msbuildArgs: -ignoreprojectextensions:csproj
     configuration: Release 
     
-- task: DotNetCoreCLI@2
+- task: VSBuild@1
   inputs:
-    command: 'build'
-    projects: '**/*.Native.csproj'        
+    platform: AnyCPU
+    configuration: Release   
 
 - task: CopyFiles@2
   inputs:
