@@ -13,7 +13,11 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
-    projects: '**/*.csproj'   
+    projects: '**/*.csproj'  
+    
+- task: DeleteFiles@1
+  inputs:
+    contents: $(Build.SourcesDirectory)\build-packages
     
 - task: CopyFiles@2
   inputs: 
@@ -34,13 +38,13 @@ steps:
 - task: VSBuild@1
   inputs:
     platform: x86
-    msbuildArgs: -ignoreprojectextensions:.csproj
+    msbuildArgs: -ignoreprojectextensions:csproj
     configuration: Release
    
 - task: VSBuild@1
   inputs:
     platform: x64
-    msbuildArgs: -ignoreprojectextensions:.csproj
+    msbuildArgs: -ignoreprojectextensions:csproj
     configuration: Release 
     
 - task: DotNetCoreCLI@2
@@ -48,6 +52,12 @@ steps:
     command: 'build'
     projects: '**/*.Native.csproj'        
 
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: $(Build.SourcesDirectory)\build-packages
+    targetFolder: $(Build.ArtifactStagingDirectory)
+    cleanTargetFolder: true
+
 - task: PublishBuildArtifacts@1
   inputs:
-    ArtifactName: drop
+    ArtifactName: build-packages
