@@ -1,4 +1,6 @@
-#  A modern .NET library for SAP Netweaver RFC
+# YaNco - Yet another .NET Connector
+.NET Core Connector for SAP Netweaver RFC
+
 ## Description
 
 This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_,

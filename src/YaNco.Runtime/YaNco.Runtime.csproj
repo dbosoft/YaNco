@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Dbosoft.YaNco.Runtime</AssemblyName>  
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.1</LangVersion>
+    <RootNamespace>Dbosoft.YaNco</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageOutputPath>..\..\build-packages</PackageOutputPath>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/dbosoft/YaNco</PackageProjectUrl>
+    <Copyright>Library created by dbosoft; SAP, Netweaver are trademarks of SAP SE</Copyright>
+    <Authors>dbosoft</Authors>
+    <Company>dbosoft GmbH</Company>
+    <Product>YaNco</Product>
+    <RepositoryUrl>https://github.com/dbosoft/YaNco</RepositoryUrl>
+    <Description>YaNco is a modern alternative to the SAP .NET Connector. 
+This package contains the platform runtime.</Description>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GitVersionTask" Version="4.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YaNco.Native\YaNco.Native.csproj" />
+  </ItemGroup>
+
+</Project>

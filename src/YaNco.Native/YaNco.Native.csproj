@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Dbosoft.YaNco.Native</AssemblyName>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoBuild>false</NoBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.1.1</Version>
+    <PackageOutputPath>..\..\build-packages</PackageOutputPath>
+    <Platforms>AnyCPU;x86;x64</Platforms>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/dbosoft/YaNco</PackageProjectUrl>
+    <Copyright>Library created by dbosoft; SAP, Netweaver are trademarks of SAP SE</Copyright>
+    <Authors>dbosoft</Authors>
+    <Company>dbosoft GmbH</Company>
+    <Product>YaNco</Product>
+    <RepositoryUrl>https://github.com/dbosoft/YaNco</RepositoryUrl>
+    <Description>YaNco is a modern alternative to the SAP .NET Connector. 
+This package contains the native implementation.</Description>
+    <RootNamespace>Dbosoft.YaNco.Native</RootNamespace>
+
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YaNco.Abstractions\YaNco.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\net40\Dbosoft.YaNco.Native.dll" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <None Include="..\YaNco.Native.clr\$(Configuration)\x86\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\net40\Dbosoft.YaNco.Native.dll" />
+    <None Include="..\YaNco.Native.clr\$(Configuration)\x64\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\net40\Dbosoft.YaNco.Native.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GitVersionTask" Version="4.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
