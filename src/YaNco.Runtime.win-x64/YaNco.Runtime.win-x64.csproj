@@ -67,7 +67,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YaNco.Native.clr\YaNco.Native.clr.vcxproj" >
+    <ProjectReference Include="..\YaNco.Abstractions\YaNco.Abstractions.csproj" />
+    <ProjectReference Include="..\YaNco.Native.clr\YaNco.Native.clr.vcxproj">
       <NoWarn>MSB3270</NoWarn>
     </ProjectReference>
   </ItemGroup>
