@@ -1,10 +1,9 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using System.Security;
+﻿
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     /// <summary>
     /// <para>Groups several error conditions together, depending on the &quot;layer&quot; to which they belong.</para>

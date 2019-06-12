@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using LanguageExt;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     public static class FunctionalDataContainerExtensions
     {

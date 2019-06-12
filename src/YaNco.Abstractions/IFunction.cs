@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     public interface IFunction : IDataContainer, IDisposable
     {

@@ -1,7 +1,6 @@
-﻿using System;
-using LanguageExt;
+﻿using LanguageExt;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     internal class Function : DataContainer, IFunction
     {

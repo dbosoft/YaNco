@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Dbosoft.YaNco;
 using LanguageExt;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     public interface IRfcContext : IDisposable
     {

@@ -2,9 +2,8 @@
 #include "NativeConverter.h"
 
 namespace Dbosoft {
-	namespace SAP {
-		namespace NWRfc {
-			namespace Native {
+	namespace YaNco {
+		namespace Native {
 
 				NativeConverter::NativeConverter()
 				{
@@ -80,6 +79,5 @@ namespace Dbosoft {
 
 				}
 			}
-		}
 	}
 }

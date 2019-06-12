@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     public interface IDataContainerHandle: IDisposable
     {

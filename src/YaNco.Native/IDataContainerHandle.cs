@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Dbosoft.SAP.NWRfc.Native
+﻿namespace Dbosoft.YaNco.Native
 {
-    public interface IDataContainerHandle : NWRfc.IDataContainerHandle
+    public interface IDataContainerHandle : Dbosoft.YaNco.IDataContainerHandle
     {
     }
 }

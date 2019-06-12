@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using LanguageExt;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     public interface ITable : IDataContainer
     {

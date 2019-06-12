@@ -1,4 +1,4 @@
-﻿namespace Dbosoft.SAP.NWRfc
+﻿namespace Dbosoft.YaNco
 {
     internal class Structure : TypeDescriptionDataContainer, IStructure
     {

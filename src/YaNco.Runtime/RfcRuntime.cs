@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Dbosoft.SAP.NWRfc.Native;
+using Dbosoft.YaNco.Native;
 using LanguageExt;
-using NativeApi = Dbosoft.SAP.NWRfc.Native.Api;
+using NativeApi = Dbosoft.YaNco.Native.Api;
 // ReSharper disable UnusedMember.Global
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     public class RfcRuntime : IRfcRuntime
     {

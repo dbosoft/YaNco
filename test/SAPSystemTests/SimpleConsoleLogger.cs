@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Dbosoft.SAP.NWRfc;
+using Dbosoft.YaNco;
 using Newtonsoft.Json;
 
 namespace SAPSystemTests

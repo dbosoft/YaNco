@@ -1,4 +1,4 @@
-﻿namespace Dbosoft.SAP.NWRfc
+﻿namespace Dbosoft.YaNco
 {
     /// <summary>
     /// <para>Used in all functions of the NW RFC library to return detailed information about</para>

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using LanguageExt;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     public interface IConnection : IDisposable
     {

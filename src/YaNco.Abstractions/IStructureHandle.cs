@@ -1,4 +1,4 @@
-﻿namespace Dbosoft.SAP.NWRfc
+﻿namespace Dbosoft.YaNco
 {
     public interface IStructureHandle : IDataContainerHandle
     {

@@ -1,6 +1,6 @@
 ﻿using LanguageExt;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     internal abstract class TypeDescriptionDataContainer : DataContainer
     {

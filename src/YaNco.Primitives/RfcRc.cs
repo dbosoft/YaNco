@@ -1,8 +1,9 @@
-﻿using JetBrains.Annotations;
+﻿
+
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     /// <summary>
     /// <para>RFC return codes used by all functions that do not directly return a handle.</para>

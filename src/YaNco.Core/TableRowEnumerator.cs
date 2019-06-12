@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using LanguageExt;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     internal class TableRowEnumerator : IEnumerator<Structure>
     {

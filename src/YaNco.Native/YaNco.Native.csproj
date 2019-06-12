@@ -19,6 +19,7 @@
     <RepositoryUrl>https://github.com/dbosoft/YaNco</RepositoryUrl>
     <Description>YaNco is a modern alternative to the SAP .NET Connector. 
 This package contains the native implementation.</Description>
+    <RootNamespace>Dbosoft.YaNco.Native</RootNamespace>
 
   </PropertyGroup>
 

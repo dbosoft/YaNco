@@ -1,7 +1,8 @@
 ﻿using System;
+using Dbosoft.YaNco;
 using LanguageExt;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     public interface IDataContainer : IDisposable
     {

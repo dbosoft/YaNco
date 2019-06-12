@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Dbosoft.SAP.NWRfc.Native
+﻿namespace Dbosoft.YaNco.Native
 {
     public class ConnectionHandle : IConnectionHandle
     {

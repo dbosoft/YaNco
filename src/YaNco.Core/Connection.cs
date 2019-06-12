@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Dbosoft.Functional;
 using LanguageExt;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
     public class Connection : IConnection
     {

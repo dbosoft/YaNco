@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Dbosoft.YaNco.Primitives</AssemblyName>
     <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
-    <RootNamespace>DboSoft.YaNco</RootNamespace>
+    <RootNamespace>Dbosoft.YaNco</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>

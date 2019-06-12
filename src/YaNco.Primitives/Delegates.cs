@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Dbosoft.SAP.NWRfc
+﻿namespace Dbosoft.YaNco
 {
     public delegate RfcErrorInfo StartProgramDelegate(string command);
 }

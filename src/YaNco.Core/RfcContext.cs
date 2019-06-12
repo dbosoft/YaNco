@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 
-namespace Dbosoft.SAP.NWRfc
+namespace Dbosoft.YaNco
 {
 
     public class RfcContext : IRfcContext
