@@ -49,7 +49,7 @@ steps:
     
 - task: VSBuild@1
   inputs:
-    platform: AnyCPU
+    platform: "Any CPU"
     configuration: Release   
 
 - task: CopyFiles@2
