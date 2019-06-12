@@ -3,32 +3,31 @@
 
 ## Description
 
-This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_,
+This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_.
 
 **Features**:
 - .NET Standard / .NET Core Project Support
 - DI container friendly API
-- Functional API (using [Language.Ext](https://github.com/louthy/language-ext))
+- Functional programming friendly API (using [Language.Ext](https://github.com/louthy/language-ext))
 - ABAP callbacks support (not possible with sapnco, see SAP note [2297083](https://launchpad.support.sap.com/#/notes/2297083)). 
 
 
 ## Platforms & Prerequisites
 
-The library requires .NET Framework 4.7.1. 
+The library requires .NET Framework 4.7.1 or .NET Core 2.0 or higher.
 Even if the core library itself is compatible with .NET Standard 2.0, only Windows is supported as runtime environment.
 
-The Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2017 VC runtime library have be installed.  
+The Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2017 VC runtime library have to be installed.  
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
 
-## Build
-To build YaNco you need to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_.
+To use and build YaNco you need to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_.
 
 A prerequisite to download is having a **customer or partner account** on _SAP Service Marketplace_ and if you
 are SAP employee please check [SAP Note 1037575 - Software download authorizations for SAP employees](https://launchpad.support.sap.com/#/notes/1037575).
-Download both the x64 and the x86 versions and place then in the repository folder nwrfcsdk/x64 and nwrfcsdk/x86.
 
 _SAP NW RFC Library_ is fully backwards compatible, supporting all NetWeaver systems, from today, down to release R/3 4.6C.
 You can therefore always use the newest version released on Service Marketplace and connect to older systems as well.
+
 
 ## Usage examples
 
@@ -91,8 +90,17 @@ using (var context = new RfcContext(ConnFunc))
 
 }
   ```
-  
-  
+
+## Build
+
+We use Visual Studio 2017 for building, 2019 may work but is not tested. 
+Make sure that you have installed Visual Studio with VC and Platform Build Tools.
+
+As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_. 
+Download both the x64 and the x86 versions and place then in the repository folder nwrfcsdk/x64 and nwrfcsdk/x86.
+
+
+
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/dbosoft/YaNco/tags). 
