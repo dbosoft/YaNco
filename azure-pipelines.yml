@@ -15,6 +15,7 @@ steps:
   inputs: 
     sourceFolder: \\dfs\Development\Packages\nwrfcsdk
     targetFolder: $(Build.SourcesDirectory)\nwrfcsdk
+    cleanTargetFolder: true
     
 - task: MSBuild@1
   inputs:
