@@ -11,13 +11,6 @@ pool:
 
 steps:
 - script: dotnet restore
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration Release --platform win-x64 --output $(build.artifactstagingdirectory)'
-
 - task: MSBuild@1
   inputs:
     platform: x86
