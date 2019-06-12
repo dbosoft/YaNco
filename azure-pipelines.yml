@@ -17,7 +17,8 @@ steps:
     
 - task: DeleteFiles@1
   inputs:
-    contents: $(Build.SourcesDirectory)\build-packages\*
+    sourceFolder: $(Build.SourcesDirectory)\build-packages
+    contents: '**'
     
 - task: CopyFiles@2
   inputs: 
@@ -44,7 +45,7 @@ steps:
     
 - task: VSBuild@1
   inputs:
-    platform: "Any CPU"
+    platform: 'Any CPU'
     configuration: Release   
 
 - task: CopyFiles@2
