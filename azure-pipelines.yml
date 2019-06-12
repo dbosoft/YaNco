@@ -10,19 +10,26 @@ pool:
   name: 'default'
 
 steps:
-- script: dotnet restore
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'   
+    
 - task: CopyFiles@2
   inputs: 
     sourceFolder: \\dfs\Development\Packages\nwrfcsdk
     targetFolder: $(Build.SourcesDirectory)\nwrfcsdk
     cleanTargetFolder: true
     
+- task: GitVersion@4
+  displayName: 'GitVersion'
+  inputs:
+    updateAssemblyInfo: true
+    
 - task: MSBuild@1
   inputs:
     platform: x86
     configuration: Release
-    #nuget restore fails for vc project, as workaround use deprecated method
-    restoreNuGetPackages: true
    
 - task: MSBuild@1
   inputs:
