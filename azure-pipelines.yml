@@ -26,17 +26,17 @@ steps:
   inputs:
     updateAssemblyInfo: true
     
-- task: MSBuild@1
+- task: VSBuild@1
   inputs:
     platform: x86
     configuration: Release
    
-- task: MSBuild@1
+- task: VSBuild@1
   inputs:
     platform: x64
     configuration: Release    
     
-- task: MSBuild@1
+- task: VSBuild@1
   inputs:
     platform: AnyCPU
     configuration: Release      
