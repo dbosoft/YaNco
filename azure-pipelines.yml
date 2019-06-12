@@ -15,6 +15,7 @@ steps:
   inputs:
     platform: x86
     configuration: Release
+    restoreNuGetPackages: true
    
 - task: MSBuild@1
   inputs:
