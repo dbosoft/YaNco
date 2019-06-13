@@ -1,6 +1,10 @@
 # YaNco - Yet another .NET Connector
 .NET Core Connector for SAP Netweaver RFC
 
+Stable                     |  Prerelease               |  Build Status
+---------------------------|---------------------------|---------------------------
+[![NuGet stable](https://img.shields.io/nuget/v/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco) | [![NuGet pre](https://img.shields.io/nuget/vpre/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco) | ![](https://contiva.visualstudio.com/Internal/_apis/build/status/dbosoft.YaNco?branchName=master)
+
 ## Description
 
 This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_.
@@ -14,12 +18,18 @@ This library provides an alternative SAP .NET Connector based on the _SAP NetWea
 
 ## Platforms & Prerequisites
 
+**.NET**
+
 The library requires .NET Framework 4.7.1 or higher.
 Even if the core library itself is compatible with .NET Standard 2.0, only Windows is supported as runtime environment. 
 .NET Core will not work currently as it doesn' t support VC++ mixed mode (this may change for .NET Core 3.0).
 
+**C++ Runtime**
+
 The Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2017 VC runtime library have to be installed.  
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
+
+**SAP Netweaver RFC SDK**
 
 To use and build YaNco you need to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_.
 
@@ -29,8 +39,13 @@ are SAP employee please check [SAP Note 1037575 - Software download authorizatio
 _SAP NW RFC Library_ is fully backwards compatible, supporting all NetWeaver systems, from today, down to release R/3 4.6C.
 You can therefore always use the newest version released on Service Marketplace and connect to older systems as well.
 
+## Getting started
 
-## Usage examples
+The easiest way to get started is by installing [the available NuGet package](https://www.nuget.org/packages/Dbosoft.YaNco). Take a look at the [Using](#using) section learning how to configure and use YaNco. Go to the [Build](#build) section to find out how to build YaNco. 
+
+As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_. Download the RFC SDK for the platform required for your project. Change your project platform configuration to the corresponding platform. 
+
+## Using
 
 In order to call remote enabled ABAP function module (ABAP RFM), first a connection must be opened.
 The connection settings have to be build from a string/string dictionary, for example from a ConfigurationBuilder.
@@ -64,33 +79,108 @@ Task<IConnection> ConnFunc() =>
         select c).MatchAsync(c => c, error => { return null; });
 ```
 
-Using the create function you can now create a RfcContext to call RFC functions.
+The RfcRuntime is a low level API that you will typical never use directly. Instead you can use the connection function to open a RFCContext. 
 
 ```csharp
 using (var context = new RfcContext(ConnFunc))
 {
-    await context.Ping();
-
-    var resStructure = await context.CallFunction("BAPI_DOCUMENT_GETDETAIL2",
-        Input: func => func
-            .SetField("DOCUMENTTYPE", "DRW")
-            .SetField("DOCUMENTNUMBER", "66282682552")
-            .SetField("DOCUMENTVERSION", "01")
-            .SetField("DOCUMENTPART", "000"),
-        Output: func=> func.BindAsync(f => f.GetStructure("DOCUMENTDATA"))
-            .BindAsync(s =>s.GetField<string>("DOCUMENTVERSION")));
-
-    resStructure.Match(r =>
-        {
-
-        },
-        l =>
-        {
-
-        });
+   ...
 
 }
   ```
+
+Use the RFCContext instance to call ABAP RFMs. 
+
+**calling functions**
+
+We provide a extension method on the RFCContext that supports a syntax similar to the ABAP call function command, except that it is using function callbacks to pass or retrieve data: 
+
+- *IMPORTING* parameters are passed in the *Input* function
+- *EXPORTING* parameters are retured in the *Output* function
+- *CHANGING* and *TABLES* parameters can be used in both functions 
+
+```csharp
+using (var context = new RfcContext(ConnFunc))
+{
+    await context.CallFunction("DDIF_FIELDLABEL_GET",
+            Input: f => f
+                .SetField("TABNAME", "USR01")
+                .SetField("FIELDNAME", "BNAME"),
+            Output: f => f
+                .GetField<string>("LABEL"))
+    
+    .ToAsync().Match(r => Console.WriteLine($"Result: {r}"), // should return: User Name
+                      l => Console.WriteLine($"Error: {l.Message}"));
+}
+  ```
+The Result of the function is a Either<L,R> type (see language.ext [Either left right monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Either_L_R.htm)). The Match call at the end either writes the result (right value) or a rfc error (left value). 
+
+**Structures**
+
+Structures can be set or retrieved the same way. Another example extracting company code details (change the company code if necessary if you try this example):
+
+```csharp
+using (var context = new RfcContext(ConnFunc))
+{
+    await context.CallFunction("BAPI_COMPANYCODE_GETDETAIL",
+            Input: f => f
+                .SetField("COMPANYCODEID", "1000"),
+            Output: func => func.BindAsync(f=>f.GetStructure("COMPANYCODE_DETAIL"))
+                        .BindAsync(s => s.GetField<string>("COMP_NAME")
+                 )
+                )
+        .ToAsync().Match(r => Console.WriteLine($"Result: {r}"),
+            l => Console.WriteLine($"Error: {l.Message}"));
+}
+  ```
+
+This looks a bit complicated due to the nested BindAsync calls. Alternatively, you can also use a LINQ syntax:
+
+```csharp
+using (var context = new RfcContext(ConnFunc))
+{
+    await context.CallFunction("BAPI_COMPANYCODE_GETDETAIL",
+        Input: f => f
+            .SetField("COMPANYCODEID", "1000"),
+        Output: func => func.BindAsync(f => 
+            from s in f.GetStructure("COMPANYCODE_DETAIL")
+            from name in s.GetField<string>("COMP_NAME")
+            select name))
+        .ToAsync().Match(r => Console.WriteLine($"Result: {r}"),
+            l => Console.WriteLine($"Error: {l.Message}"));
+}
+  ```
+Especially for complex structures, the LINQ syntax is often easier to read.
+
+**Tables**
+
+Getting table results is possible by iterating over the table rows to retrieve the table structures. Here an example to extract all company code name and descriptions:
+
+```csharp
+using (var context = new RfcContext(ConnFunc))
+{
+    await context.CallFunction("BAPI_COMPANYCODE_GETLIST",
+        Output: func => func.BindAsync(f =>
+            from companyTable in f.GetTable("COMPANYCODE_LIST")
+
+            from row in companyTable.Rows.Map(s =>
+              from code in s.GetField<string>("COMP_CODE")
+              from name in s.GetField<string>("COMP_NAME")
+              select (code, name)).Traverse(l => l)
+
+        select row))
+    .ToAsync().Match(
+        r =>
+            {
+                foreach (var (code, name) in r)
+                {
+                    Console.WriteLine($"{code}\t{name}");
+                }
+            },
+        l=> Console.WriteLine($"Error: {l.Message}"));
+}
+  ```
+
 
 ## Build
 
