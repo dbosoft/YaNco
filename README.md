@@ -18,12 +18,18 @@ This library provides an alternative SAP .NET Connector based on the _SAP NetWea
 
 ## Platforms & Prerequisites
 
+**.NET**
+
 The library requires .NET Framework 4.7.1 or higher.
 Even if the core library itself is compatible with .NET Standard 2.0, only Windows is supported as runtime environment. 
 .NET Core will not work currently as it doesn' t support VC++ mixed mode (this may change for .NET Core 3.0).
 
+**C++ Runtime**
+
 The Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2017 VC runtime library have to be installed.  
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
+
+**SAP Netweaver RFC SDK**
 
 To use and build YaNco you need to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_.
 
