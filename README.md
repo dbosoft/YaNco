@@ -14,8 +14,9 @@ This library provides an alternative SAP .NET Connector based on the _SAP NetWea
 
 ## Platforms & Prerequisites
 
-The library requires .NET Framework 4.7.1 or .NET Core 2.0 or higher.
-Even if the core library itself is compatible with .NET Standard 2.0, only Windows is supported as runtime environment.
+The library requires .NET Framework 4.7.1 or higher.
+Even if the core library itself is compatible with .NET Standard 2.0, only Windows is supported as runtime environment. 
+.NET Core will not work currently as it doesn' t support VC++ mixed mode (this may change for .NET Core 3.0).
 
 The Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2017 VC runtime library have to be installed.  
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
