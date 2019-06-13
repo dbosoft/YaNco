@@ -1,6 +1,10 @@
 # YaNco - Yet another .NET Connector
 .NET Core Connector for SAP Netweaver RFC
 
+Stable                     |  Prerelease               |  Build Status
+---------------------------|---------------------------|---------------------------
+[![NuGet stable](https://img.shields.io/nuget/v/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco) | [![NuGet pre](https://img.shields.io/nuget/vpre/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco) | ![](https://contiva.visualstudio.com/Internal/_apis/build/status/dbosoft.YaNco?branchName=master)
+
 ## Description
 
 This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_.
