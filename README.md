@@ -79,30 +79,28 @@ Task<IConnection> ConnFunc() =>
         select c).MatchAsync(c => c, error => { return null; });
 ```
 
-Using the create function you can now create a RfcContext to call RFC functions.
+The RfcRuntime is a low level API that you will typical never use directly. Instead you can use the connection function to open a RFCContext. 
 
 ```csharp
 using (var context = new RfcContext(ConnFunc))
 {
-    await context.Ping();
+   ...
 
-    var resStructure = await context.CallFunction("BAPI_DOCUMENT_GETDETAIL2",
-        Input: func => func
-            .SetField("DOCUMENTTYPE", "DRW")
-            .SetField("DOCUMENTNUMBER", "66282682552")
-            .SetField("DOCUMENTVERSION", "01")
-            .SetField("DOCUMENTPART", "000"),
-        Output: func=> func.BindAsync(f => f.GetStructure("DOCUMENTDATA"))
-            .BindAsync(s =>s.GetField<string>("DOCUMENTVERSION")));
+}
+  ```
 
-    resStructure.Match(r =>
-        {
+Use the RFCContext instance to call ABAP RFMs. 
 
-        },
-        l =>
-        {
+We provide a extension method on the RFCContext that supports a syntax similar to the ABAP call function command, except that it is using function callbacks to pass or retrieve data: 
 
-        });
+- *IMPORTING* parameters are passed in the *Input* function
+- *EXPORTING* parameters are retured in the *Output* function
+- *CHANGING* and *TABLES* parameters can be used in both functions 
+
+```csharp
+using (var context = new RfcContext(ConnFunc))
+{
+   ...
 
 }
   ```
