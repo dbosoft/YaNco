@@ -43,7 +43,9 @@ You can therefore always use the newest version released on Service Marketplace 
 
 The easiest way to get started is by installing [the available NuGet package](https://www.nuget.org/packages/Dbosoft.YaNco). Take a look at the [Using](#using) section learning how to configure and use YaNco. Go to the [Build](#build) section to find out how to build YaNco. 
 
-As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_. Download the RFC SDK for the platform required for your project. Change your project platform configuration to the corresponding platform. 
+As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_. Download the RFC SDK for the platform required for your project. You will only need the files from the lib directory - include them as solution item and copy the files to the build output directory.
+
+You also have to change your project platform configuration to the corresponding platform (x64/x86).
 
 ## Using
 
