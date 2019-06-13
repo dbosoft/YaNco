@@ -33,8 +33,13 @@ are SAP employee please check [SAP Note 1037575 - Software download authorizatio
 _SAP NW RFC Library_ is fully backwards compatible, supporting all NetWeaver systems, from today, down to release R/3 4.6C.
 You can therefore always use the newest version released on Service Marketplace and connect to older systems as well.
 
+## Getting started
 
-## Usage examples
+The easiest way to get started is by installing [the available NuGet package](https://www.nuget.org/packages/Dbosoft.YaNco). Take a look at the [Using](https://github.com/dbosoft/YaNco#using) section learning how to configure and use YaNco. Go to the [Build](https://github.com/dbosoft/YaNco#build) section to find out how to build YaNco. 
+
+As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_. Download the RFC SDK for the platform required for your project. Change your project platform configuration to the corresponding platform. 
+
+## Using
 
 In order to call remote enabled ABAP function module (ABAP RFM), first a connection must be opened.
 The connection settings have to be build from a string/string dictionary, for example from a ConfigurationBuilder.
