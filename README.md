@@ -91,7 +91,7 @@ using (var context = new RfcContext(ConnFunc))
 
 Use the RFCContext instance to call ABAP RFMs. 
 
-** calling functions **
+**calling functions**
 
 We provide a extension method on the RFCContext that supports a syntax similar to the ABAP call function command, except that it is using function callbacks to pass or retrieve data: 
 
@@ -115,7 +115,7 @@ using (var context = new RfcContext(ConnFunc))
   ```
 The Result of the function is a Either<L,R> type (see language.ext [Either left right monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Either_L_R.htm)). The Match call at the end either writes the result (right value) or a rfc error (left value). 
 
-** Structures **
+**Structures**
 
 Structures can be set or retrieved the same way. Another example extracting company code details (change the company code if necessary if you try this example):
 
@@ -152,7 +152,7 @@ using (var context = new RfcContext(ConnFunc))
   ```
 Especially for complex structures, the LINQ syntax is often easier to read.
 
-** Tables **
+**Tables**
 
 Getting table results is possible by iterating over the table rows to retrieve the table structures. Here an example to extract all company code name and descriptions:
 
