@@ -91,6 +91,8 @@ using (var context = new RfcContext(ConnFunc))
 
 Use the RFCContext instance to call ABAP RFMs. 
 
+** calling functions **
+
 We provide a extension method on the RFCContext that supports a syntax similar to the ABAP call function command, except that it is using function callbacks to pass or retrieve data: 
 
 - *IMPORTING* parameters are passed in the *Input* function
@@ -100,10 +102,85 @@ We provide a extension method on the RFCContext that supports a syntax similar t
 ```csharp
 using (var context = new RfcContext(ConnFunc))
 {
-   ...
-
+    await context.CallFunction("DDIF_FIELDLABEL_GET",
+            Input: f => f
+                .SetField("TABNAME", "USR01")
+                .SetField("FIELDNAME", "BNAME"),
+            Output: f => f
+                .GetField<string>("LABEL"))
+    
+    .ToAsync().Match(r => Console.WriteLine($"Result: {r}"), // should return: User Name
+                      l => Console.WriteLine($"Error: {l.Message}"));
 }
   ```
+The Result of the function is a Either<L,R> type (see language.ext [Either left right monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Either_L_R.htm)). The Match call at the end either writes the result (right value) or a rfc error (left value). 
+
+** Structures **
+
+Structures can be set or retrieved the same way. Another example extracting company code details (change the company code if necessary if you try this example):
+
+```csharp
+using (var context = new RfcContext(ConnFunc))
+{
+    await context.CallFunction("BAPI_COMPANYCODE_GETDETAIL",
+            Input: f => f
+                .SetField("COMPANYCODEID", "1000"),
+            Output: func => func.BindAsync(f=>f.GetStructure("COMPANYCODE_DETAIL"))
+                        .BindAsync(s => s.GetField<string>("COMP_NAME")
+                 )
+                )
+        .ToAsync().Match(r => Console.WriteLine($"Result: {r}"),
+            l => Console.WriteLine($"Error: {l.Message}"));
+}
+  ```
+
+This looks a bit complicated due to the nested BindAsync calls. Alternatively, you can also use a LINQ syntax:
+
+```csharp
+using (var context = new RfcContext(ConnFunc))
+{
+    await context.CallFunction("BAPI_COMPANYCODE_GETDETAIL",
+        Input: f => f
+            .SetField("COMPANYCODEID", "1000"),
+        Output: func => func.BindAsync(f => 
+            from s in f.GetStructure("COMPANYCODE_DETAIL")
+            from name in s.GetField<string>("COMP_NAME")
+            select name))
+        .ToAsync().Match(r => Console.WriteLine($"Result: {r}"),
+            l => Console.WriteLine($"Error: {l.Message}"));
+}
+  ```
+Especially for complex structures, the LINQ syntax is often easier to read.
+
+** Tables **
+
+Getting table results is possible by iterating over the table rows to retrieve the table structures. Here an example to extract all company code name and descriptions:
+
+```csharp
+using (var context = new RfcContext(ConnFunc))
+{
+    await context.CallFunction("BAPI_COMPANYCODE_GETLIST",
+        Output: func => func.BindAsync(f =>
+            from companyTable in f.GetTable("COMPANYCODE_LIST")
+
+            from row in companyTable.Rows.Map(s =>
+              from code in s.GetField<string>("COMP_CODE")
+              from name in s.GetField<string>("COMP_NAME")
+              select (code, name)).Traverse(l => l)
+
+        select row))
+    .ToAsync().Match(
+        r =>
+            {
+                foreach (var (code, name) in r)
+                {
+                    Console.WriteLine($"{code}\t{name}");
+                }
+            },
+        l=> Console.WriteLine($"Error: {l.Message}"));
+}
+  ```
+
 
 ## Build
 
