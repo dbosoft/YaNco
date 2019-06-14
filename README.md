@@ -1,5 +1,5 @@
 # YaNco - Yet another .NET Connector
-.NET Core Connector for SAP Netweaver RFC
+.NET Connector for SAP Netweaver RFC
 
 Stable                     |  Prerelease               |  Build Status
 ---------------------------|---------------------------|---------------------------
