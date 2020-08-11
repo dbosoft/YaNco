@@ -23,10 +23,9 @@ steps:
     targetFolder: $(Build.SourcesDirectory)\nwrfcsdk
     cleanTargetFolder: true
     
-- task: GitVersion@4
-  displayName: 'GitVersion'
+- task: UseGitVersion@5
   inputs:
-    updateAssemblyInfo: true
+    versionSpec: '5.x'
     
 # x86 platform builds
 - task: VSBuild@1
