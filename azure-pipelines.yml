@@ -5,7 +5,7 @@ trigger:
       - refs/tags/v*
 
 pool:
-  name: 'default'
+  vmImage: windows-latest  
 
 steps:   
 - task: DotNetCoreCLI@2
@@ -64,3 +64,11 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     ArtifactName: build-packages
+
+- task: NuGetCommand@2
+  displayName: publish to project nuget repo
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: '59a3608a-9bed-4cb4-9467-6efaaa3cbef5/1e425ef4-e3a0-4927-b4c0-2beff753cb88'  
