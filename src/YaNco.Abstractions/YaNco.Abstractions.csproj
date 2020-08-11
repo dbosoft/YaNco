@@ -22,7 +22,7 @@ This package contains abstraction definitions.
 
   <ItemGroup>
     <PackageReference Include="Dbosoft.Functional" Version="1.0.0" />
-    <PackageReference Include="GitVersionTask" Version="4.0.0">
+    <PackageReference Include="GitVersionTask" Version="5.3.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
