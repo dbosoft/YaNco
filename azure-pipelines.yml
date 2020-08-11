@@ -2,7 +2,6 @@ trigger:
   branches:
     include:
       - master
-      - refs/tags/v*
 
 pool:
   vmImage: windows-latest  
