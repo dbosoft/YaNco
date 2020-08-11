@@ -129,6 +129,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>Dbosoft.YaNco.Native</TargetName>
+    <IncludePath>..\..\nwrfcsdk\x64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\nwrfcsdk\x64\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)src\$(ProjectName)\$(Configuration)\x64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

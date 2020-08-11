@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>D662BD92-26B8-421C-9C14-33E009457A3B</UserSecretsId>
     <LangVersion>latest</LangVersion>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
@@ -21,15 +21,13 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.1.1" />
   </ItemGroup>
-
   <ItemGroup Condition="'$(Platform)'=='x86'">
-    <ProjectReference Include="..\..\src\YaNco.Runtime.win-x86\YaNco.Runtime.win-x86.csproj" />
+    <ProjectReference Include="..\..\src\YaNco.Runtime.win-x86-core\YaNco.Runtime.win-x86-core.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)'=='x64'">
-    <ProjectReference Include="..\..\src\YaNco.Runtime.win-x64\YaNco.Runtime.win-x64.csproj" />
+    <ProjectReference Include="..\..\src\YaNco.Runtime.win-x64-core\YaNco.Runtime.win-x64-core.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\YaNco.Core\YaNco.Core.csproj" />
   </ItemGroup>
