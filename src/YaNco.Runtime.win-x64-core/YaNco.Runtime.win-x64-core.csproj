@@ -60,7 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="D:\Source\Repos\dbosoft\YaNco\src\YaNco.Native.clrcore\YaNco.Native.clrcore.vcxproj" />
+    <ProjectReference Include="..\YaNco.Native.clrcore\YaNco.Native.clrcore.vcxproj" />
   </ItemGroup>
 
 </Project>

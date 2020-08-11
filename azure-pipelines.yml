@@ -8,16 +8,19 @@ pool:
 
 steps:   
 - task: DotNetCoreCLI@2
+  displayName: restore packages
   inputs:
     command: 'restore'
     projects: '**/*.csproj'  
     
 - task: DeleteFiles@1
+  displayName: delete old packages
   inputs:
     sourceFolder: $(Build.SourcesDirectory)\build-packages
     contents: '**'
     
 - task: CopyFiles@2
+  displayName: copy nwrfcsdk
   inputs: 
     sourceFolder: \\dfs\Development\Packages\nwrfcsdk
     targetFolder: $(Build.SourcesDirectory)\nwrfcsdk
@@ -29,6 +32,7 @@ steps:
     
 # x86 platform builds
 - task: VSBuild@1
+  displayName: x86 platform builds
   inputs:
     platform: x86
     msbuildArgs: -ignoreprojectextensions:csproj
@@ -36,6 +40,7 @@ steps:
    
 # x64 platform builds
 - task: VSBuild@1
+  displayName: x64 platform builds
   inputs:
     platform: x64
     msbuildArgs: -ignoreprojectextensions:csproj
@@ -43,17 +48,20 @@ steps:
     
 # cleanup packages created in platform builds
 - task: DeleteFiles@1
+  displayName: cleanup packages created in platform builds
   inputs:
     sourceFolder: $(Build.SourcesDirectory)\build-packages
     contents: '**'
 
 # final build
 - task: VSBuild@1
+  displayName: final build
   inputs:
     platform: 'Any CPU'
     configuration: Release   
 
 - task: CopyFiles@2
+  displayName: copy packages to staging
   inputs:
     sourceFolder: $(Build.SourcesDirectory)\build-packages
     targetFolder: $(Build.ArtifactStagingDirectory)
