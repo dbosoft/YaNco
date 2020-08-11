@@ -34,9 +34,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco", "src\YaNco\YaNco.cs
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YaNco.Native.clrcore", "src\YaNco.Native.clrcore\YaNco.Native.clrcore.vcxproj", "{F5AEFBD5-BB09-48FD-BD75-BB2AAE471A56}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco.Runtime.win-x64-core", "C:\Users\fwagner\source\Repos\dbosoft\YaNco\src\YaNco.Runtime.win-x64-core\YaNco.Runtime.win-x64-core.csproj", "{48D55893-EF2E-4571-B411-C2A6F12FB3D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco.Runtime.win-x64-core", "src\YaNco.Runtime.win-x64-core\YaNco.Runtime.win-x64-core.csproj", "{48D55893-EF2E-4571-B411-C2A6F12FB3D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco.Runtime.win-x86-core", "C:\Users\fwagner\source\Repos\dbosoft\YaNco\src\YaNco.Runtime.win-x86-core\YaNco.Runtime.win-x86-core.csproj", "{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco.Runtime.win-x86-core", "src\YaNco.Runtime.win-x86-core\YaNco.Runtime.win-x86-core.csproj", "{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -167,21 +167,17 @@ Global
 		{48D55893-EF2E-4571-B411-C2A6F12FB3D2}.Debug|x64.ActiveCfg = Debug|x64
 		{48D55893-EF2E-4571-B411-C2A6F12FB3D2}.Debug|x64.Build.0 = Debug|x64
 		{48D55893-EF2E-4571-B411-C2A6F12FB3D2}.Debug|x86.ActiveCfg = Debug|x86
-		{48D55893-EF2E-4571-B411-C2A6F12FB3D2}.Debug|x86.Build.0 = Debug|x86
 		{48D55893-EF2E-4571-B411-C2A6F12FB3D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48D55893-EF2E-4571-B411-C2A6F12FB3D2}.Release|x64.ActiveCfg = Release|x64
 		{48D55893-EF2E-4571-B411-C2A6F12FB3D2}.Release|x64.Build.0 = Release|x64
 		{48D55893-EF2E-4571-B411-C2A6F12FB3D2}.Release|x86.ActiveCfg = Release|x86
-		{48D55893-EF2E-4571-B411-C2A6F12FB3D2}.Release|x86.Build.0 = Release|x86
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Debug|x64.ActiveCfg = Debug|x64
-		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Debug|x64.Build.0 = Debug|x64
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Debug|x86.ActiveCfg = Debug|x86
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Debug|x86.Build.0 = Debug|x86
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Release|x64.ActiveCfg = Release|x64
-		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Release|x64.Build.0 = Release|x64
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Release|x86.ActiveCfg = Release|x86
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
