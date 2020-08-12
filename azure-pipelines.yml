@@ -35,7 +35,6 @@ steps:
   displayName: x86 platform builds
   inputs:
     platform: x86
-    msbuildArgs: -ignoreprojectextensions:csproj
     configuration: Release
    
 # x64 platform builds
@@ -43,7 +42,6 @@ steps:
   displayName: x64 platform builds
   inputs:
     platform: x64
-    msbuildArgs: -ignoreprojectextensions:csproj
     configuration: Release 
     
 # cleanup packages created in platform builds
