@@ -7,7 +7,7 @@
     <NoBuild>false</NoBuild>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
-    <Platforms>AnyCPU</Platforms>
+    <Platform>AnyCPU</Platform>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/dbosoft/YaNco</PackageProjectUrl>

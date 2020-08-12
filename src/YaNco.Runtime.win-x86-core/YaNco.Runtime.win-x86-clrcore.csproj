@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>Dbosoft.YaNco.Runtime.win-x64</AssemblyName>
-    <RootNamespace>Dbosoft.YaNco</RootNamespace>
-    <Platforms>x64;x86;AnyCPU</Platforms>
+    <AssemblyName>Dbosoft.YaNco.Runtime.win-x86-core</AssemblyName>
+    <RootNamespace>DboSoft.YaNco</RootNamespace>
+    <Platforms>x86;x64;AnyCPU</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -36,25 +36,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\nwrfcsdk\x64\lib\icudt50.dll" Link="icudt50.dll">
+    <None Include="..\..\nwrfcsdk\x86\lib\icudt50.dll" Link="icudt50.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\nwrfcsdk\x64\lib\icuin50.dll" Link="icuin50.dll">
+    <None Include="..\..\nwrfcsdk\x86\lib\icuin50.dll" Link="icuin50.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\nwrfcsdk\x64\lib\icuuc50.dll" Link="icuuc50.dll">
+    <None Include="..\..\nwrfcsdk\x86\lib\icuuc50.dll" Link="icuuc50.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\nwrfcsdk\x64\lib\libicudecnumber.dll" Link="libicudecnumber.dll">
+    <None Include="..\..\nwrfcsdk\x86\lib\libicudecnumber.dll" Link="libicudecnumber.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\nwrfcsdk\x64\lib\libsapucum.dll" Link="libsapucum.dll">
+    <None Include="..\..\nwrfcsdk\x86\lib\libsapucum.dll" Link="libsapucum.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\nwrfcsdk\x64\lib\sapnwrfc.dll" Link="sapnwrfc.dll">
+    <None Include="..\..\nwrfcsdk\x86\lib\sapnwrfc.dll" Link="sapnwrfc.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\nwrfcsdk\x64\lib\sapnwrfc.pdb" Link="sapnwrfc.pdb">
+    <None Include="..\..\nwrfcsdk\x86\lib\sapnwrfc.pdb" Link="sapnwrfc.pdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

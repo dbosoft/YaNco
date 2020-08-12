@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net471</TargetFramework>
     <AssemblyName>Dbosoft.YaNco.Runtime.win-x86</AssemblyName>
     <RootNamespace>DboSoft.YaNco</RootNamespace>
     <Platforms>x86;x64;AnyCPU</Platforms>
@@ -60,7 +60,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YaNco.Native.clrcore\YaNco.Native.clrcore.vcxproj" />
+    <ProjectReference Include="..\YaNco.Abstractions\YaNco.Abstractions.csproj" />
+    <ProjectReference Include="..\YaNco.Native.clr\YaNco.Native.clr.vcxproj">
+      <NoWarn>MSB3270</NoWarn>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>

@@ -22,11 +22,12 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.1.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(Platform)'=='x86'">
-    <ProjectReference Include="..\..\src\YaNco.Runtime.win-x86-core\YaNco.Runtime.win-x86-core.csproj" />
+    <ProjectReference Include="..\..\src\YaNco.Runtime.win-x86-core\YaNco.Runtime.win-x86-clrcore.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)'=='x64'">
-    <ProjectReference Include="..\..\src\YaNco.Runtime.win-x64-core\YaNco.Runtime.win-x64-core.csproj" />
+    <ProjectReference Include="..\..\src\YaNco.Runtime.win-x64-core\YaNco.Runtime.win-x64-clrcore.csproj" />
+
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\YaNco.Core\YaNco.Core.csproj" />
