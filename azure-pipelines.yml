@@ -58,7 +58,7 @@ steps:
   displayName: dotnet pack
   inputs:
     command: pack
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
   inputs:
