@@ -4,9 +4,8 @@
     <AssemblyName>Dbosoft.YaNco.Abstractions</AssemblyName>
     <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
     <RootNamespace>Dbosoft.YaNco</RootNamespace>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/dbosoft/YaNco</PackageProjectUrl>
@@ -23,10 +22,6 @@ This package contains abstraction definitions.
   <ItemGroup>
     <PackageReference Include="Dbosoft.Functional" Version="1.0.0" />
     <PackageReference Include="GitVersionTask" Version="5.3.7">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="UtilPack.NuGet.MSBuild" Version="2.9.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

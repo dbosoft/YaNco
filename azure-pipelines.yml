@@ -53,19 +53,12 @@ steps:
     sourceFolder: $(Build.SourcesDirectory)\build-packages
     contents: '**'
 
-# final build
-- task: VSBuild@1
-  displayName: final build
+# build and pack 
+- task: DotNetCoreCLI@2
+  displayName: dotnet pack
   inputs:
-    platform: 'Any CPU'
-    configuration: Release   
-
-- task: CopyFiles@2
-  displayName: copy packages to staging
-  inputs:
-    sourceFolder: $(Build.SourcesDirectory)\build-packages
-    targetFolder: $(Build.ArtifactStagingDirectory)
-    cleanTargetFolder: true
+    command: pack
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)
 
 - task: PublishBuildArtifacts@1
   inputs:
