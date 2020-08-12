@@ -36,13 +36,15 @@ steps:
   inputs:
     platform: x86
     configuration: Release
+    restoreNugetPackages: true
    
 # x64 platform builds
 - task: VSBuild@1
   displayName: x64 platform builds
   inputs:
     platform: x64
-    configuration: Release 
+    configuration: Release
+    restoreNugetPackages: true
     
 # cleanup packages created in platform builds
 - task: DeleteFiles@1
