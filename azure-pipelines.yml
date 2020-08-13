@@ -31,14 +31,14 @@ steps:
     versionSpec: '5.x'
     
 # x86 platform builds
-- task: MSBuild@1
+- task: VSBuild@1
   displayName: x86 platform builds
   inputs:
     platform: x86
     configuration: Release
    
 # x64 platform builds
-- task: MSBuild@1
+- task: VSBuild@1
   displayName: x64 platform builds
   inputs:
     platform: x64
@@ -53,15 +53,55 @@ steps:
 
 # final build
 - task: VSBuild@1
+  displayName: package build
   inputs:
     platform: 'Any CPU'
     configuration: Release   
 
+# packing
+# due to issues with GitVersion task pack one after the other...
 - task: DotNetCoreCLI@2
-  displayName: dotnet pack
+  displayName: pack YaNco.Primitives
   inputs:
-    command: pack
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) --disable-parallel'
+    command: 'pack'
+    packagesToPack: '**/YaNco.Primitives.csproj'
+    nobuild: true
+    versioningScheme: 'off'
+
+- task: DotNetCoreCLI@2
+  displayName: pack YaNco.Abstractions
+  inputs:
+    command: 'pack'
+    nobuild: true    
+    packagesToPack: '**/YaNco.Abstractions.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: pack YaNco.Native
+  inputs:
+    command: 'pack'
+    nobuild: false    
+    packagesToPack: '**/YaNco.Native.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: pack YaNco.Core
+  inputs:
+    command: 'pack'
+    nobuild: true
+    packagesToPack: '**/YaNco.Core.csproj'
+ 
+- task: DotNetCoreCLI@2
+  displayName: pack YaNco.Runtime
+  inputs:
+    command: 'pack'
+    nobuild: true
+    packagesToPack: '**/YaNco.Runtime.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: pack YaNco
+  inputs:
+    command: 'pack'
+    nobuild: true
+    packagesToPack: '**/YaNco.csproj'
 
 - task: PublishBuildArtifacts@1
   inputs:
