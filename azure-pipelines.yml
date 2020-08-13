@@ -57,11 +57,42 @@ steps:
     platform: 'Any CPU'
     configuration: Release   
 
+# packing
 - task: DotNetCoreCLI@2
   displayName: dotnet pack
   inputs:
-    command: pack
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) --disable-parallel'
+    command: 'pack'
+    packagesToPack: '**/YaNco.Primitives.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet pack
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/YaNco.Abstractions.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet pack
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/YaNco.Native.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet pack
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/YaNco.Core.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet pack
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/YaNco.Runtime.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet pack
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/YaNco.csproj'
 
 - task: PublishBuildArtifacts@1
   inputs:
