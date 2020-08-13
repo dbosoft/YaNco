@@ -31,14 +31,14 @@ steps:
     versionSpec: '5.x'
     
 # x86 platform builds
-- task: MSBuild@1
+- task: VSBuild@1
   displayName: x86 platform builds
   inputs:
     platform: x86
     configuration: Release
    
 # x64 platform builds
-- task: MSBuild@1
+- task: VSBuild@1
   displayName: x64 platform builds
   inputs:
     platform: x64
@@ -58,38 +58,39 @@ steps:
     configuration: Release   
 
 # packing
+# due to issues with GitVersion task pack one after the other...
 - task: DotNetCoreCLI@2
-  displayName: dotnet pack
+  displayName: pack YaNco.Primitives
   inputs:
     command: 'pack'
     packagesToPack: '**/YaNco.Primitives.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: dotnet pack
+  displayName: pack YaNco.Abstractions
   inputs:
     command: 'pack'
     packagesToPack: '**/YaNco.Abstractions.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: dotnet pack
+  displayName: pack YaNco.Native
   inputs:
     command: 'pack'
     packagesToPack: '**/YaNco.Native.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: dotnet pack
+  displayName: pack YaNco.Core
   inputs:
     command: 'pack'
     packagesToPack: '**/YaNco.Core.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: dotnet pack
+  displayName: pack YaNco.Runtime
   inputs:
     command: 'pack'
     packagesToPack: '**/YaNco.Runtime.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: dotnet pack
+  displayName: pack YaNco
   inputs:
     command: 'pack'
     packagesToPack: '**/YaNco.csproj'
