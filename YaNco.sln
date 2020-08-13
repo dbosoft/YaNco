@@ -38,6 +38,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco.Runtime.win-x64-clrco
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco.Runtime.win-x86-clrcore", "src\YaNco.Runtime.win-x86-core\YaNco.Runtime.win-x86-clrcore.csproj", "{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YaNco.Native.Interop", "src\YaNco.Native.Interop\YaNco.Native.Interop.csproj", "{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -180,6 +182,18 @@ Global
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Release|x64.ActiveCfg = Release|x64
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Release|x86.ActiveCfg = Release|x86
 		{DABA77E5-1F25-42DB-8AE7-AD885DD9F4B9}.Release|x86.Build.0 = Release|x86
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Debug|x64.Build.0 = Debug|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Debug|x86.Build.0 = Debug|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Release|x64.ActiveCfg = Release|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Release|x64.Build.0 = Release|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Release|x86.ActiveCfg = Release|Any CPU
+		{4E9CE6BE-A817-4FF2-8953-DD5C2E1D2531}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
