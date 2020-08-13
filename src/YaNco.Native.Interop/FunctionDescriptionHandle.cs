@@ -14,7 +14,6 @@ namespace Dbosoft.YaNco.Native
 
         public void Dispose()
         {
-            throw new System.NotImplementedException();
         }
     }
 }

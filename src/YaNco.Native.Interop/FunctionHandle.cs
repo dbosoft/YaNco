@@ -9,10 +9,14 @@ namespace Dbosoft.YaNco.Native
             Ptr = ptr;
         }
 
-        public IntPtr Ptr { get; }
+        public IntPtr Ptr { get; private set; }
 
         public void Dispose()
         {
+            if (Ptr == IntPtr.Zero) return;
+
+            Interopt.RfcDestroyFunction(Ptr, out _);
+            Ptr = IntPtr.Zero;
         }
     }
 }

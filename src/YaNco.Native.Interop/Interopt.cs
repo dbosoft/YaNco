@@ -14,6 +14,9 @@ namespace Dbosoft.YaNco.Native
         [DllImport(SapNwRfcName)]
         public static extern IntPtr RfcOpenConnection(RfcConnectionParameter[] connectionParams, uint paramCount, out RfcErrorInfo errorInfo);
 
+        [DllImport(SapNwRfcName)]
+        public static extern RfcRc RfcCloseConnection(IntPtr rfcHandle, out RfcErrorInfo errorInfo);
+
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern IntPtr RfcGetFunctionDesc(IntPtr rfcHandle, string funcName, out RfcErrorInfo errorInfo);
 
@@ -142,6 +145,9 @@ namespace Dbosoft.YaNco.Native
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcDestroyFunction(IntPtr funcHandle, out RfcErrorInfo errorInfo);
+
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcDestroyFunctionDesc(IntPtr funcDesc, out RfcErrorInfo errorInfo);
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]

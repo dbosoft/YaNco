@@ -4,7 +4,7 @@ namespace Dbosoft.YaNco.Native
 {
     public class ConnectionHandle : IConnectionHandle
     {
-        internal IntPtr Ptr { get; }
+        internal IntPtr Ptr { get; private set; }
 
         internal ConnectionHandle(IntPtr ptr)
         {
@@ -13,6 +13,10 @@ namespace Dbosoft.YaNco.Native
 
         public void Dispose()
         {
+            if (Ptr == IntPtr.Zero) return;
+
+            Interopt.RfcCloseConnection(Ptr, out _);
+            Ptr = IntPtr.Zero;
         }
     }
 }

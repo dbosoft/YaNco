@@ -1,4 +1,6 @@
-﻿namespace Dbosoft.YaNco
+﻿using System.Runtime.InteropServices;
+
+namespace Dbosoft.YaNco
 {
     /// <summary>
     /// <para>Used in all functions of the NW RFC library to return detailed information about</para>
@@ -12,27 +14,40 @@
     /// <para>this structure to the RFC library in order to specify the error type&amp;message that</para>
     /// <para>you want to send back to the backend.</para>
     /// </remarks>
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct RfcErrorInfo
     {
+        [MarshalAs(UnmanagedType.I4)]
         public readonly RfcRc Code;
 
+        [MarshalAs(UnmanagedType.I4)]
         public readonly RfcErrorGroup Group;
 
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
         public readonly string Key;
 
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
         public readonly string Message;
 
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20 + 1)]
         public readonly string AbapMsgClass;
 
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 1 + 1)]
         public readonly string AbapMsgType;
 
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 3 + 1)]
         public readonly string AbapMsgNumber;
 
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 50 + 1)]
         public readonly string AbapMsgV1;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 50 + 1)]
         public readonly string AbapMsgV2;
 
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 50 + 1)]
         public readonly string AbapMsgV3;
 
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 50 + 1)]
         public readonly string AbapMsgV4;
 
         public RfcErrorInfo(RfcRc code, RfcErrorGroup @group, string key, string message, string abapMsgClass, string abapMsgType, string abapMsgNumber, string abapMsgV1, string abapMsgV2, string abapMsgV3, string abapMsgV4)

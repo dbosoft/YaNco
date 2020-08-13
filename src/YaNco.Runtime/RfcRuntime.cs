@@ -15,7 +15,7 @@ namespace Dbosoft.YaNco
 
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcErrorInfo errorInfo, bool logAsError = false)
         {
-            if (result == null)
+            if (result == null || errorInfo.Code != RfcRc.RFC_OK)
             {
                 Logger.IfSome(l =>
                 {
