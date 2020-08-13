@@ -20,8 +20,7 @@ This library provides an alternative SAP .NET Connector based on the _SAP NetWea
 
 **.NET**
 
-The library requires .NET Framework >= 4.7.1 or .NET Core 3.1. 
-
+The library requires .NET Framework >= 4.7.1 or .NET Core 2.0 or higher. 
 Supported platforms: Windows, Linux and MacOS.
 
 
@@ -29,6 +28,8 @@ Supported platforms: Windows, Linux and MacOS.
 
 On Windows the Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2019 VC runtime library have to be installed.  
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
+
+
 
 **SAP Netweaver RFC SDK**
 

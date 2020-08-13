@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
@@ -29,9 +30,24 @@ namespace SAPSystemTests
 
             };
 
-            var runtime = new RfcRuntime(new SimpleConsoleLogger());
+            StartProgramDelegate callback = command =>
+            {
+                var programParts = command.Split(' ');
+                var arguments = command.Replace(programParts[0], "");
+                var p = Process.Start(AppDomain.CurrentDomain.BaseDirectory + @"\" + programParts[0] + ".exe",
+                    arguments.TrimStart());
 
-            Task<Either<RfcErrorInfo, IConnection>> ConnFunc() => Connection.Create(settings, runtime);
+                return RfcErrorInfo.Ok();
+            };
+
+            var runtime = new RfcRuntime(new SimpleConsoleLogger());
+            
+            Task<Either<RfcErrorInfo, IConnection>> ConnFunc()
+            {
+               return (from c in Connection.Create(settings, runtime)
+                    from _ in c.AllowStartOfPrograms(callback)
+                    select c);
+            }
 
             using (var context = new RfcContext(ConnFunc))
             {
@@ -83,7 +99,19 @@ namespace SAPSystemTests
                     {
 
                     });
+
+
+                await context.CallFunction("BAPI_DOCUMENT_CHECKOUTVIEW2",
+                    Input: func => func
+                        .SetField("DOCUMENTTYPE", "AW")
+                        .SetField("DOCUMENTNUMBER", "AW001200")
+                        .SetField("DOCUMENTVERSION", "01")
+                        .SetField("DOCUMENTPART", "000"),
+                    Output: func => func
+                    );
+
             }
         }
+
     }
 }
