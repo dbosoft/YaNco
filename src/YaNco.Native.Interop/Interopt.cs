@@ -12,8 +12,7 @@ namespace Dbosoft.YaNco.Native
 
 
         [DllImport(SapNwRfcName)]
-        public static extern IntPtr RfcOpenConnection(RfcConnectionParameter[] connectionParams, uint paramCount,
-            out RfcErrorInfo errorInfo);
+        public static extern IntPtr RfcOpenConnection(RfcConnectionParameter[] connectionParams, uint paramCount, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern IntPtr RfcGetFunctionDesc(IntPtr rfcHandle, string funcName, out RfcErrorInfo errorInfo);
