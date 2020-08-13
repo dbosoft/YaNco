@@ -24,9 +24,9 @@ This library provides an alternative SAP .NET Connector based on the SAP NetWeav
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Teronis.MSBuild.Packaging.GitVersionCache" Version="0.1.7">
+    <PackageReference Include="GitVersionTask" Version="5.3.7">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
