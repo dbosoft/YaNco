@@ -23,9 +23,9 @@ This package contains the core implementation.</Description>
 
   <ItemGroup>
     <PackageReference Include="Dbosoft.Functional" Version="1.0.0" />
-    <PackageReference Include="GitVersionTask" Version="5.3.7">
+    <PackageReference Include="Teronis.MSBuild.Packaging.GitVersionCache" Version="0.1.7">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
