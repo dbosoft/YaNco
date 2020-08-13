@@ -21,12 +21,13 @@ This library provides an alternative SAP .NET Connector based on the _SAP NetWea
 **.NET**
 
 The library requires .NET Framework >= 4.7.1 or .NET Core 3.1. 
-Only Windows is supported as runtime environment. 
+
+Supported platforms: Windows, Linux and MacOS.
 
 
-**C++ Runtime**
+**Windows: C++ Runtimes**
 
-The Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2019 VC runtime library have to be installed.  
+On Windows the Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2019 VC runtime library have to be installed.  
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
 
 **SAP Netweaver RFC SDK**
@@ -192,6 +193,7 @@ Make sure that you have installed Visual Studio with VC and Platform Build Tools
 As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_. 
 Download both the x64 and the x86 versions and place then in the repository folder nwrfcsdk/x64 and nwrfcsdk/x86.
 
+The sdk is required to build to C++/CLI libraries for windows and to build the reference helper libraries. 
 
 
 ## Versioning
