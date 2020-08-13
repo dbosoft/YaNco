@@ -53,6 +53,7 @@ steps:
 
 # final build
 - task: VSBuild@1
+  displayName: package build
   inputs:
     platform: 'Any CPU'
     configuration: Release   
@@ -78,7 +79,7 @@ steps:
   displayName: pack YaNco.Native
   inputs:
     command: 'pack'
-    nobuild: true    
+    nobuild: false    
     packagesToPack: '**/YaNco.Native.csproj'
 
 - task: DotNetCoreCLI@2
