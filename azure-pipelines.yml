@@ -6,6 +6,9 @@ trigger:
 pool:
   name: default
 
+variables:
+  buildConfiguration: 'Release'
+
 steps:   
 - task: DotNetCoreCLI@2
   displayName: restore packages
@@ -79,7 +82,7 @@ steps:
   displayName: pack YaNco.Native
   inputs:
     command: 'pack'
-    nobuild: false    
+    nobuild: true    
     packagesToPack: '**/YaNco.Native.csproj'
 
 - task: DotNetCoreCLI@2
