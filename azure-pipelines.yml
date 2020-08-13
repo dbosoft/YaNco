@@ -31,20 +31,18 @@ steps:
     versionSpec: '5.x'
     
 # x86 platform builds
-- task: VSBuild@1
+- task: MSBuild@1
   displayName: x86 platform builds
   inputs:
     platform: x86
-    msbuildArgs: -ignoreprojectextensions:csproj
     configuration: Release
    
 # x64 platform builds
-- task: VSBuild@1
+- task: MSBuild@1
   displayName: x64 platform builds
   inputs:
     platform: x64
-    msbuildArgs: -ignoreprojectextensions:csproj
-    configuration: Release 
+    configuration: Release
     
 # cleanup packages created in platform builds
 - task: DeleteFiles@1
