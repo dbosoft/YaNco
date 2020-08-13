@@ -66,7 +66,6 @@ steps:
     packagesToPack: '**/YaNco.Primitives.csproj'
     nobuild: true
     versioningScheme: 'off'
-    buildProperties: '--disable-parallel'
 
 - task: DotNetCoreCLI@2
   displayName: pack YaNco.Abstractions
@@ -74,7 +73,6 @@ steps:
     command: 'pack'
     nobuild: true    
     packagesToPack: '**/YaNco.Abstractions.csproj'
-    buildProperties: '--disable-parallel'
 
 - task: DotNetCoreCLI@2
   displayName: pack YaNco.Native
@@ -82,7 +80,6 @@ steps:
     command: 'pack'
     nobuild: true    
     packagesToPack: '**/YaNco.Native.csproj'
-    buildProperties: '--disable-parallel'
 
 - task: DotNetCoreCLI@2
   displayName: pack YaNco.Core
@@ -90,15 +87,13 @@ steps:
     command: 'pack'
     nobuild: true
     packagesToPack: '**/YaNco.Core.csproj'
-    buildProperties: '--disable-parallel'
-
+ 
 - task: DotNetCoreCLI@2
   displayName: pack YaNco.Runtime
   inputs:
     command: 'pack'
     nobuild: true
     packagesToPack: '**/YaNco.Runtime.csproj'
-    buildProperties: '--disable-parallel'
 
 - task: DotNetCoreCLI@2
   displayName: pack YaNco
@@ -106,7 +101,6 @@ steps:
     command: 'pack'
     nobuild: true
     packagesToPack: '**/YaNco.csproj'
-    buildProperties: '--disable-parallel'
 
 - task: PublishBuildArtifacts@1
   inputs:
