@@ -51,12 +51,17 @@ steps:
     sourceFolder: $(Build.SourcesDirectory)\build-packages
     contents: '**'
 
-# build and pack 
+# final build
+- task: VSBuild@1
+  inputs:
+    platform: 'Any CPU'
+    configuration: Release   
+
 - task: DotNetCoreCLI@2
   displayName: dotnet pack
   inputs:
     command: pack
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) --disable-parallel --no-build'
 
 - task: PublishBuildArtifacts@1
   inputs:
