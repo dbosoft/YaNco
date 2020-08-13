@@ -4,6 +4,7 @@
     <AssemblyName>Dbosoft.YaNco.Native</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -31,7 +32,7 @@ This package contains the native implementation.</Description>
 
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <ItemGroup>
     <None Include="..\YaNco.Native.clr\$(Configuration)\x86\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\net40\Dbosoft.YaNco.Native.dll" />
     <None Include="..\YaNco.Native.clr\$(Configuration)\x64\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\net40\Dbosoft.YaNco.Native.dll" />
     <None Include="..\YaNco.Native.clrcore\$(Configuration)\x86\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\netcore31\Dbosoft.YaNco.Native.dll" />
