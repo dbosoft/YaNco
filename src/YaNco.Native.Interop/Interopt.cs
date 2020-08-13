@@ -132,8 +132,8 @@ namespace Dbosoft.YaNco.Native
         public static extern RfcRc RfcAddParameter(IntPtr funcDesc, ref RFC_PARAMETER_DESC paramDescr,
             out RfcErrorInfo errorInfo);
 
-        //[DllImport(SapNwRfcDllName, CharSet = CharSet.Unicode)]
-        //private static extern RfcRc RfcInstallServerFunction(string sysId, IntPtr funcDescHandle, RFC_SERVER_FUNCTION serverFunction, out RfcErrorInfo errorInfo);
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcInstallServerFunction(string sysId, IntPtr funcDescHandle, RfcServerFunction serverFunction, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcGetStringByIndex(IntPtr dataHandle, uint index, char[] stringBuffer,
@@ -189,7 +189,7 @@ namespace Dbosoft.YaNco.Native
             public RfcType Type;
 
             [MarshalAs(UnmanagedType.I4)]
-            public readonly RfcDirection Direction;
+            public RfcDirection Direction;
 
             [MarshalAs(UnmanagedType.U4)]
             public uint NucLength;
@@ -215,6 +215,7 @@ namespace Dbosoft.YaNco.Native
 
         }
 
+        public delegate RfcRc RfcServerFunction(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo);
 
     }
 }

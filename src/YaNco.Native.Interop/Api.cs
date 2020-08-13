@@ -141,8 +141,44 @@ namespace Dbosoft.YaNco.Native
         public static void AllowStartOfPrograms(ConnectionHandle connectionHandle, StartProgramDelegate callback, out
             RfcErrorInfo errorInfo)
         {
-            throw new NotImplementedException();
+            var descriptionHandle = new FunctionDescriptionHandle(Interopt.RfcCreateFunctionDesc("RFC_START_PROGRAM", out errorInfo));
+            if (descriptionHandle.Ptr == IntPtr.Zero)
+            {
+                return;
+            }
 
+            var paramDesc = new Interopt.RFC_PARAMETER_DESC{ Name = "COMMAND", Type = RfcType.CHAR, Direction = RfcDirection.Import, NucLength = 512, UcLength = 1024};
+            var rc = Interopt.RfcAddParameter(descriptionHandle.Ptr, ref paramDesc, out errorInfo);
+            if (rc != RfcRc.RFC_OK)
+            {
+                return;
+            }
+
+            rc = Interopt.RfcInstallServerFunction(null, descriptionHandle.Ptr, RFC_START_PROGRAM_Handler, out errorInfo);
+            if (rc != RfcRc.RFC_OK)
+            {
+                return;
+            }
+
+            StartProgramCallback = callback;
+
+        }
+
+        public static StartProgramDelegate StartProgramCallback;
+
+        static RfcRc RFC_START_PROGRAM_Handler(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo)
+        {
+            var commandBuffer = new char[513];
+
+            var rc = Interopt.RfcGetStringByIndex(funcHandle, 0, commandBuffer, (uint) commandBuffer.Length - 1, out var commandLength, out errorInfo);
+
+            if (rc != RfcRc.RFC_OK)
+                return rc;
+
+            var command = new string(commandBuffer,0, (int) commandLength);
+            errorInfo = StartProgramCallback(command);
+
+            return errorInfo.Code;
         }
 
         public static RfcRc GetTableRowCount(TableHandle table, out int count, out RfcErrorInfo errorInfo)
