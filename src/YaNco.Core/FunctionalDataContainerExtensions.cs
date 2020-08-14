@@ -49,5 +49,16 @@ namespace Dbosoft.YaNco
             return table.Rows.Map(mapperFunc).Traverse(l=>l);
         }
 
+        static public Either<RfcErrorInfo, IEnumerable<TResult>> MapTable<TResult>(this IDataContainer self, string tableName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
+        {
+            return self.GetTable(tableName).Bind(t => t.MapStructure(mapperFunc));
+        }
+
+        static public Either<RfcErrorInfo, TResult> MapStructure<TResult>(this IDataContainer self, string structureName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
+        {
+            return self.GetStructure(structureName).Bind(mapperFunc);
+
+        }
+
     }
 }

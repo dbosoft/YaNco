@@ -141,7 +141,7 @@ using (var context = new RfcContext(ConnFunc))
 }
   ```
 
-This looks a bit complicated due to the nested BindAsync calls. Alternatively, you can also use a LINQ syntax:
+This looks a bit complicated due to the nested BindAsync calls. Alternatively, you can also use a LINQ syntax and the extension method MapStructure to get rid of the first BindAsync:
 
 ```csharp
 using (var context = new RfcContext(ConnFunc))
@@ -149,13 +149,11 @@ using (var context = new RfcContext(ConnFunc))
     await context.CallFunction("BAPI_COMPANYCODE_GETDETAIL",
         Input: f => f
             .SetField("COMPANYCODEID", "1000"),
-        Output: func => func.BindAsync(f => 
-            from structure in f.GetStructure("COMPANYCODE_DETAIL")
-            from name      in structure.GetField<string>("COMP_NAME")
+        Output: func => func.MapStructure("COMPANYCODE_DETAIL", s =>
+            from name in s.GetField<string>("COMP_NAME")
             select name
-            )            
-        )           
-            
+        )
+                 
         .ToAsync().Match(r => Console.WriteLine($"Result: {r}"),
             l => Console.WriteLine($"Error: {l.Message}"));
 }
@@ -170,15 +168,10 @@ Getting table results is possible by iterating over the table rows to retrieve t
 using (var context = new RfcContext(ConnFunc))
 {
     await context.CallFunction("BAPI_COMPANYCODE_GETLIST",
-        Output: func => func.BindAsync(f =>
-            from companyTable in f.GetTable("COMPANYCODE_LIST")
-
-            from row in companyTable.Rows.Map(s =>
-              from code in s.GetField<string>("COMP_CODE")
-              from name in s.GetField<string>("COMP_NAME")
-              select (code, name)).Traverse(l => l)
-
-        select row))
+        Output: func => func.MapTable("COMPANYCODE_LIST",s =>
+                from code in s.GetField<string>("COMP_CODE")
+                from name in s.GetField<string>("COMP_NAME")
+                select (code, name)))
     .ToAsync().Match(
         r =>
             {

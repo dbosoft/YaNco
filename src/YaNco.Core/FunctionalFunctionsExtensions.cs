@@ -58,12 +58,30 @@ namespace Dbosoft.YaNco
 
         }
 
+        public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TRInput, TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input, Func<Task<Either<RfcErrorInfo, IFunction>>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        {
+            return context.CreateFunction(functionName).Use(
+                func => func
+                    .Apply(Input).BindAsync(i => func)
+                    .BindAsync(context.InvokeFunction).Map(i => func)
+                    .Apply(f => Output(f).ToEither()));
+
+        }
+
         public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TResult>>> Output)
         {
             return context.CreateFunction(functionName).Use(
                 func => func
                     .BindAsync(context.InvokeFunction).Map(i => func)
                     .Apply(Output));
+        }
+
+        public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        {
+            return context.CreateFunction(functionName).Use(
+                func => func
+                    .BindAsync(context.InvokeFunction).Map(i => func)
+                    .Apply(f => Output(f).ToEither()));
         }
 
         public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnit<TRInput>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input)
@@ -84,6 +102,17 @@ namespace Dbosoft.YaNco
 
         }
 
+        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnit<TRInput, TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input, Func<Task<Either<RfcErrorInfo, IFunction>>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        {
+            return context.CreateFunction(functionName).Use(
+                func => func
+                    .Apply(Input).BindAsync(i => func)
+                    .BindAsync(context.InvokeFunction).Map(i => func)
+                    .Apply(f => Output(f).ToEither()))
+                    .MapAsync(f => Unit.Default);
+
+        }
+
         public static Task<Either<RfcErrorInfo, Unit>> CallFunction(this IRfcContext context, string functionName)
         {
             return context.CreateFunction(functionName).Use(
@@ -96,19 +125,19 @@ namespace Dbosoft.YaNco
             return self.BindAsync(s => s.GetField<T>(name));
         }
 
-        static public Task<Either<RfcErrorInfo, IEnumerable<TResult>>> MapTable<TResult>(this Task<Either<RfcErrorInfo, IFunction>> self, string tableName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
+        static public EitherAsync<RfcErrorInfo, IEnumerable<TResult>> MapTable<TResult>(this Task<Either<RfcErrorInfo, IFunction>> self, string tableName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
         {
             return self
                 .BindAsync(f => f.GetTable(tableName))
-                .BindAsync(t => t.MapStructure(mapperFunc));
+                .BindAsync(t => t.MapStructure(mapperFunc)).ToAsync();
 
         }
 
-        static public Task<Either<RfcErrorInfo, TResult>> MapStructure<TResult>(this Task<Either<RfcErrorInfo, IFunction>> self, string structureName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
+        static public EitherAsync<RfcErrorInfo, TResult> MapStructure<TResult>(this Task<Either<RfcErrorInfo, IFunction>> self, string structureName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
         {
             return self
                 .BindAsync(f => f.GetStructure(structureName))
-                .BindAsync(mapperFunc);
+                .BindAsync(mapperFunc).ToAsync();
 
         }
     }
