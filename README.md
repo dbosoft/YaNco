@@ -78,9 +78,8 @@ To open the connection create a runtime instance and a connection opening functi
 ```csharp
 var runtime = new RfcRuntime();
 
-Task<IConnection> ConnFunc() =>
-    (from c in Connection.Create(settings, runtime)
-        select c).MatchAsync(c => c, error => { return null; });
+Task<IConnection> ConnFunc() => Connection.Create(settings, runtime);
+
 ```
 
 The RfcRuntime is a low level API that you will typical never use directly. Instead you can use the connection function to open a RFCContext. 

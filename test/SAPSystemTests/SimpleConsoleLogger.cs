@@ -20,7 +20,7 @@ namespace SAPSystemTests
 
         public void LogTrace(string message, object data)
         {
-            Console.WriteLine($"TRACE\t{message}{ObjectToString(data)}");
+            //Console.WriteLine($"TRACE\t{message}{ObjectToString(data)}");
         }
 
         public void LogError(string message, object data)
