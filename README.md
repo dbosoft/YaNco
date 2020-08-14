@@ -124,7 +124,7 @@ The Result of the function is a Either<L,R> type (see language.ext [Either left 
 
 **Structures**
 
-Structures can be set or retrieved the same way. Another example extracting company code details (change the company code if necessary if you try this example):
+Structures can be set or retrieved the same way. Another example extracting company code details (you may have to change the company code if you try this example):
 
 ```csharp
 using (var context = new RfcContext(ConnFunc))
