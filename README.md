@@ -150,9 +150,11 @@ using (var context = new RfcContext(ConnFunc))
         Input: f => f
             .SetField("COMPANYCODEID", "1000"),
         Output: func => func.BindAsync(f => 
-            from s in f.GetStructure("COMPANYCODE_DETAIL")
-            from name in s.GetField<string>("COMP_NAME")
+            from structure in f.GetStructure("COMPANYCODE_DETAIL")
+              from name in structure.GetField<string>("COMP_NAME")
             select name))
+            
+            
         .ToAsync().Match(r => Console.WriteLine($"Result: {r}"),
             l => Console.WriteLine($"Error: {l.Message}"));
 }
