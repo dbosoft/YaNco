@@ -144,7 +144,13 @@ namespace Dbosoft.YaNco
                 if (typeof(T) == typeof(string))
                     value = r;
                 else
-                    value = DateTime.ParseExact(r, "yyyyMMdd", CultureInfo.InvariantCulture);
+                {
+                    if (r == "00000000" || r == string.Empty)
+                        value = DateTime.MinValue;
+                    else
+                        value = DateTime.ParseExact(r, "yyyyMMdd", CultureInfo.InvariantCulture);
+                }
+                    
                 
                 return (T)Convert.ChangeType(value, typeof(T));
             });
@@ -158,7 +164,12 @@ namespace Dbosoft.YaNco
                 if (typeof(T) == typeof(string))
                     value = r;
                 else
-                    value = DateTime.ParseExact(r, "HHmmss", CultureInfo.InvariantCulture);
+                {
+                    if (r == "000000" || r == string.Empty)
+                        value = DateTime.MinValue;
+                    else
+                        value = DateTime.ParseExact(r, "HHmmss", CultureInfo.InvariantCulture);
+                }
 
                 return (T)Convert.ChangeType(value, typeof(T));
             });

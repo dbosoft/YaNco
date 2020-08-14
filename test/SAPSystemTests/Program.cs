@@ -65,6 +65,16 @@ namespace SAPSystemTests
             {
                 await context.Ping();
 
+
+                var result = await context.CallFunction("BAPI_USER_GET_DETAIL",
+                    Input: func => func.SetField("USERNAME", "FWAGNER"),
+                    Output: func =>
+                        func.BindAsync(
+                            f => f.GetStructure("LOGONDATA")
+                                .Bind(s => s.GetField<DateTime>("GLTGV"))));
+
+
+
                 long totalTest1 = 0;
                 long totalTest2 = 0;
 
