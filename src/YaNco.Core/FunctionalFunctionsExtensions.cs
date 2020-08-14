@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -93,6 +94,22 @@ namespace Dbosoft.YaNco
         public static Task<Either<RfcErrorInfo, T>> GetField<T>(this Task<Either<RfcErrorInfo, IFunction>> self, string name)
         {
             return self.BindAsync(s => s.GetField<T>(name));
+        }
+
+        static public Task<Either<RfcErrorInfo, IEnumerable<TResult>>> MapTable<TResult>(this Task<Either<RfcErrorInfo, IFunction>> self, string tableName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
+        {
+            return self
+                .BindAsync(f => f.GetTable(tableName))
+                .BindAsync(t => t.MapStructure(mapperFunc));
+
+        }
+
+        static public Task<Either<RfcErrorInfo, TResult>> MapStructure<TResult>(this Task<Either<RfcErrorInfo, IFunction>> self, string structureName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
+        {
+            return self
+                .BindAsync(f => f.GetStructure(structureName))
+                .BindAsync(mapperFunc);
+
         }
     }
 }
