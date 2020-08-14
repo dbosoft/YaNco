@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Dbosoft.YaNco.Runtime</AssemblyName>  
+    <TargetFramework>net471</TargetFramework>
+    <LangVersion>7.1</LangVersion>
+    <RootNamespace>Dbosoft.YaNco</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Platforms>x86;x64;AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\YaNco.Runtime\RfcRuntime.cs" Link="RfcRuntime.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YaNco.Abstractions\YaNco.Abstractions.csproj" />
+  </ItemGroup>
+
+  <!-- only to get rid of compiler warnings -->
+  <ItemGroup Condition="'$(Platform)'=='AnyCPU'">
+    <ProjectReference Include="..\YaNco.Native\YaNco.Native.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)'=='x86'">
+    <ProjectReference Include="..\YaNco.Native.clr\YaNco.Native.clr.vcxproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)'=='x64'">
+    <ProjectReference Include="..\YaNco.Native.clr\YaNco.Native.clr.vcxproj" />
+  </ItemGroup>
+
+</Project>

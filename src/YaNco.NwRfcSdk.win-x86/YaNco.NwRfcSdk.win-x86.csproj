@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Dbosoft.YaNco.NwRfcSdk.win-x86</AssemblyName>
+    <RootNamespace>DboSoft.YaNco</RootNamespace>
+    <Platforms>x86</Platforms>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <None Include="..\..\nwrfcsdk\x86\lib\icudt50.dll" Link="icudt50.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\nwrfcsdk\x86\lib\icuin50.dll" Link="icuin50.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\nwrfcsdk\x86\lib\icuuc50.dll" Link="icuuc50.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\nwrfcsdk\x86\lib\libicudecnumber.dll" Link="libicudecnumber.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\nwrfcsdk\x86\lib\libsapucum.dll" Link="libsapucum.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\nwrfcsdk\x86\lib\sapnwrfc.dll" Link="sapnwrfc.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\nwrfcsdk\x86\lib\sapnwrfc.pdb" Link="sapnwrfc.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

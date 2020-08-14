@@ -20,14 +20,19 @@ This library provides an alternative SAP .NET Connector based on the _SAP NetWea
 
 **.NET**
 
-The library requires .NET Framework >= 4.7.1 or .NET Core 3.1. 
-Only Windows is supported as runtime environment. 
+The library requires .NET Framework >= 4.7.1 or .NET Core 2.0 or higher. 
+
+Supported platforms: Windows, Linux and MacOS.
 
 
-**C++ Runtime**
+**Windows: C++ Runtimes**
 
-The Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2019 VC runtime library have to be installed.  
+On Windows the Visual Studio 2013 (VC++ 12.0) runtime library has to be installed.  
+If you target .NET Framework or .NET Core 3.1 you will also have to install the Visual Studio 2019 VC runtime library.
+
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
+
+
 
 **SAP Netweaver RFC SDK**
 
@@ -76,9 +81,8 @@ To open the connection create a runtime instance and a connection opening functi
 ```csharp
 var runtime = new RfcRuntime();
 
-Task<IConnection> ConnFunc() =>
-    (from c in Connection.Create(settings, runtime)
-        select c).MatchAsync(c => c, error => { return null; });
+Task<IConnection> ConnFunc() => Connection.Create(settings, runtime);
+
 ```
 
 The RfcRuntime is a low level API that you will typical never use directly. Instead you can use the connection function to open a RFCContext. 
@@ -111,6 +115,7 @@ using (var context = new RfcContext(ConnFunc))
             Output: f => f
                 .GetField<string>("LABEL"))
     
+    // this is from language.ext to extract the value from a either
     .ToAsync().Match(r => Console.WriteLine($"Result: {r}"), // should return: User Name
                       l => Console.WriteLine($"Error: {l.Message}"));
 }
@@ -119,7 +124,7 @@ The Result of the function is a Either<L,R> type (see language.ext [Either left 
 
 **Structures**
 
-Structures can be set or retrieved the same way. Another example extracting company code details (change the company code if necessary if you try this example):
+Structures can be set or retrieved the same way. Another example extracting company code details (you may have to change the company code if you try this example):
 
 ```csharp
 using (var context = new RfcContext(ConnFunc))
@@ -145,9 +150,12 @@ using (var context = new RfcContext(ConnFunc))
         Input: f => f
             .SetField("COMPANYCODEID", "1000"),
         Output: func => func.BindAsync(f => 
-            from s in f.GetStructure("COMPANYCODE_DETAIL")
-            from name in s.GetField<string>("COMP_NAME")
-            select name))
+            from structure in f.GetStructure("COMPANYCODE_DETAIL")
+            from name      in structure.GetField<string>("COMP_NAME")
+            select name
+            )            
+        )           
+            
         .ToAsync().Match(r => Console.WriteLine($"Result: {r}"),
             l => Console.WriteLine($"Error: {l.Message}"));
 }
@@ -192,6 +200,7 @@ Make sure that you have installed Visual Studio with VC and Platform Build Tools
 As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_. 
 Download both the x64 and the x86 versions and place then in the repository folder nwrfcsdk/x64 and nwrfcsdk/x86.
 
+The sdk is required to build to C++/CLI libraries for windows and to build the reference helper libraries. 
 
 
 ## Versioning

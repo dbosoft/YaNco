@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Dbosoft.YaNco.Native</AssemblyName>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <RootNamespace>Dbosoft.YaNco.Native</RootNamespace>  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YaNco.Abstractions\YaNco.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

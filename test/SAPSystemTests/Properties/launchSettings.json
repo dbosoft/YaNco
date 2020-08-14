@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SAPSystemTests": {
+      "commandName": "Project",
+      "commandLineArgs": "/tests:repeats=20 /tests:rows=0"
+    }
+  }
+}
