@@ -21,12 +21,15 @@ This library provides an alternative SAP .NET Connector based on the _SAP NetWea
 **.NET**
 
 The library requires .NET Framework >= 4.7.1 or .NET Core 2.0 or higher. 
+
 Supported platforms: Windows, Linux and MacOS.
 
 
 **Windows: C++ Runtimes**
 
-On Windows the Visual Studio 2013 (VC++ 12.0) runtime library and the Visual Studio 2019 VC runtime library have to be installed.  
+On Windows the Visual Studio 2013 (VC++ 12.0) runtime library has to be installed.  
+If you target .NET Framework or .NET Core 3.1 you will also have to install the Visual Studio 2019 VC runtime library.
+
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
 
 
@@ -112,6 +115,7 @@ using (var context = new RfcContext(ConnFunc))
             Output: f => f
                 .GetField<string>("LABEL"))
     
+    // this is from language.ext to extract the value from a either
     .ToAsync().Match(r => Console.WriteLine($"Result: {r}"), // should return: User Name
                       l => Console.WriteLine($"Error: {l.Message}"));
 }
