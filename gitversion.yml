@@ -1,4 +1,4 @@
-assembly-versioning-scheme: MajorMinorPatch
+assembly-versioning-scheme: MajorMinor
 mode: ContinuousDeployment
 branches: {}
 ignore:
