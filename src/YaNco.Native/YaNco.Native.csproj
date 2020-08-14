@@ -29,8 +29,8 @@ This package contains the native implementation.</Description>
   <ItemGroup>
     <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\net40\Dbosoft.YaNco.Native.dll" />
     <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\netstandard20\Dbosoft.YaNco.Native.dll" />
-    <!--<None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\netcoreapp2.0\Dbosoft.YaNco.Native.dll" />
-    <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\netcoreapp3.1\Dbosoft.YaNco.Native.dll" />-->
+    <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\netcoreapp2.0\Dbosoft.YaNco.Native.dll" />
+    <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\netcoreapp3.1\Dbosoft.YaNco.Native.dll" />
   </ItemGroup>
 
   <ItemGroup>
