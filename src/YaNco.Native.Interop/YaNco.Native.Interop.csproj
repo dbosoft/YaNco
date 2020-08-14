@@ -3,6 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Dbosoft.YaNco.Native</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>3.0.0</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <RootNamespace>Dbosoft.YaNco.Native</RootNamespace>  </PropertyGroup>
 
