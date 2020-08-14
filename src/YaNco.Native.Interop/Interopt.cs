@@ -81,7 +81,7 @@ namespace Dbosoft.YaNco.Native
         public static extern RfcRc RfcMoveToNextRow(IntPtr tableHandle, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
-        public static extern RfcRc MoveToFirstTableRow(IntPtr tableHandle, out RfcErrorInfo errorInfo);
+        public static extern RfcRc RfcMoveToFirstRow(IntPtr tableHandle, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcGetDate(IntPtr dataHandle, string name, char[] emptyDate,

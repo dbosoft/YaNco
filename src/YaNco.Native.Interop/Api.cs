@@ -209,7 +209,7 @@ namespace Dbosoft.YaNco.Native
 
         public static RfcRc MoveToFirstTableRow(TableHandle table, out RfcErrorInfo errorInfo)
         {
-            return Interopt.MoveToFirstTableRow(table.Ptr, out errorInfo);
+            return Interopt.RfcMoveToFirstRow(table.Ptr, out errorInfo);
 
         }
 
