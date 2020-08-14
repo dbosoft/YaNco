@@ -68,54 +68,6 @@ namespace SAPSystemTests
                 long totalTest1 = 0;
                 long totalTest2 = 0;
 
-                using (var context = new RfcContext(ConnFunc))
-                {
-                    await context.CallFunction("BAPI_COMPANYCODE_GETDETAIL",
-                            Input: f => f
-                                .SetField("COMPANYCODEID", "1000"),
-                            Output: func => func.MapStructure("COMPANYCODE_DETAIL", structure =>
-                                from name in structure.GetField<string>("COMP_NAME")
-                                select name
-                            )
-                        )
-
-                        .ToAsync().Match(r => Console.WriteLine($"Result: {r}"),
-                            l => Console.WriteLine($"Error: {l.Message}"));
-
-
-                    await context.CallFunction("BAPI_COMPANYCODE_GETLIST",
-                            Output: func => 
-                                
-                                from tab1 in func.MapTable("COMPANYCODE_LIST",s =>
-                                    from code in s.GetField<string>("COMP_CODE")
-                                    from name in s.GetField<string>("COMP_NAME")
-                                    select (code, name))
-
-                                from struct2 in func.MapStructure("COMPANYCODE_LIST", s =>
-                                    from code in s.GetField<string>("COMP_CODE")
-                                    from name in s.GetField<string>("COMP_NAME")
-                                    select (code, name))
-
-                                from struct3 in func.MapStructure("COMPANYCODE_LIST", s =>
-                                    from code in s.GetField<string>("COMP_CODE")
-                                    from nameInSubstruct in s.MapStructure("SUB1", sub1 =>
-                                        from name in sub1.GetField<string>("COMP_NAME")
-                                        select name)
-                                    select (code, nameInSubstruct))
-                                
-
-                                select (tab1, struct2))
-                        .ToAsync().Match(
-                            r =>
-                            {
-                                foreach (var (code, name) in r)
-                                {
-                                    Console.WriteLine($"{code}\t{name}");
-                                }
-                            },
-                            l => Console.WriteLine($"Error: {l.Message}"));
-                }
-
                 for (var run = 0; run < repeats; run++)
                 {
                     Console.WriteLine($"starting Test Run {run+1} of {repeats}\tTest 01");

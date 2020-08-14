@@ -127,18 +127,12 @@ namespace Dbosoft.YaNco
 
         static public EitherAsync<RfcErrorInfo, IEnumerable<TResult>> MapTable<TResult>(this Task<Either<RfcErrorInfo, IFunction>> self, string tableName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
         {
-            return self
-                .BindAsync(f => f.GetTable(tableName))
-                .BindAsync(t => t.MapStructure(mapperFunc)).ToAsync();
-
+            return self.BindAsync(f => f.MapTable(tableName, mapperFunc)).ToAsync();
         }
 
         static public EitherAsync<RfcErrorInfo, TResult> MapStructure<TResult>(this Task<Either<RfcErrorInfo, IFunction>> self, string structureName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
         {
-            return self
-                .BindAsync(f => f.GetStructure(structureName))
-                .BindAsync(mapperFunc).ToAsync();
-
+            return self.BindAsync(f => f.MapStructure(structureName, mapperFunc)).ToAsync();
         }
     }
 }
