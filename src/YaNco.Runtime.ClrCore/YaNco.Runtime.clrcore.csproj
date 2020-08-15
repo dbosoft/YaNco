@@ -15,19 +15,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\YaNco.Abstractions\YaNco.Abstractions.csproj" />
-  </ItemGroup>
-
-  <!-- only to get rid of compiler warnings -->
-  <ItemGroup Condition="'$(Platform)'=='AnyCPU'">
-    <ProjectReference Include="..\YaNco.Native\YaNco.Native.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Platform)'=='x86'">
     <ProjectReference Include="..\YaNco.Native.clrcore\YaNco.Native.clrcore.vcxproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Platform)'=='x64'">
-    <ProjectReference Include="..\YaNco.Native.clrcore\YaNco.Native.clrcore.vcxproj" />
-  </ItemGroup>
 
 </Project>
