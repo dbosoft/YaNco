@@ -28,7 +28,7 @@ Supported platforms: Windows, Linux and MacOS.
 **Windows: C++ Runtimes**
 
 On Windows the Visual Studio 2013 (VC++ 12.0) runtime library has to be installed.  
-If you target .NET Framework or .NET Core 3.1 you will also have to install the Visual Studio 2019 VC runtime library.
+If you target .NET Framework you will also have to install the Visual Studio 2019 VC runtime library.
 
 Both libraries can be downloaded here: https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
 
@@ -200,7 +200,7 @@ Make sure that you have installed Visual Studio with VC and Platform Build Tools
 As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_. 
 Download both the x64 and the x86 versions and place then in the repository folder nwrfcsdk/x64 and nwrfcsdk/x86.
 
-The sdk is required to build to C++/CLI libraries for windows and to build the reference helper libraries. 
+The sdk is required to build the C++/CLI library for windows and to build the reference helper libraries. 
 
 
 ## Versioning
