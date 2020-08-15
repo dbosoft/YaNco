@@ -5,6 +5,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <Version>3.0.0</Version>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -27,25 +28,23 @@ This package contains the native implementation.</Description>
 
   <ItemGroup>
     <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\net40\Dbosoft.YaNco.Native.dll" />
-    <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\netcore\Dbosoft.YaNco.Native.dll" />
+    <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\netstandard20\Dbosoft.YaNco.Native.dll" />
+    <None Include="$(OutputPath)Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="ref\netcoreapp2.0\Dbosoft.YaNco.Native.dll" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\YaNco.Native.clr\$(Configuration)\x86\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\net40\Dbosoft.YaNco.Native.dll" />
     <None Include="..\YaNco.Native.clr\$(Configuration)\x64\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\net40\Dbosoft.YaNco.Native.dll" />
-    <None Include="..\YaNco.Native.clrcore\$(Configuration)\x86\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\netcore31\Dbosoft.YaNco.Native.dll" />
-    <None Include="..\YaNco.Native.clrcore\$(Configuration)\x64\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\netcore31\Dbosoft.YaNco.Native.dll" />
-    <None Include="..\YaNco.Native.Interop\bin\$(Configuration)\netstandard2.0\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\linux-x64\lib\netcore\Dbosoft.YaNco.Native.dll" />
-    <None Include="..\YaNco.Native.Interop\bin\$(Configuration)\netstandard2.0\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\osx-x64\lib\netcore\Dbosoft.YaNco.Native.dll" />
-    <None Include="..\YaNco.Native.Interop\bin\$(Configuration)\netstandard2.0\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\netcore\Dbosoft.YaNco.Native.dll" />
-    <None Include="..\YaNco.Native.Interop\bin\$(Configuration)\netstandard2.0\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\netcore\Dbosoft.YaNco.Native.dll" />
-
+    <None Include="..\YaNco.Native.Interop\bin\$(Configuration)\netstandard2.0\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\linux-x64\lib\netcoreapp2.0\Dbosoft.YaNco.Native.dll" />
+    <None Include="..\YaNco.Native.Interop\bin\$(Configuration)\netstandard2.0\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\osx-x64\lib\netcoreapp2.0\Dbosoft.YaNco.Native.dll" />
+    <None Include="..\YaNco.Native.Interop\bin\$(Configuration)\netstandard2.0\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x64\lib\netcoreapp2.0\Dbosoft.YaNco.Native.dll" />
+    <None Include="..\YaNco.Native.Interop\bin\$(Configuration)\netstandard2.0\Dbosoft.YaNco.Native.dll" Pack="true" PackagePath="runtimes\win7-x86\lib\netcoreapp2.0\Dbosoft.YaNco.Native.dll" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="GitVersionTask" Version="5.3.7">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
