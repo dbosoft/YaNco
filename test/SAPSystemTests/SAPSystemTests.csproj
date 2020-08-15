@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\YaNco.Core\YaNco.Core.csproj" />
-    <ProjectReference Include="..\..\src\YaNco.Runtime.ClrCore\YaNco.Runtime.clrcore.csproj" />
+    <ProjectReference Include="..\..\src\YaNco.Runtime.Interopt\YaNco.Runtime.Interopt.csproj" />
   </ItemGroup>
 
 </Project>
