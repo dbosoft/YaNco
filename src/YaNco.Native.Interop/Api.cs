@@ -154,7 +154,7 @@ namespace Dbosoft.YaNco.Native
                 return;
             }
 
-            rc = Interopt.RfcInstallServerFunction(null, descriptionHandle.Ptr, RFC_START_PROGRAM_Handler, out errorInfo);
+            rc = Interopt.RfcInstallServerFunction(null, descriptionHandle.Ptr, StartProgramHandler, out errorInfo);
             if (rc != RfcRc.RFC_OK)
             {
                 return;
@@ -165,6 +165,7 @@ namespace Dbosoft.YaNco.Native
         }
 
         public static StartProgramDelegate StartProgramCallback;
+        private static readonly Interopt.RfcServerFunction StartProgramHandler = RFC_START_PROGRAM_Handler;
 
         static RfcRc RFC_START_PROGRAM_Handler(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo)
         {
