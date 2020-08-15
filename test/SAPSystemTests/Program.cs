@@ -64,7 +64,7 @@ namespace SAPSystemTests
             using (var context = new RfcContext(ConnFunc))
             {
                 await context.Ping();
-
+                
                 long totalTest1 = 0;
                 long totalTest2 = 0;
 
