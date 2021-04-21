@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dbosoft.YaNco.Native
+namespace Dbosoft.YaNco.Internal
 {
     public class TableHandle : ITableHandle
     {

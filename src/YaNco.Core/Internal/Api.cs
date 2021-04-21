@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Global
 
-namespace Dbosoft.YaNco.Native
+namespace Dbosoft.YaNco.Internal
 {
     public static class Api
     {
@@ -147,7 +144,7 @@ namespace Dbosoft.YaNco.Native
                 return;
             }
 
-            var paramDesc = new Interopt.RFC_PARAMETER_DESC{ Name = "COMMAND", Type = RfcType.CHAR, Direction = RfcDirection.Import, NucLength = 512, UcLength = 1024};
+            var paramDesc = new Interopt.RFC_PARAMETER_DESC { Name = "COMMAND", Type = RfcType.CHAR, Direction = RfcDirection.Import, NucLength = 512, UcLength = 1024 };
             var rc = Interopt.RfcAddParameter(descriptionHandle.Ptr, ref paramDesc, out errorInfo);
             if (rc != RfcRc.RFC_OK)
             {
@@ -171,12 +168,12 @@ namespace Dbosoft.YaNco.Native
         {
             var commandBuffer = new char[513];
 
-            var rc = Interopt.RfcGetStringByIndex(funcHandle, 0, commandBuffer, (uint) commandBuffer.Length - 1, out var commandLength, out errorInfo);
+            var rc = Interopt.RfcGetStringByIndex(funcHandle, 0, commandBuffer, (uint)commandBuffer.Length - 1, out var commandLength, out errorInfo);
 
             if (rc != RfcRc.RFC_OK)
                 return rc;
 
-            var command = new string(commandBuffer,0, (int) commandLength);
+            var command = new string(commandBuffer, 0, (int)commandLength);
             errorInfo = StartProgramCallback(command);
 
             return errorInfo.Code;

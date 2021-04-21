@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Dbosoft.YaNco.Native
+namespace Dbosoft.YaNco.Internal
 {
     internal static class Interopt
     {
