@@ -271,3 +271,10 @@ nwrfcsdk/x86/demo
 nwrfcsdk/x86/doc
 nwrfcsdk/x86/include
 nwrfcsdk/x86/lib
+/src/YaNco/gitversion.json
+/src/YaNco.Abstractions/gitversion.json
+/src/YaNco.Core/gitversion.json
+/src/YaNco.Native/gitversion.json
+/src/YaNco.Native.Interop/gitversion.json
+/src/YaNco.Primitives/gitversion.json
+/src/YaNco.Runtime/gitversion.json

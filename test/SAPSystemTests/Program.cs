@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -59,7 +60,12 @@ namespace SAPSystemTests
             var runtime = new RfcRuntime(new SimpleConsoleLogger());
 
 
-            Task<Either<RfcErrorInfo, IConnection>> ConnFunc() => Connection.Create(settings, runtime);
+
+            Task<Either<RfcErrorInfo, IConnection>> ConnFunc() => Connection.Create(settings, runtime).MapAsync(c =>
+            {
+                c.AllowStartOfPrograms(callback);
+                return c;
+            });
 
             using (var context = new RfcContext(ConnFunc))
             {
@@ -67,6 +73,50 @@ namespace SAPSystemTests
                 
                 long totalTest1 = 0;
                 long totalTest2 = 0;
+
+                var res = await context.CallFunction("BAPI_DOCUMENT_GETLIST2",
+                    Input: func => func
+                        .SetStructure("SELECT_DOCUMENTDATA", s => s
+                            .SetField("DOCUMENTTYPE", "AW")
+                            .SetField("DOCUMENTNUMBER", "")
+                            .SetField("DOCUMENTPART", "")
+                            .SetField("DOCUMENTVERSION", "")
+                            .SetField("DESCRIPTION", "")
+                            .SetField("STATUSEXTERN", "")
+                        )
+                        .SetField("CLASSTYPE", "")
+                        .SetField("CLASSNO", "")
+                        .SetField("GETDOCDATA", "X")
+                        .SetField("GETDOCDESCRIPTIONS", "X")
+                        .SetField("GETSTRUCTURES", "")
+                        .SetField("GETCLASSIFICATION", "")
+                        .SetField("GETDOCFILES", "X")
+                        .SetField("MAXROWS", 10),
+                    Output: func => 
+                        func.HandleReturn()
+                            .BindAsync( f =>
+                    from docTable in f.GetTable("DOCUMENTDATA")
+                    from structureTable in f.GetTable("DOCUMENTSTRUCTURES")
+                    from charTable in f.GetTable("CHARACTERISTICVALUES")
+                    from filesTable in f.GetTable("DOCUMENTFILES")
+                    from docData in ReadDocuments(docTable, filesTable, structureTable, charTable)
+                    select docData
+                        ));
+
+                await context.CallFunction("BAPI_DOCUMENT_CHECKOUTVIEW2",
+                    Input: func => func
+                        .SetField("DOCUMENTTYPE", "AW")
+                        .SetField("DOCUMENTNUMBER", "AW000083")
+                        .SetField("DOCUMENTPART", "000")
+                        .SetField("DOCUMENTVERSION", "11")
+                    //.SetStructure("DOCUMENTFILE", s => s
+                    //    .SetField("ORIGINALTYPE", kproId.OriginalType)
+                    //    .SetField("APPLICATION_ID", kproId.ApplicationId)
+                    //    .SetField("FILE_ID", kproId.FileId)),
+                    , Output: func => func);
+                Console.WriteLine("done");
+                Console.ReadLine();
+                return;
 
                 for (var run = 0; run < repeats; run++)
                 {
@@ -148,6 +198,45 @@ namespace SAPSystemTests
         private static Task<Either<RfcErrorInfo, IFunction>> SetRows(Task<Either<RfcErrorInfo, IFunction>> func, in int rows)
         {
             return rows == 0 ? func : func.SetField("IV_UP_TO", rows);
+        }
+
+        private static Either<RfcErrorInfo, Unit> ReadDocuments(ITable docTable,
+            ITable filesTable, ITable structureTable, ITable charTable)
+        {
+            var res = (from files in ReadFilesTable(filesTable)
+                    //from structures in ReadStructureListTable(structureTable, expandSettings.Structure)
+                    //from chars in ReadCharacteristicsListTable(charTable, expandSettings.Characteristics)
+                    select files)
+
+                .Bind(values => docTable.Rows.Map(
+                    row => from docType in row.GetField<string>("DOCUMENTTYPE")
+                        from docNumber in row.GetField<string>("DOCUMENTNUMBER")
+                        from docPart in row.GetField<string>("DOCUMENTPART")
+                        from docVersion in row.GetField<string>("DOCUMENTVERSION")
+                        from description in row.GetField<string>("DESCRIPTION")
+                        from status in row.GetField<string>("STATUSEXTERN")
+                        select (values, docNumber))).Traverse(l => l);
+
+            return Unit.Default;
+        }
+
+        internal static Either<RfcErrorInfo, ImmutableArray<string>> ReadFilesTable(ITable filesTable)
+        {
+
+            var res = filesTable.Rows.Map(
+                row => from docType in row.GetField<string>("DOCUMENTTYPE")
+                    from docNumber in row.GetField<string>("DOCUMENTNUMBER")
+                    from docPart in row.GetField<string>("DOCUMENTPART")
+                    from docVersion in row.GetField<string>("DOCUMENTVERSION")
+                    from originalType in row.GetField<string>("ORIGINALTYPE")
+                    from storageCategory in row.GetField<string>("STORAGECATEGORY")
+                    from application in row.GetField<string>("WSAPPLICATION")
+                    from fileName in row.GetField<string>("DOCFILE")
+                    from applicationId in row.GetField<string>("APPLICATION_ID")
+                    from fileId in row.GetField<string>("FILE_ID")
+                    from checkedIn in row.GetField<bool>("CHECKEDIN")
+                    select fileId).Traverse(l => l).Map(e => e.ToImmutableArray());
+            return res;
         }
     }
 

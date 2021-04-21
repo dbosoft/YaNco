@@ -42,7 +42,7 @@ This package contains the native implementation.</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="5.3.7">
+    <PackageReference Include="GitVersion.MsBuild" Version="5.6.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
