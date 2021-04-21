@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Dbosoft.YaNco.Native
+namespace Dbosoft.YaNco.Internal
 {
     public static class Api
     {

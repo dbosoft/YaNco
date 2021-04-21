@@ -1,7 +1,6 @@
 ﻿using System;
-using Dbosoft.YaNco;
 
-namespace Dbosoft.YaNco.Native
+namespace Dbosoft.YaNco.Internal
 {
     public class FunctionDescriptionHandle : IFunctionDescriptionHandle
     {

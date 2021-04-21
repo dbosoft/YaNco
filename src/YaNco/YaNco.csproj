@@ -32,7 +32,6 @@ This library provides an alternative SAP .NET Connector based on the SAP NetWeav
 
   <ItemGroup>
     <ProjectReference Include="..\YaNco.Core\YaNco.Core.csproj" />
-    <ProjectReference Include="..\YaNco.Runtime\YaNco.Runtime.csproj" />
   </ItemGroup>
 
 </Project>
