@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Dbosoft.YaNco.Internal;
 using LanguageExt;
-using NativeApi = Dbosoft.YaNco.Internal.Api;
 // ReSharper disable UnusedMember.Global
 
 namespace Dbosoft.YaNco
@@ -54,7 +53,7 @@ namespace Dbosoft.YaNco
             // ReSharper restore StringLiteralTypo
 
             Logger.IfSome(l => l.LogTrace("Opening connection", loggedParams));
-            IConnectionHandle handle = NativeApi.OpenConnection(connectionParams, out var errorInfo);
+            IConnectionHandle handle = Api.OpenConnection(connectionParams, out var errorInfo);
             return ResultOrError(handle, errorInfo, true);
         }
 
@@ -62,7 +61,7 @@ namespace Dbosoft.YaNco
             string functionName)
         {
             Logger.IfSome(l => l.LogTrace("reading function description by function name", functionName));
-            IFunctionDescriptionHandle handle = NativeApi.GetFunctionDescription(connectionHandle as ConnectionHandle, functionName, out var errorInfo);
+            IFunctionDescriptionHandle handle = Api.GetFunctionDescription(connectionHandle as ConnectionHandle, functionName, out var errorInfo);
             return ResultOrError(handle, errorInfo);
 
         }
@@ -70,7 +69,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, IFunctionDescriptionHandle> GetFunctionDescription(IFunctionHandle functionHandle)
         {
             Logger.IfSome(l => l.LogTrace("reading function description by function handle", functionHandle));
-            IFunctionDescriptionHandle handle = NativeApi.GetFunctionDescription(functionHandle as FunctionHandle, out var errorInfo);
+            IFunctionDescriptionHandle handle = Api.GetFunctionDescription(functionHandle as FunctionHandle, out var errorInfo);
             return ResultOrError(handle, errorInfo);
 
         }
@@ -78,7 +77,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription(IDataContainerHandle dataContainer)
         {
             Logger.IfSome(l => l.LogTrace("reading type description by container handle", dataContainer));
-            ITypeDescriptionHandle handle = NativeApi.GetTypeDescription(dataContainer as Internal.IDataContainerHandle, out var errorInfo);
+            ITypeDescriptionHandle handle = Api.GetTypeDescription(dataContainer as Internal.IDataContainerHandle, out var errorInfo);
             return ResultOrError(handle, errorInfo);
 
         }
@@ -86,7 +85,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, string> GetFunctionName(IFunctionDescriptionHandle descriptionHandle)
         {
             Logger.IfSome(l => l.LogTrace("reading function name by description handle", descriptionHandle));
-            var rc = NativeApi.GetFunctionName(descriptionHandle as FunctionDescriptionHandle, out var result, out var errorInfo);
+            var rc = Api.GetFunctionName(descriptionHandle as FunctionDescriptionHandle, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -94,7 +93,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, int> GetTypeFieldCount(ITypeDescriptionHandle descriptionHandle)
         {
             Logger.IfSome(l => l.LogTrace("reading field count by type description handle", descriptionHandle));
-            var rc = NativeApi.GetTypeFieldCount(descriptionHandle as TypeDescriptionHandle, out var result, out var errorInfo);
+            var rc = Api.GetTypeFieldCount(descriptionHandle as TypeDescriptionHandle, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -103,7 +102,7 @@ namespace Dbosoft.YaNco
             int index)
         {
             Logger.IfSome(l => l.LogTrace("reading field description by type description handle and index", new { descriptionHandle, index }));
-            var rc = NativeApi.GetTypeFieldDescription(descriptionHandle as TypeDescriptionHandle, index, out var result, out var errorInfo);
+            var rc = Api.GetTypeFieldDescription(descriptionHandle as TypeDescriptionHandle, index, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -112,7 +111,7 @@ namespace Dbosoft.YaNco
             string name)
         {
             Logger.IfSome(l => l.LogTrace("reading field description by type description handle and name", new { descriptionHandle, name }));
-            var rc = NativeApi.GetTypeFieldDescription(descriptionHandle as TypeDescriptionHandle, name, out var result, out var errorInfo);
+            var rc = Api.GetTypeFieldDescription(descriptionHandle as TypeDescriptionHandle, name, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -120,7 +119,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, IFunctionHandle> CreateFunction(IFunctionDescriptionHandle descriptionHandle)
         {
             Logger.IfSome(l => l.LogTrace("creating function by function description handle", descriptionHandle));
-            IFunctionHandle handle = NativeApi.CreateFunction(descriptionHandle as FunctionDescriptionHandle, out var errorInfo);
+            IFunctionHandle handle = Api.CreateFunction(descriptionHandle as FunctionDescriptionHandle, out var errorInfo);
             return ResultOrError(handle, errorInfo);
 
         }
@@ -128,7 +127,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, int> GetFunctionParameterCount(IFunctionDescriptionHandle descriptionHandle)
         {
             Logger.IfSome(l => l.LogTrace("reading function parameter count by function description handle", descriptionHandle));
-            var rc = NativeApi.GetFunctionParameterCount(descriptionHandle as FunctionDescriptionHandle, out var result, out var errorInfo);
+            var rc = Api.GetFunctionParameterCount(descriptionHandle as FunctionDescriptionHandle, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -137,7 +136,7 @@ namespace Dbosoft.YaNco
             IFunctionDescriptionHandle descriptionHandle, int index)
         {
             Logger.IfSome(l => l.LogTrace("reading function parameter description by function description handle and index", new { descriptionHandle, index }));
-            var rc = NativeApi.GetFunctionParameterDescription(descriptionHandle as FunctionDescriptionHandle, index, out var result, out var errorInfo);
+            var rc = Api.GetFunctionParameterDescription(descriptionHandle as FunctionDescriptionHandle, index, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -146,7 +145,7 @@ namespace Dbosoft.YaNco
             IFunctionDescriptionHandle descriptionHandle, string name)
         {
             Logger.IfSome(l => l.LogTrace("reading function parameter description by function description handle and name", new { descriptionHandle, name }));
-            var rc = NativeApi.GetFunctionParameterDescription(descriptionHandle as FunctionDescriptionHandle, name, out var result, out var errorInfo);
+            var rc = Api.GetFunctionParameterDescription(descriptionHandle as FunctionDescriptionHandle, name, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -154,7 +153,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, Unit> Invoke(IConnectionHandle connectionHandle, IFunctionHandle functionHandle)
         {
             Logger.IfSome(l => l.LogTrace("Invoking function", new { connectionHandle, functionHandle }));
-            var rc = NativeApi.Invoke(connectionHandle as ConnectionHandle, functionHandle as FunctionHandle, out var errorInfo);
+            var rc = Api.Invoke(connectionHandle as ConnectionHandle, functionHandle as FunctionHandle, out var errorInfo);
             return ResultOrError(Unit.Default, rc, errorInfo);
 
         }
@@ -162,7 +161,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, IStructureHandle> GetStructure(IDataContainerHandle dataContainer, string name)
         {
             Logger.IfSome(l => l.LogTrace("creating structure by data container handle and name", new { dataContainer, name }));
-            var rc = NativeApi.GetStructure(dataContainer as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
+            var rc = Api.GetStructure(dataContainer as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
             return ResultOrError((IStructureHandle)result, rc, errorInfo);
 
         }
@@ -170,7 +169,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, ITableHandle> GetTable(IDataContainerHandle dataContainer, string name)
         {
             Logger.IfSome(l => l.LogTrace("creating table by data container handle and name", new { dataContainer, name }));
-            var rc = NativeApi.GetTable(dataContainer as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
+            var rc = Api.GetTable(dataContainer as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
             return ResultOrError((ITableHandle)result, rc, errorInfo);
 
         }
@@ -178,7 +177,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, ITableHandle> CloneTable(ITableHandle tableHandle)
         {
             Logger.IfSome(l => l.LogTrace("cloning table by tableHandle", tableHandle));
-            ITableHandle handle = NativeApi.CloneTable(tableHandle as TableHandle, out var errorInfo);
+            ITableHandle handle = Api.CloneTable(tableHandle as TableHandle, out var errorInfo);
             return ResultOrError(handle, errorInfo);
 
         }
@@ -187,7 +186,7 @@ namespace Dbosoft.YaNco
             StartProgramDelegate callback)
         {
             Logger.IfSome(l => l.LogTrace("Setting allow start of programs callback"));
-            NativeApi.AllowStartOfPrograms(connectionHandle as ConnectionHandle, callback, out var errorInfo);
+            Api.AllowStartOfPrograms(connectionHandle as ConnectionHandle, callback, out var errorInfo);
             return ResultOrError(Unit.Default, errorInfo.Code, errorInfo);
 
         }
@@ -195,7 +194,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, int> GetTableRowCount(ITableHandle tableHandle)
         {
             Logger.IfSome(l => l.LogTrace("reading table row count by table handle", tableHandle));
-            var rc = NativeApi.GetTableRowCount(tableHandle as TableHandle, out var result, out var errorInfo);
+            var rc = Api.GetTableRowCount(tableHandle as TableHandle, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -203,7 +202,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, IStructureHandle> GetCurrentTableRow(ITableHandle tableHandle)
         {
             Logger.IfSome(l => l.LogTrace("reading current table row by table handle", tableHandle));
-            IStructureHandle handle = NativeApi.GetCurrentTableRow(tableHandle as TableHandle, out var errorInfo);
+            IStructureHandle handle = Api.GetCurrentTableRow(tableHandle as TableHandle, out var errorInfo);
             return ResultOrError(handle, errorInfo);
 
         }
@@ -211,7 +210,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, IStructureHandle> AppendTableRow(ITableHandle tableHandle)
         {
             Logger.IfSome(l => l.LogTrace("append table row by table handle", tableHandle));
-            IStructureHandle handle = NativeApi.AppendTableRow(tableHandle as TableHandle, out var errorInfo);
+            IStructureHandle handle = Api.AppendTableRow(tableHandle as TableHandle, out var errorInfo);
             return ResultOrError(handle, errorInfo);
 
         }
@@ -219,7 +218,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, Unit> MoveToNextTableRow(ITableHandle tableHandle)
         {
             Logger.IfSome(l => l.LogTrace("move to next table row by table handle", tableHandle));
-            var rc = NativeApi.MoveToNextTableRow(tableHandle as TableHandle, out var errorInfo);
+            var rc = Api.MoveToNextTableRow(tableHandle as TableHandle, out var errorInfo);
             return ResultOrError(Unit.Default, rc, errorInfo);
 
         }
@@ -227,7 +226,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, Unit> MoveToFirstTableRow(ITableHandle tableHandle)
         {
             Logger.IfSome(l => l.LogTrace("move to first table row by table handle", tableHandle));
-            var rc = NativeApi.MoveToFirstTableRow(tableHandle as TableHandle, out var errorInfo);
+            var rc = Api.MoveToFirstTableRow(tableHandle as TableHandle, out var errorInfo);
             return ResultOrError(Unit.Default, rc, errorInfo);
 
         }
@@ -236,7 +235,7 @@ namespace Dbosoft.YaNco
             string value)
         {
             Logger.IfSome(l => l.LogTrace("setting string value by name", new { containerHandle, name, value}));
-            var rc = NativeApi.SetString(containerHandle as Internal.IDataContainerHandle, name, value, out var errorInfo);
+            var rc = Api.SetString(containerHandle as Internal.IDataContainerHandle, name, value, out var errorInfo);
             return ResultOrError(Unit.Default, rc, errorInfo);
 
         }
@@ -244,7 +243,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, string> GetString(IDataContainerHandle containerHandle, string name)
         {
             Logger.IfSome(l => l.LogTrace("reading string value by name", new { containerHandle, name}));
-            var rc = NativeApi.GetString(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
+            var rc = Api.GetString(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -253,7 +252,7 @@ namespace Dbosoft.YaNco
             string value)
         {
             Logger.IfSome(l => l.LogTrace("setting date string value by name", new { containerHandle, name, value }));
-            var rc = NativeApi.SetDateString(containerHandle as Internal.IDataContainerHandle, name, value, out var errorInfo);
+            var rc = Api.SetDateString(containerHandle as Internal.IDataContainerHandle, name, value, out var errorInfo);
             return ResultOrError(Unit.Default, rc, errorInfo);
 
         }
@@ -261,7 +260,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, string> GetDateString(IDataContainerHandle containerHandle, string name)
         {
             Logger.IfSome(l => l.LogTrace("reading date string value by name", new { containerHandle, name }));
-            var rc = NativeApi.GetDateString(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
+            var rc = Api.GetDateString(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -270,7 +269,7 @@ namespace Dbosoft.YaNco
             string value)
         {
             Logger.IfSome(l => l.LogTrace("setting time string value by name", new { containerHandle, name, value }));
-            var rc = NativeApi.SetTimeString(containerHandle as Internal.IDataContainerHandle, name, value, out var errorInfo);
+            var rc = Api.SetTimeString(containerHandle as Internal.IDataContainerHandle, name, value, out var errorInfo);
             return ResultOrError(Unit.Default, rc, errorInfo);
 
         }
@@ -278,7 +277,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, string> GetTimeString(IDataContainerHandle containerHandle, string name)
         {
             Logger.IfSome(l => l.LogTrace("getting time string value by name", new { containerHandle, name }));
-            var rc = NativeApi.GetTimeString(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
+            var rc = Api.GetTimeString(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
 
         }
@@ -288,35 +287,35 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, Unit> SetInt(IDataContainerHandle containerHandle, string name, int value)
         {
             Logger.IfSome(l => l.LogTrace("setting int value by name", new { containerHandle, name, value }));
-            var rc = NativeApi.SetInt(containerHandle as Internal.IDataContainerHandle, name, value, out var errorInfo);
+            var rc = Api.SetInt(containerHandle as Internal.IDataContainerHandle, name, value, out var errorInfo);
             return ResultOrError(Unit.Default, rc, errorInfo);
         }
 
         public Either<RfcErrorInfo, int> GetInt(IDataContainerHandle containerHandle, string name)
         {
             Logger.IfSome(l => l.LogTrace("getting int value by name", new { containerHandle, name }));
-            var rc = NativeApi.GetInt(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
+            var rc = Api.GetInt(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
         }
 
         public Either<RfcErrorInfo, Unit> SetLong(IDataContainerHandle containerHandle, string name, long value)
         {
             Logger.IfSome(l => l.LogTrace("setting long value by name", new { containerHandle, name, value }));
-            var rc = NativeApi.SetLong(containerHandle as Internal.IDataContainerHandle, name, value, out var errorInfo);
+            var rc = Api.SetLong(containerHandle as Internal.IDataContainerHandle, name, value, out var errorInfo);
             return ResultOrError(Unit.Default, rc, errorInfo);
         }
 
         public Either<RfcErrorInfo, long> GetLong(IDataContainerHandle containerHandle, string name)
         {
             Logger.IfSome(l => l.LogTrace("getting long value by name", new { containerHandle, name }));
-            var rc = NativeApi.GetLong(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
+            var rc = Api.GetLong(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
         }
 
         public Either<RfcErrorInfo, Unit> SetBytes(IDataContainerHandle containerHandle, string name, byte[] buffer, long bufferLength)
         {
             Logger.IfSome(l => l.LogTrace("setting byte value by name", new { containerHandle, name }));
-            var rc = NativeApi.SetBytes(containerHandle as Internal.IDataContainerHandle, name, buffer, (uint) bufferLength, out var errorInfo);
+            var rc = Api.SetBytes(containerHandle as Internal.IDataContainerHandle, name, buffer, (uint) bufferLength, out var errorInfo);
             return ResultOrError(Unit.Default, rc, errorInfo);
 
         }
@@ -324,7 +323,7 @@ namespace Dbosoft.YaNco
         public Either<RfcErrorInfo, byte[]> GetBytes(IDataContainerHandle containerHandle, string name)
         {
             Logger.IfSome(l => l.LogTrace("getting byte value by name", new { containerHandle, name }));
-            var rc = NativeApi.GetBytes(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
+            var rc = Api.GetBytes(containerHandle as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
             return ResultOrError(result, rc, errorInfo);
         }
     }
