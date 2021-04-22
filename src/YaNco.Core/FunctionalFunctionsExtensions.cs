@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt;
 
@@ -50,6 +48,23 @@ namespace Dbosoft.YaNco
 
         // ReSharper disable InconsistentNaming
 
+        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TRInput, TResult>(this IRfcContext context, string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TRInput>> Input, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        {
+            return context.CreateFunction(functionName).Use(
+                func => func
+                    .Apply(Input).Bind(i => func)
+                    .Bind(context.InvokeFunction).Bind(i => func)
+                    .Apply(Output));
+
+        }
+
+        public static Task<Either<RfcErrorInfo, TResult>> CallFunctionAsync<TRInput, TResult>(this IRfcContext context,
+            string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TRInput>> Input,
+            Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        {
+            return CallFunction(context, functionName, Input, Output).ToEither();
+        }
+
         public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TRInput, TResult>(this IRfcContext context,
             string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TRInput>> Input,
             Func<IFunction, Either<RfcErrorInfo,TResult>> Output)
@@ -68,6 +83,20 @@ namespace Dbosoft.YaNco
             return CallFunction(context, functionName, Input, Output).ToEither();
         }
 
+        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TResult>(this IRfcContext context, string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        {
+            return context.CreateFunction(functionName).Use(
+                func => func
+                    .Bind(context.InvokeFunction).Bind(i => func)
+                    .Apply(Output));
+        }
+
+        public static Task<Either<RfcErrorInfo, TResult>> CallFunctionAsync<TResult>(this IRfcContext context,
+            string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        {
+            return CallFunction(context, functionName, Output).ToEither();
+        }
+
         public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TResult>(this IRfcContext context, string functionName, Func<IFunction, Either<RfcErrorInfo, TResult>> Output)
         {
             return context.CreateFunction(functionName).Use(
@@ -80,6 +109,23 @@ namespace Dbosoft.YaNco
             string functionName, Func<IFunction, Either<RfcErrorInfo, TResult>> Output)
         {
             return CallFunction(context, functionName, Output).ToEither();
+        }
+
+        public static EitherAsync<RfcErrorInfo, Unit> CallFunctionAsUnit<TRInput, TResult>(this IRfcContext context, string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TRInput>> Input, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        {
+            return context.CreateFunction(functionName).Use(
+                func => func
+                    .Apply(Input).Bind(i => func)
+                    .Bind(context.InvokeFunction).Bind(i => func)
+                    .Apply(Output)).Map(f => Unit.Default);
+
+        }
+
+        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnitAsync<TRInput, TResult>(this IRfcContext context,
+            string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TRInput>> Input,
+            Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        {
+            return CallFunctionAsUnit(context, functionName, Input, Output).ToEither();
         }
 
         public static EitherAsync<RfcErrorInfo, Unit> CallFunctionAsUnit<TRInput>(this IRfcContext context, string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TRInput>> Input)
