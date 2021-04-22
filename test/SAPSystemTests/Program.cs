@@ -56,15 +56,9 @@ namespace SAPSystemTests
                 return RfcErrorInfo.Ok();
             };
 
-            var runtime = new RfcRuntime(new SimpleConsoleLogger());
-
-
-            Task<Either<RfcErrorInfo, IConnection>> ConnFunc() => Connection.Create(settings, runtime);
-
-            using (var context = new RfcContext(ConnFunc))
+            using (var context = new RfcContext(settings, new SimpleConsoleLogger()))
             {
-                await context.Ping();
-                
+                await context.PingAsync();
                 long totalTest1 = 0;
                 long totalTest2 = 0;
 
@@ -91,25 +85,20 @@ namespace SAPSystemTests
         {
             var watch = Stopwatch.StartNew();
 
-            var result = await context.CallFunction("ZYANCO_PT_READ_1",
+            var result = await context.CallFunctionAsync("ZYANCO_PT_READ_1",
                 func => SetRows(func, rows),
-                func => func.BindAsync(f =>
-                    from resultTable in f.GetTable("ET_DATA")
-                    from row in resultTable.Rows.Map(s =>
-                        from char40 in s.GetField<string>("FIELD_CHAR40")
-                        from char01 in s.GetField<string>("FIELD_CHAR01")
-                        from int04 in s.GetField<int>("FIELD_INT4")
-                        //from s in s.GetField<string>("FIELD_STRING")
+                func => func.MapTable("ET_DATA", s =>
+                    from char40 in s.GetField<string>("FIELD_CHAR40")
+                    from char01 in s.GetField<string>("FIELD_CHAR01")
+                    from int04 in s.GetField<int>("FIELD_INT4")
+                    //from s in s.GetField<string>("FIELD_STRING")
 
-                        select new TestData
-                        {
-                            Char01 = char01,
-                            Char40 = char40,
-                            Int04 = int04
-                        }
-                    ).Traverse(l => l)
-
-                    select row)).MapAsync(x => x.ToArray());
+                    select new TestData
+                    {
+                        Char01 = char01,
+                        Char40 = char40,
+                        Int04 = int04
+                    }));
 
             watch.Stop();
             return watch.ElapsedMilliseconds;
@@ -122,9 +111,7 @@ namespace SAPSystemTests
 
             var result = await context.CallFunction("ZYANCO_PT_READ_2",
                 func => SetRows(func, rows),
-                func => func.BindAsync(f =>
-                    from resultTable in f.GetTable("ET_DATA")
-                    from row in resultTable.Rows.Map(s =>
+                func => func.MapTable("ET_DATA", s =>
                         from char40 in s.GetField<string>("FIELD_CHAR40")
                         from char01 in s.GetField<string>("FIELD_CHAR01")
                         from int04 in s.GetField<int>("FIELD_INT4")
@@ -137,15 +124,14 @@ namespace SAPSystemTests
                             Int04 = int04,
                             String = str
                         }
-                    ).Traverse(l => l)
-                    select row)).MapAsync(x => x.ToArray());
+                    )).ToEither();
 
             watch.Stop();
             return watch.ElapsedMilliseconds;
 
         }
 
-        private static Task<Either<RfcErrorInfo, IFunction>> SetRows(Task<Either<RfcErrorInfo, IFunction>> func, in int rows)
+        private static EitherAsync<RfcErrorInfo, IFunction> SetRows(EitherAsync<RfcErrorInfo, IFunction> func, in int rows)
         {
             return rows == 0 ? func : func.SetField("IV_UP_TO", rows);
         }

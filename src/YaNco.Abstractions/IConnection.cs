@@ -6,11 +6,11 @@ namespace Dbosoft.YaNco
 {
     public interface IConnection : IDisposable
     {
-        Task<Either<RfcErrorInfo, Unit>> CommitAndWait();
-        Task<Either<RfcErrorInfo, Unit>> Commit();
-        Task<Either<RfcErrorInfo, Unit>> Rollback();
-        Task<Either<RfcErrorInfo, IFunction>> CreateFunction(string name);
-        Task<Either<RfcErrorInfo, Unit>> InvokeFunction(IFunction function);
-        Task<Either<RfcErrorInfo, Unit>> AllowStartOfPrograms(StartProgramDelegate callback);
+        EitherAsync<RfcErrorInfo, Unit> CommitAndWait();
+        EitherAsync<RfcErrorInfo, Unit> Commit();
+        EitherAsync<RfcErrorInfo, Unit> Rollback();
+        EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name);
+        EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function);
+        EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback);
     }
 }

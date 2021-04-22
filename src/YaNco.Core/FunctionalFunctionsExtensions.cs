@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt;
 
@@ -9,21 +10,21 @@ namespace Dbosoft.YaNco
     public static class FunctionalFunctionsExtensions
     {
 
-        public static Task<Either<RfcErrorInfo, R1>> Commit<R1>(this Task<Either<RfcErrorInfo, R1>> self,
+        internal static EitherAsync<RfcErrorInfo, R1> Commit<R1>(this EitherAsync<RfcErrorInfo, R1> self,
             IRfcContext context)
         {
-            return self.BindAsync(res => context.Commit().MapAsync(u => res));
+            return self.Bind(res => context.Commit().Map(u => res));
         }
 
-        public static Task<Either<RfcErrorInfo, R1>> CommitAndWait<R1>(this Task<Either<RfcErrorInfo, R1>> self,
+        internal static EitherAsync<RfcErrorInfo, R1> CommitAndWait<R1>(this EitherAsync<RfcErrorInfo, R1> self,
             IRfcContext context)
         {
-            return self.BindAsync(res => context.CommitAndWait().MapAsync(u => res));
+            return self.Bind(res => context.CommitAndWait().Map(u => res));
         }
 
-        public static Task<Either<RfcErrorInfo, IFunction>> HandleReturn(this Task<Either<RfcErrorInfo, IFunction>> self)
+        public static EitherAsync<RfcErrorInfo, IFunction> HandleReturn(this EitherAsync<RfcErrorInfo, IFunction> self)
         {
-            return self.BindAsync(f =>
+            return self.Bind(f => (
                 from ret in f.GetStructure("RETURN")
                 from type in ret.GetField<string>("TYPE")
                 from id in ret.GetField<string>("ID")
@@ -35,7 +36,7 @@ namespace Dbosoft.YaNco
                 from v4 in ret.GetField<string>("MESSAGE_V4")
 
                 from _ in ErrorOrResult(f, type, id, number, message, v1, v2, v3, v4)
-                select f);
+                select f).ToAsync());
 
         }
 
@@ -48,91 +49,63 @@ namespace Dbosoft.YaNco
         }
 
         // ReSharper disable InconsistentNaming
-        public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TRInput,TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TResult>>> Output)
+
+        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TRInput, TResult>(this IRfcContext context,
+            string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TRInput>> Input,
+            Func<IFunction, Either<RfcErrorInfo,TResult>> Output)
         {
             return context.CreateFunction(functionName).Use(
                 func => func
-                    .Apply(Input).BindAsync(i=>func)
-                    .BindAsync(context.InvokeFunction).Map(i => func)
-                    .Apply(Output));
-
+                    .Apply(Input).Bind(i => func)
+                    .Bind(context.InvokeFunction).Bind(i => func)
+                    .Bind(f=> Output(f).ToAsync()));
         }
 
-        public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TRInput, TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input, Func<Task<Either<RfcErrorInfo, IFunction>>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        public static Task<Either<RfcErrorInfo, TResult>> CallFunctionAsync<TRInput, TResult>(this IRfcContext context,
+            string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TRInput>> Input,
+            Func<IFunction, Either<RfcErrorInfo, TResult>> Output)
+        {
+            return CallFunction(context, functionName, Input, Output).ToEither();
+        }
+
+        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TResult>(this IRfcContext context, string functionName, Func<IFunction, Either<RfcErrorInfo, TResult>> Output)
         {
             return context.CreateFunction(functionName).Use(
                 func => func
-                    .Apply(Input).BindAsync(i => func)
-                    .BindAsync(context.InvokeFunction).Map(i => func)
-                    .Apply(f => Output(f).ToEither()));
-
+                    .Bind(context.InvokeFunction).Bind(i => func)
+                    .Bind(f => Output(f).ToAsync()));
         }
 
-        public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TResult>>> Output)
+        public static Task<Either<RfcErrorInfo, TResult>> CallFunctionAsync<TResult>(this IRfcContext context,
+            string functionName, Func<IFunction, Either<RfcErrorInfo, TResult>> Output)
+        {
+            return CallFunction(context, functionName, Output).ToEither();
+        }
+
+        public static EitherAsync<RfcErrorInfo, Unit> CallFunctionAsUnit<TRInput>(this IRfcContext context, string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TRInput>> Input)
         {
             return context.CreateFunction(functionName).Use(
                 func => func
-                    .BindAsync(context.InvokeFunction).Map(i => func)
-                    .Apply(Output));
+                    .Apply(Input).Bind(i => func)
+                    .Bind(context.InvokeFunction));
         }
 
-        public static Task<Either<RfcErrorInfo, TResult>> CallFunction<TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnitAsync<TRInput>(this IRfcContext context,
+            string functionName, Func<EitherAsync<RfcErrorInfo, IFunction>, EitherAsync<RfcErrorInfo, TRInput>> Input)
+        {
+            return CallFunctionAsUnit(context, functionName, Input).ToEither();
+        }
+
+        public static EitherAsync<RfcErrorInfo, Unit> CallFunction(this IRfcContext context, string functionName)
         {
             return context.CreateFunction(functionName).Use(
-                func => func
-                    .BindAsync(context.InvokeFunction).Map(i => func)
-                    .Apply(f => Output(f).ToEither()));
-        }
-
-        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnit<TRInput>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input)
-        {
-            return context.CreateFunction(functionName).Use(
-                func => func
-                    .Apply(Input).BindAsync(i => func)
-                    .BindAsync(context.InvokeFunction));
-        }
-
-        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnit<TRInput,TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TResult>>> Output)
-        {
-            return context.CreateFunction(functionName).Use(
-                func => func
-                    .Apply(Input).BindAsync(i => func)
-                    .BindAsync(context.InvokeFunction).Map(i => func)
-                    .Apply(Output)).MapAsync(f => Unit.Default);
+                func => func.Bind(context.InvokeFunction));
 
         }
 
-        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsUnit<TRInput, TResult>(this IRfcContext context, string functionName, Func<Task<Either<RfcErrorInfo, IFunction>>, Task<Either<RfcErrorInfo, TRInput>>> Input, Func<Task<Either<RfcErrorInfo, IFunction>>, EitherAsync<RfcErrorInfo, TResult>> Output)
+        public static Task<Either<RfcErrorInfo, Unit>> CallFunctionAsync(this IRfcContext context, string functionName)
         {
-            return context.CreateFunction(functionName).Use(
-                func => func
-                    .Apply(Input).BindAsync(i => func)
-                    .BindAsync(context.InvokeFunction).Map(i => func)
-                    .Apply(f => Output(f).ToEither()))
-                    .MapAsync(f => Unit.Default);
-
-        }
-
-        public static Task<Either<RfcErrorInfo, Unit>> CallFunction(this IRfcContext context, string functionName)
-        {
-            return context.CreateFunction(functionName).Use(
-                func => func.BindAsync(context.InvokeFunction));
-
-        }
-
-        public static Task<Either<RfcErrorInfo, T>> GetField<T>(this Task<Either<RfcErrorInfo, IFunction>> self, string name)
-        {
-            return self.BindAsync(s => s.GetField<T>(name));
-        }
-
-        static public EitherAsync<RfcErrorInfo, IEnumerable<TResult>> MapTable<TResult>(this Task<Either<RfcErrorInfo, IFunction>> self, string tableName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
-        {
-            return self.BindAsync(f => f.MapTable(tableName, mapperFunc)).ToAsync();
-        }
-
-        static public EitherAsync<RfcErrorInfo, TResult> MapStructure<TResult>(this Task<Either<RfcErrorInfo, IFunction>> self, string structureName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
-        {
-            return self.BindAsync(f => f.MapStructure(structureName, mapperFunc)).ToAsync();
+            return CallFunction(context, functionName).ToEither();
         }
     }
 }

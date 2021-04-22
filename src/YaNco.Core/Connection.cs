@@ -69,47 +69,46 @@ namespace Dbosoft.YaNco
                 });
         }
 
-        public static Task<Either<RfcErrorInfo,IConnection>> Create(IDictionary<string, string> connectionParams, IRfcRuntime runtime)
+        public static EitherAsync<RfcErrorInfo,IConnection> Create(IDictionary<string, string> connectionParams, IRfcRuntime runtime)
         {
-            return runtime.OpenConnection(connectionParams).Map(handle => (IConnection) new Connection(handle, runtime)).AsTask();
+            return runtime.OpenConnection(connectionParams).ToAsync().Map(handle => (IConnection) new Connection(handle, runtime));
         }
 
-
-        public Task<Either<RfcErrorInfo, Unit>> CommitAndWait()
+        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait()
         {
             return CreateFunction("BAPI_TRANSACTION_COMMIT")
                 .SetField("WAIT", "X")
-                .MapAsync(f => f.Apply(InvokeFunction).Map(u => f))
+                .Bind(f => f.Apply(InvokeFunction).Map(u => f))
                 .HandleReturn()
-                .MapAsync(f => Unit.Default);
+                .Map(f => Unit.Default);
 
         }
 
-        public Task<Either<RfcErrorInfo, Unit>> Commit()
+        public EitherAsync<RfcErrorInfo, Unit> Commit()
         {
             return CreateFunction("BAPI_TRANSACTION_COMMIT")
-                .MapAsync(f => f.Apply(InvokeFunction).Map(u=>f))
+                .Bind(f => f.Apply(InvokeFunction).Map(u=>f))
                 .HandleReturn()
-                .MapAsync(f => Unit.Default);
+                .Map(f => Unit.Default);
 
         }
 
-        public Task<Either<RfcErrorInfo, Unit>> Rollback()
+        public EitherAsync<RfcErrorInfo, Unit> Rollback()
         {
             return CreateFunction("BAPI_TRANSACTION_ROLLBACK")
-                .BindAsync(InvokeFunction);
+                .Bind(InvokeFunction);
 
         }
 
 
-        public Task<Either<RfcErrorInfo, IFunction>> CreateFunction(string name) =>
-            _stateAgent.Tell(new CreateFunctionMessage(name)).MapAsync(r => (IFunction) r);
+        public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name) =>
+            _stateAgent.Tell(new CreateFunctionMessage(name)).ToAsync().Map(r => (IFunction) r);
 
-        public Task<Either<RfcErrorInfo, Unit>> InvokeFunction(IFunction function) =>
-            _stateAgent.Tell(new InvokeFunctionMessage(function)).MapAsync(r => Unit.Default);
+        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function) =>
+            _stateAgent.Tell(new InvokeFunctionMessage(function)).ToAsync().Map(r => Unit.Default);
 
-        public Task<Either<RfcErrorInfo, Unit>> AllowStartOfPrograms(StartProgramDelegate callback) =>
-            _stateAgent.Tell(new AllowStartOfProgramsMessage(callback)).MapAsync(r => Unit.Default);
+        public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback) =>
+            _stateAgent.Tell(new AllowStartOfProgramsMessage(callback)).ToAsync().Map(r => Unit.Default);
 
 
         private class AgentMessage
