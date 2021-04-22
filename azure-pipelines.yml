@@ -79,26 +79,12 @@ steps:
     packagesToPack: '**/YaNco.Abstractions.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: pack YaNco.Native
-  inputs:
-    command: 'pack'
-    nobuild: true    
-    packagesToPack: '**/YaNco.Native.csproj'
-
-- task: DotNetCoreCLI@2
   displayName: pack YaNco.Core
   inputs:
     command: 'pack'
     nobuild: true
     packagesToPack: '**/YaNco.Core.csproj'
  
-- task: DotNetCoreCLI@2
-  displayName: pack YaNco.Runtime
-  inputs:
-    command: 'pack'
-    nobuild: true
-    packagesToPack: '**/YaNco.Runtime.csproj'
-
 - task: DotNetCoreCLI@2
   displayName: pack YaNco
   inputs:
