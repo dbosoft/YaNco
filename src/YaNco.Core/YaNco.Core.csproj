@@ -22,7 +22,7 @@ This package contains the core implementation.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dbosoft.Functional" Version="2.0.0-ci.7" />
+    <PackageReference Include="Dbosoft.Functional" Version="2.0.0-beta.1" />
     <PackageReference Include="GitVersionTask" Version="5.3.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
