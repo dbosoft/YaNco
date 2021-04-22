@@ -7,11 +7,16 @@ namespace Dbosoft.YaNco
 {
     public interface IRfcContext : IDisposable
     {
-        Task<Either<RfcErrorInfo, IFunction>> CreateFunction(string name);
-        Task<Either<RfcErrorInfo, Unit>> InvokeFunction(IFunction function);
-        Task<Either<RfcErrorInfo, IRfcContext>> Ping();
-        Task<Either<RfcErrorInfo, Unit>> Commit();
-        Task<Either<RfcErrorInfo, Unit>> CommitAndWait();
-        Task<Either<RfcErrorInfo, Unit>> Rollback();
+        EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name);
+        EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function);
+        EitherAsync<RfcErrorInfo, IRfcContext> Ping();
+        EitherAsync<RfcErrorInfo, Unit> Commit();
+        EitherAsync<RfcErrorInfo, Unit> CommitAndWait();
+        EitherAsync<RfcErrorInfo, Unit> Rollback();
+
+        Task<Either<RfcErrorInfo, IRfcContext>> PingAsync();
+        Task<Either<RfcErrorInfo, Unit>> CommitAsync();
+        Task<Either<RfcErrorInfo, Unit>> CommitAndWaitAsync();
+        Task<Either<RfcErrorInfo, Unit>> RollbackAsync();
     }
 }
