@@ -6,14 +6,13 @@ namespace Dbosoft.YaNco
 {
     public static class FunctionalFunctionsExtensions
     {
-
-        internal static EitherAsync<RfcErrorInfo, R1> Commit<R1>(this EitherAsync<RfcErrorInfo, R1> self,
+        public static EitherAsync<RfcErrorInfo, R1> Commit<R1>(this EitherAsync<RfcErrorInfo, R1> self,
             IRfcContext context)
         {
             return self.Bind(res => context.Commit().Map(u => res));
         }
 
-        internal static EitherAsync<RfcErrorInfo, R1> CommitAndWait<R1>(this EitherAsync<RfcErrorInfo, R1> self,
+        public static EitherAsync<RfcErrorInfo, R1> CommitAndWait<R1>(this EitherAsync<RfcErrorInfo, R1> self,
             IRfcContext context)
         {
             return self.Bind(res => context.CommitAndWait().Map(u => res));
