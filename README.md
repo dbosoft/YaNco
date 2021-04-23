@@ -97,7 +97,7 @@ using (var context = new RfcContext(ConnFunc))
 }
   ```
 
-The RfcRuntime is a low level API that you will typical never use directly. But using this method open a connection allows the replace connection and RfcRuntime by DI containers and for Unit testing. 
+The RfcRuntime is a low level API that you will typical never use directly. But by using this method to open a connection you can replace connection and RfcRuntime by DI containers and for Unit testing.
 
 
 You can now use the RFCContext instance to call ABAP RFMs. 
