@@ -6,36 +6,36 @@ namespace Dbosoft.YaNco
 {
     public static class FunctionalDataContainerExtensions
     {
-        public static EitherAsync<RfcErrorInfo, TDataContainer> SetField<TDataContainer, T>(this EitherAsync<RfcErrorInfo, TDataContainer> self, string name, T value)
+
+        public static Either<RfcErrorInfo, TDataContainer> SetField<TDataContainer, T>(this Either<RfcErrorInfo, TDataContainer> self, string name, T value)
             where TDataContainer : IDataContainer
         {
-            return self.Bind(s => s.SetField(name, value).Map(u => s).ToAsync());
+            return self.Bind(s => s.SetField(name, value).Map(u => s));
         }
 
-        
-        public static EitherAsync<RfcErrorInfo, TDataContainer> SetStructure<TDataContainer, TResult>(this EitherAsync<RfcErrorInfo, TDataContainer> self, string structureName, Func<EitherAsync<RfcErrorInfo, IStructure>, TResult> map)
+        public static Either<RfcErrorInfo, TDataContainer> SetStructure<TDataContainer, TResult>(this Either<RfcErrorInfo, TDataContainer> self, string structureName, Func<Either<RfcErrorInfo, IStructure>, TResult> map)
             where TDataContainer : IDataContainer
         {
              return self.Bind(dc =>
-                dc.GetStructure(structureName).Use(used => used.ToAsync().Apply(map).Apply(_=>used)).ToAsync().Map(_=>dc));
+                dc.GetStructure(structureName).Use(used => used.Apply(map).Apply(_=>used)).Map(_=>dc));
         }
 
-        public static EitherAsync<RfcErrorInfo, TDataContainer> SetTable<TDataContainer, TInput, TResult>(
-            this EitherAsync<RfcErrorInfo, TDataContainer> self, string tableName,
+        public static Either<RfcErrorInfo, TDataContainer> SetTable<TDataContainer, TInput, TResult>(
+            this Either<RfcErrorInfo, TDataContainer> self, string tableName,
             IEnumerable<TInput> inputList,
-            Func<EitherAsync<RfcErrorInfo, IStructure>, TInput, TResult> map)
+            Func<Either<RfcErrorInfo, IStructure>, TInput, TResult> map)
             where TDataContainer : IDataContainer
             => SetTable(self, tableName, () => inputList, map);
 
-        public static EitherAsync<RfcErrorInfo, TDataContainer> SetTable<TDataContainer, TInput, TResult>(this EitherAsync<RfcErrorInfo, TDataContainer> self, string tableName, Func<IEnumerable<TInput>> inputListFunc, Func<EitherAsync<RfcErrorInfo, IStructure>, TInput, TResult> map)
+        public static Either<RfcErrorInfo, TDataContainer> SetTable<TDataContainer, TInput, TResult>(this Either<RfcErrorInfo, TDataContainer> self, string tableName, Func<IEnumerable<TInput>> inputListFunc, Func<Either<RfcErrorInfo, IStructure>, TInput, TResult> map)
             where TDataContainer : IDataContainer
         {
             return self.Bind(dc => dc.GetTable(tableName).Use(used => used.Map(table => (dc, table, inputListFunc))
 
                 .Map(t => t.inputListFunc().Map(
-                    input => t.table.AppendRow().ToAsync()
+                    input => t.table.AppendRow()
                         .Apply(row => map(row, input).Apply(_ => row))
-                ).Traverse(l => l)).Apply(_ => used)).ToAsync().Map(_=>dc));
+                ).Traverse(l => l)).Apply(_ => used)).Map(_=>dc));
 
         }
 

@@ -85,7 +85,7 @@ namespace SAPSystemTests
         {
             var watch = Stopwatch.StartNew();
 
-            var result = await context.CallFunctionAsync("ZYANCO_PT_READ_1",
+            var result = await context.CallFunction("ZYANCO_PT_READ_1",
                 func => SetRows(func, rows),
                 func => func.MapTable("ET_DATA", s =>
                     from char40 in s.GetField<string>("FIELD_CHAR40")
@@ -98,7 +98,7 @@ namespace SAPSystemTests
                         Char01 = char01,
                         Char40 = char40,
                         Int04 = int04
-                    }));
+                    })).ToEither();
 
             watch.Stop();
             return watch.ElapsedMilliseconds;
@@ -131,7 +131,7 @@ namespace SAPSystemTests
 
         }
 
-        private static EitherAsync<RfcErrorInfo, IFunction> SetRows(EitherAsync<RfcErrorInfo, IFunction> func, in int rows)
+        private static Either<RfcErrorInfo, IFunction> SetRows(Either<RfcErrorInfo, IFunction> func, in int rows)
         {
             return rows == 0 ? func : func.SetField("IV_UP_TO", rows);
         }
