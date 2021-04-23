@@ -81,59 +81,6 @@ namespace Dbosoft.YaNco
         }
 
         /// <summary>
-        /// CallFunction with input and output with RfcErrorInfo lifted output functions.
-        /// </summary>
-        /// <typeparam name="TRInput"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="functionName"></param>
-        /// <param name="Input">Input function.</param>
-        /// <param name="Output">Output function lifted in either monad.</param>
-        /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TRInput, TResult>(this IRfcContext context,
-            string functionName, Func<IFunction, Either<RfcErrorInfo, TRInput>> Input,
-            Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TResult>> Output)
-        {
-            return CallFunction(context, functionName, ef => ef.Map(f => Input) , Output);
-        }
-
-        /// <summary>
-        /// CallFunction with input and output with RfcErrorInfo lifted input function.
-        /// </summary>
-        /// <typeparam name="TRInput"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="functionName"></param>
-        /// <param name="Input">Input function.</param>
-        /// <param name="Output">Output function lifted in either monad.</param>
-        /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TRInput, TResult>(this IRfcContext context,
-            string functionName, Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TRInput>> Input,
-            Func<IFunction, Either<RfcErrorInfo, TResult>> Output)
-        {
-            return CallFunction(context, functionName, Input, ef => ef.Bind(Output));
-
-        }
-
-        /// <summary>
-        /// CallFunction with input and output.
-        /// </summary>
-        /// <typeparam name="TRInput"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="functionName"></param>
-        /// <param name="Input">Input function.</param>
-        /// <param name="Output">Output function.</param>
-        /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TRInput, TResult>(this IRfcContext context,
-            string functionName, Func<IFunction, Either<RfcErrorInfo, TRInput>> Input,
-            Func<IFunction, Either<RfcErrorInfo, TResult>> Output)
-        {
-            return CallFunction(context, functionName, ef => ef.Map(f => Input), ef => ef.Bind(Output));
-
-        }
-
-        /// <summary>
         /// CallFunction with RfcErrorInfo lifted output.
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
@@ -152,27 +99,12 @@ namespace Dbosoft.YaNco
         }
 
         /// <summary>
-        /// CallFunction with output only.
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="functionName"></param>
-        /// <param name="Output">Output function</param>
-        /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TResult>(this IRfcContext context,
-            string functionName, Func<IFunction, Either<RfcErrorInfo, TResult>> Output)
-        {
-            return CallFunction(context, functionName, ef => ef.Bind(Output));
-
-        }
-
-        /// <summary>
         /// CallFunction without input or output
         /// </summary>
         /// <param name="context"></param>
         /// <param name="functionName"></param>
         /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, Unit> CallFunction(this IRfcContext context, string functionName)
+        public static EitherAsync<RfcErrorInfo, Unit> CallFunctionOneWay(this IRfcContext context, string functionName)
         {
             return context.CreateFunction(functionName).Use(
                 func => func.Bind(context.InvokeFunction));
@@ -195,18 +127,6 @@ namespace Dbosoft.YaNco
                     from _ in context.InvokeFunction(func)
                     select Unit.Default)
             );
-        }
-
-        /// <summary>
-        /// CallFunction with input and no output
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="functionName"></param>
-        /// <param name="Input">Input function.</param>
-        /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, Unit> CallFunctionOneWay<TRInput>(this IRfcContext context, string functionName, Func<IFunction, Either<RfcErrorInfo, TRInput>> Input)
-        {
-            return CallFunctionOneWay(context, functionName, f => f.Map(Input));
         }
 
     }

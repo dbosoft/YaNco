@@ -13,6 +13,11 @@ namespace Dbosoft.YaNco
             return self.Bind(s => s.SetField(name, value).Map(u => s));
         }
 
+        public static Either<RfcErrorInfo, T> GetField<T>(this Either<RfcErrorInfo, IFunction> self, string name)
+        {
+            return self.Bind(s => s.GetField<T>(name));
+        }
+
         public static Either<RfcErrorInfo, TDataContainer> SetStructure<TDataContainer, TResult>(this Either<RfcErrorInfo, TDataContainer> self, string structureName, Func<Either<RfcErrorInfo, IStructure>, TResult> map)
             where TDataContainer : IDataContainer
         {
@@ -39,19 +44,21 @@ namespace Dbosoft.YaNco
 
         }
 
-        static public Either<RfcErrorInfo, IEnumerable<TResult>> MapStructure<TResult>(this ITable table, Func<IStructure,Either<RfcErrorInfo, TResult>> mapperFunc)
+        static public Either<RfcErrorInfo, IEnumerable<TResult>> MapStructure<TResult>(this Either<RfcErrorInfo,ITable> eitherTable, Func<IStructure,Either<RfcErrorInfo, TResult>> mapperFunc)
         {
-            return table.Rows.Map(mapperFunc).Traverse(l=>l);
+            return eitherTable.Bind(table=> table.Rows.Map(mapperFunc).Traverse(l=>l));
         }
 
-        static public Either<RfcErrorInfo, IEnumerable<TResult>> MapTable<TResult>(this IDataContainer self, string tableName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
+        static public Either<RfcErrorInfo, IEnumerable<TResult>> MapTable<TCont,TResult>(this Either<RfcErrorInfo,TCont> self, string tableName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
+            where TCont: IDataContainer
         {
-            return self.GetTable(tableName).Bind(t => t.MapStructure(mapperFunc));
+            return self.Map(s =>s.GetTable(tableName)).Bind(t => t.MapStructure(mapperFunc));
         }
 
-        static public Either<RfcErrorInfo, TResult> MapStructure<TResult>(this IDataContainer self, string structureName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
+        static public Either<RfcErrorInfo, TResult> MapStructure<TCont,TResult>(this Either<RfcErrorInfo,TCont> self, string structureName, Func<IStructure, Either<RfcErrorInfo, TResult>> mapperFunc)
+            where TCont : IDataContainer
         {
-            return self.GetStructure(structureName).Bind(mapperFunc);
+            return self.Bind(s=>s.GetStructure(structureName).Bind(mapperFunc));
 
         }
 
