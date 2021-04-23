@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Dbosoft.YaNco.Internal;
 using LanguageExt;
 // ReSharper disable UnusedMember.Global
@@ -14,14 +15,24 @@ namespace Dbosoft.YaNco
 
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcErrorInfo errorInfo, bool logAsError = false)
         {
-            if (result == null || errorInfo.Code != RfcRc.RFC_OK)
+            if (result == null || ResultIsNullPointer(result) || errorInfo.Code != RfcRc.RFC_OK)
             {
                 Logger.IfSome(l =>
                 {
-                    if(logAsError)
-                        l.LogError("received error from rfc call", errorInfo);
+                    if (errorInfo.Code == RfcRc.RFC_OK)
+                    {
+                        if (logAsError)
+                            l.LogError("received invalid null response from rfc call", result);
+                        else
+                            l.LogError("received invalid null response from rfc call", result);
+                    }
                     else
-                        l.LogDebug("received error from rfc call", errorInfo);
+                    {
+                        if (logAsError)
+                            l.LogError("received error from rfc call", errorInfo);
+                        else
+                            l.LogDebug("received error from rfc call", errorInfo);
+                    }
                 });
                 return errorInfo;
             }
@@ -29,6 +40,14 @@ namespace Dbosoft.YaNco
             Logger.IfSome(l => l.LogTrace("received result value from rfc call", result));
 
             return result;
+        }
+
+        private bool ResultIsNullPointer<TResult>(TResult result)
+        {
+            if (result is IntPtr ptr)
+                return ptr == IntPtr.Zero;
+
+            return false;
         }
 
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcRc rc, RfcErrorInfo errorInfo)
