@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Dbosoft.YaNco.Internal;
 using LanguageExt;
 // ReSharper disable UnusedMember.Global
@@ -19,20 +18,10 @@ namespace Dbosoft.YaNco
             {
                 Logger.IfSome(l =>
                 {
-                    if (errorInfo.Code == RfcRc.RFC_OK)
-                    {
-                        if (logAsError)
-                            l.LogError("received invalid null response from rfc call", result);
-                        else
-                            l.LogError("received invalid null response from rfc call", result);
-                    }
+                    if(logAsError)
+                        l.LogError("received error from rfc call", errorInfo);
                     else
-                    {
-                        if (logAsError)
-                            l.LogError("received error from rfc call", errorInfo);
-                        else
-                            l.LogDebug("received error from rfc call", errorInfo);
-                    }
+                        l.LogDebug("received error from rfc call", errorInfo);
                 });
                 return errorInfo;
             }

@@ -53,13 +53,9 @@ namespace Dbosoft.YaNco
 
         public void Reset()
         {
+            _handle.IfSome(h => _rfcRuntime.MoveToFirstTableRow(h));
             _first = true;
-
-            _handle.IfSome(h =>
-            {
-                _rfcRuntime.MoveToFirstTableRow(h)
-                    .Map(u => ReadCurrentRow());
-            });
+            ReadCurrentRow();
         }
         
         public Structure Current
