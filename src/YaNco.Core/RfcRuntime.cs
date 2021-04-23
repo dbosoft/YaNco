@@ -22,7 +22,6 @@ namespace Dbosoft.YaNco
                         l.LogError("received error from rfc call", errorInfo);
                     else
                         l.LogDebug("received error from rfc call", errorInfo);
-
                 });
                 return errorInfo;
             }
