@@ -77,7 +77,7 @@ namespace Dbosoft.YaNco
         public EitherAsync<RfcErrorInfo, Unit> CommitAndWait()
         {
             return CreateFunction("BAPI_TRANSACTION_COMMIT")
-                .SetField("WAIT", "X")
+                .Bind(f => f.SetField("WAIT", "X").Map(_=>f).ToAsync())
                 .Bind(f => f.Apply(InvokeFunction).Map(u => f))
                 .HandleReturn()
                 .Map(f => Unit.Default);

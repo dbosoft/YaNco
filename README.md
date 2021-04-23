@@ -73,18 +73,23 @@ var settings = new Dictionary<string, string>
 };
 ```
 
-To open the connection create a runtime instance and a connection opening function.
+To open the connection create a RfcContext instance and pass the settings as argument.
+
+```csharp
+using (var context = new RfcContext(settings))
+{
+   ...
+
+}
+  ```
+
+A alternative way is to create the RfcContext by a RfcRuntime instance. You will also need a function to open the connection with the settings. 
 
 ```csharp
 var runtime = new RfcRuntime();
 
 Task<IConnection> ConnFunc() => Connection.Create(settings, runtime);
 
-```
-
-The RfcRuntime is a low level API that you will typical never use directly. Instead you can use the connection function to open a RFCContext. 
-
-```csharp
 using (var context = new RfcContext(ConnFunc))
 {
    ...
@@ -92,7 +97,10 @@ using (var context = new RfcContext(ConnFunc))
 }
   ```
 
-Use the RFCContext instance to call ABAP RFMs. 
+The RfcRuntime is a low level API that you will typical never use directly. But by using this method to open a connection you can replace connection and RfcRuntime by DI containers and for Unit testing.
+
+
+You can now use the RFCContext instance to call ABAP RFMs. 
 
 **calling functions**
 
@@ -103,7 +111,7 @@ We provide a extension method on the RFCContext that supports a syntax similar t
 - *CHANGING* and *TABLES* parameters can be used in both functions 
 
 ```csharp
-using (var context = new RfcContext(ConnFunc))
+using (var context = new RfcContext(settings))
 {
     await context.CallFunction("DDIF_FIELDLABEL_GET",
             Input: f => f
@@ -111,10 +119,10 @@ using (var context = new RfcContext(ConnFunc))
                 .SetField("FIELDNAME", "BNAME"),
             Output: f => f
                 .GetField<string>("LABEL"))
-    
-    // this is from language.ext to extract the value from a either
-    .ToAsync().Match(r => Console.WriteLine($"Result: {r}"), // should return: User Name
-                      l => Console.WriteLine($"Error: {l.Message}"));
+
+        // this is from language.ext to extract the value from a either
+        .Match(r => Console.WriteLine($"Result: {r}"), // should return: User Name
+            l => Console.WriteLine($"Error: {l.Message}"));
 }
   ```
 The Result of the function is a Either<L,R> type (see language.ext [Either left right monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Either_L_R.htm)). The Match call at the end either writes the result (right value) or a rfc error (left value). 
@@ -129,16 +137,17 @@ using (var context = new RfcContext(ConnFunc))
     await context.CallFunction("BAPI_COMPANYCODE_GETDETAIL",
             Input: f => f
                 .SetField("COMPANYCODEID", "1000"),
-            Output: func => func.BindAsync(f=>f.GetStructure("COMPANYCODE_DETAIL"))
-                        .BindAsync(s => s.GetField<string>("COMP_NAME")
-                 )
-                )
-        .ToAsync().Match(r => Console.WriteLine($"Result: {r}"),
+            Output: f => f
+                .MapStructure("COMPANYCODE_DETAIL", s=> s
+                    .GetField<string>("COMP_NAME"))
+        )
+        .Match(r => Console.WriteLine($"Result: {r}"),
             l => Console.WriteLine($"Error: {l.Message}"));
+
 }
   ```
 
-This looks a bit complicated due to the nested BindAsync calls. Alternatively, you can also use a LINQ syntax and the extension method MapStructure to get rid of the first BindAsync:
+Alternatively, you can also use a LINQ syntax:
 
 ```csharp
 using (var context = new RfcContext(ConnFunc))
@@ -146,13 +155,15 @@ using (var context = new RfcContext(ConnFunc))
     await context.CallFunction("BAPI_COMPANYCODE_GETDETAIL",
         Input: f => f
             .SetField("COMPANYCODEID", "1000"),
-        Output: func => func.MapStructure("COMPANYCODE_DETAIL", s =>
-            from name in s.GetField<string>("COMP_NAME")
-            select name
-        )
-                 
-        .ToAsync().Match(r => Console.WriteLine($"Result: {r}"),
-            l => Console.WriteLine($"Error: {l.Message}"));
+        Output: f => f
+            .MapStructure("COMPANYCODE_DETAIL", s =>
+                from name in s.GetField<string>("COMP_NAME")
+                select name
+            ))
+
+            .Match(r => Console.WriteLine($"Result: {r}"),
+                l => Console.WriteLine($"Error: {l.Message}"));
+
 }
   ```
 Especially for complex structures, the LINQ syntax is often easier to read.
@@ -165,19 +176,21 @@ Getting table results is possible by iterating over the table rows to retrieve t
 using (var context = new RfcContext(ConnFunc))
 {
     await context.CallFunction("BAPI_COMPANYCODE_GETLIST",
-        Output: func => func.MapTable("COMPANYCODE_LIST",s =>
-                from code in s.GetField<string>("COMP_CODE")
-                from name in s.GetField<string>("COMP_NAME")
-                select (code, name)))
-    .ToAsync().Match(
-        r =>
+            Output: f => f
+                .MapTable("COMPANYCODE_LIST", s =>
+                    from code in s.GetField<string>("COMP_CODE")
+                    from name in s.GetField<string>("COMP_NAME")
+                    select (code, name)))
+        .Match(
+            r =>
             {
                 foreach (var (code, name) in r)
                 {
                     Console.WriteLine($"{code}\t{name}");
                 }
             },
-        l=> Console.WriteLine($"Error: {l.Message}"));
+            l => Console.WriteLine($"Error: {l.Message}"));
+
 }
   ```
 
