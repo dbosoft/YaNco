@@ -19,18 +19,15 @@ namespace Dbosoft.YaNco.Internal
         public static FunctionDescriptionHandle GetFunctionDescription(FunctionHandle functionHandle,
             out RfcErrorInfo errorInfo)
         {
-            var ptr = Interopt.RfcDescribeFunction(functionHandle.Ptr, out errorInfo);
-            return ptr == IntPtr.Zero
-                ? null : new FunctionDescriptionHandle(ptr);
+            return new FunctionDescriptionHandle(Interopt.RfcDescribeFunction(functionHandle.Ptr, out errorInfo));
 
         }
 
         public static FunctionDescriptionHandle GetFunctionDescription(ConnectionHandle connectionHandle,
             string functionName, out RfcErrorInfo errorInfo)
         {
-            var ptr = Interopt.RfcGetFunctionDesc(connectionHandle.Ptr, functionName, out errorInfo);
-            return ptr == IntPtr.Zero
-                ? null : new FunctionDescriptionHandle(ptr);
+            return new FunctionDescriptionHandle(Interopt.RfcGetFunctionDesc(connectionHandle.Ptr, functionName, out errorInfo));
+
         }
 
         public static RfcRc GetFunctionName(FunctionDescriptionHandle descriptionHandle, out string functionName,
@@ -43,9 +40,7 @@ namespace Dbosoft.YaNco.Internal
         public static TypeDescriptionHandle GetTypeDescription(IDataContainerHandle dataContainer,
             out RfcErrorInfo errorInfo)
         {
-            var ptr = Interopt.RfcDescribeType(dataContainer.Ptr, out errorInfo);
-            return ptr == IntPtr.Zero
-                ? null : new TypeDescriptionHandle(ptr);
+            return new TypeDescriptionHandle(Interopt.RfcDescribeType(dataContainer.Ptr, out errorInfo));
 
         }
 
@@ -77,9 +72,7 @@ namespace Dbosoft.YaNco.Internal
         public static FunctionHandle CreateFunction(FunctionDescriptionHandle descriptionHandle,
             out RfcErrorInfo errorInfo)
         {
-            var ptr = Interopt.RfcCreateFunction(descriptionHandle.Ptr, out errorInfo);
-            return ptr == IntPtr.Zero
-                ? null : new FunctionHandle(ptr);
+            return new FunctionHandle(Interopt.RfcCreateFunction(descriptionHandle.Ptr, out errorInfo));
 
         }
 
@@ -123,8 +116,7 @@ namespace Dbosoft.YaNco.Internal
             out StructureHandle structure, out RfcErrorInfo errorInfo)
         {
             var rc = Interopt.RfcGetStructure(dataContainer.Ptr, name, out var structPtr, out errorInfo);
-            
-            structure = structPtr != IntPtr.Zero ? new StructureHandle(structPtr) : null;
+            structure = new StructureHandle(structPtr);
             return rc;
 
         }
@@ -133,15 +125,14 @@ namespace Dbosoft.YaNco.Internal
             out RfcErrorInfo errorInfo)
         {
             var rc = Interopt.RfcGetTable(dataContainer.Ptr, name, out var tablePtr, out errorInfo);
-            table = tablePtr != IntPtr.Zero ? new TableHandle(tablePtr) : null;
+            table = new TableHandle(tablePtr);
             return rc;
 
         }
 
         public static TableHandle CloneTable(TableHandle tableHandle, out RfcErrorInfo errorInfo)
         {
-            var ptr = Interopt.RfcCloneTable(tableHandle.Ptr, out errorInfo);
-            return ptr!= IntPtr.Zero ? new TableHandle(ptr): null;
+            return new TableHandle(Interopt.RfcCloneTable(tableHandle.Ptr, out errorInfo));
 
         }
 
@@ -199,17 +190,13 @@ namespace Dbosoft.YaNco.Internal
 
         public static StructureHandle GetCurrentTableRow(TableHandle table, out RfcErrorInfo errorInfo)
         {
-            var ptr = Interopt.RfcGetCurrentRow(table.Ptr, out errorInfo);
-            return ptr == IntPtr.Zero
-                ?  null: new StructureHandle(ptr);
+            return new StructureHandle(Interopt.RfcGetCurrentRow(table.Ptr, out errorInfo));
 
         }
 
         public static StructureHandle AppendTableRow(TableHandle table, out RfcErrorInfo errorInfo)
         {
-            var ptr = Interopt.RfcAppendNewRow(table.Ptr, out errorInfo);
-            return ptr == IntPtr.Zero
-                ? null : new StructureHandle(ptr);
+            return new StructureHandle(Interopt.RfcAppendNewRow(table.Ptr, out errorInfo));
 
         }
 

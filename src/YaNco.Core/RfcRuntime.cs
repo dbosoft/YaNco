@@ -14,7 +14,7 @@ namespace Dbosoft.YaNco
 
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcErrorInfo errorInfo, bool logAsError = false)
         {
-            if (result == null || errorInfo.Code != RfcRc.RFC_OK)
+            if (result == null || ResultIsNullPointer(result) || errorInfo.Code != RfcRc.RFC_OK)
             {
                 Logger.IfSome(l =>
                 {
@@ -29,6 +29,14 @@ namespace Dbosoft.YaNco
             Logger.IfSome(l => l.LogTrace("received result value from rfc call", result));
 
             return result;
+        }
+
+        private bool ResultIsNullPointer<TResult>(TResult result)
+        {
+            if (result is IntPtr ptr)
+                return ptr == IntPtr.Zero;
+
+            return false;
         }
 
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcRc rc, RfcErrorInfo errorInfo)
