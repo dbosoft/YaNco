@@ -18,7 +18,15 @@ namespace Dbosoft.YaNco
             {
                 Logger.IfSome(l =>
                 {
-                    if(logAsError)
+                    if (errorInfo.Code == RfcRc.RFC_OK)
+                    {
+                        if (logAsError)
+                            l.LogError("received null result from api call.");
+                        else
+                            l.LogDebug("received null result from api call.");
+                    }
+
+                    if (logAsError)
                         l.LogError("received error from rfc call", errorInfo);
                     else
                         l.LogDebug("received error from rfc call", errorInfo);

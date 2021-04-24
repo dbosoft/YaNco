@@ -6,28 +6,30 @@ namespace Dbosoft.YaNco.Internal
 {
     public static class Api
     {
-
+        
         public static ConnectionHandle OpenConnection(IDictionary<string, string> connectionParams,
-            out RfcErrorInfo errorInfo)
+    out RfcErrorInfo errorInfo)
         {
             var rfcOptions = connectionParams.Select(x => new Interopt.RfcConnectionParameter { Name = x.Key, Value = x.Value })
                 .ToArray();
 
-            return new ConnectionHandle(Interopt.RfcOpenConnection(rfcOptions, (uint)rfcOptions.Length, out errorInfo));
+            var ptr = Interopt.RfcOpenConnection(rfcOptions, (uint)rfcOptions.Length, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new ConnectionHandle(ptr);
         }
 
         public static FunctionDescriptionHandle GetFunctionDescription(FunctionHandle functionHandle,
             out RfcErrorInfo errorInfo)
         {
-            return new FunctionDescriptionHandle(Interopt.RfcDescribeFunction(functionHandle.Ptr, out errorInfo));
+            var ptr = Interopt.RfcDescribeFunction(functionHandle.Ptr, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new FunctionDescriptionHandle(ptr);
 
         }
 
         public static FunctionDescriptionHandle GetFunctionDescription(ConnectionHandle connectionHandle,
             string functionName, out RfcErrorInfo errorInfo)
         {
-            return new FunctionDescriptionHandle(Interopt.RfcGetFunctionDesc(connectionHandle.Ptr, functionName, out errorInfo));
-
+            var ptr = Interopt.RfcGetFunctionDesc(connectionHandle.Ptr, functionName, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new FunctionDescriptionHandle(ptr);
         }
 
         public static RfcRc GetFunctionName(FunctionDescriptionHandle descriptionHandle, out string functionName,
@@ -40,7 +42,8 @@ namespace Dbosoft.YaNco.Internal
         public static TypeDescriptionHandle GetTypeDescription(IDataContainerHandle dataContainer,
             out RfcErrorInfo errorInfo)
         {
-            return new TypeDescriptionHandle(Interopt.RfcDescribeType(dataContainer.Ptr, out errorInfo));
+            var ptr = Interopt.RfcDescribeType(dataContainer.Ptr, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new TypeDescriptionHandle(ptr);
 
         }
 
@@ -72,7 +75,8 @@ namespace Dbosoft.YaNco.Internal
         public static FunctionHandle CreateFunction(FunctionDescriptionHandle descriptionHandle,
             out RfcErrorInfo errorInfo)
         {
-            return new FunctionHandle(Interopt.RfcCreateFunction(descriptionHandle.Ptr, out errorInfo));
+            var ptr = Interopt.RfcCreateFunction(descriptionHandle.Ptr, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new FunctionHandle(ptr);
 
         }
 
@@ -116,7 +120,7 @@ namespace Dbosoft.YaNco.Internal
             out StructureHandle structure, out RfcErrorInfo errorInfo)
         {
             var rc = Interopt.RfcGetStructure(dataContainer.Ptr, name, out var structPtr, out errorInfo);
-            structure = new StructureHandle(structPtr);
+            structure = structPtr == IntPtr.Zero ? null : new StructureHandle(structPtr);
             return rc;
 
         }
@@ -125,15 +129,15 @@ namespace Dbosoft.YaNco.Internal
             out RfcErrorInfo errorInfo)
         {
             var rc = Interopt.RfcGetTable(dataContainer.Ptr, name, out var tablePtr, out errorInfo);
-            table = new TableHandle(tablePtr);
+            table = tablePtr == IntPtr.Zero ? null : new TableHandle(tablePtr);
             return rc;
 
         }
 
         public static TableHandle CloneTable(TableHandle tableHandle, out RfcErrorInfo errorInfo)
         {
-            return new TableHandle(Interopt.RfcCloneTable(tableHandle.Ptr, out errorInfo));
-
+            var ptr = Interopt.RfcCloneTable(tableHandle.Ptr, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new TableHandle(ptr);
         }
 
         public static void AllowStartOfPrograms(ConnectionHandle connectionHandle, StartProgramDelegate callback, out
@@ -190,13 +194,15 @@ namespace Dbosoft.YaNco.Internal
 
         public static StructureHandle GetCurrentTableRow(TableHandle table, out RfcErrorInfo errorInfo)
         {
-            return new StructureHandle(Interopt.RfcGetCurrentRow(table.Ptr, out errorInfo));
+            var ptr = Interopt.RfcGetCurrentRow(table.Ptr, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new StructureHandle(ptr);
 
         }
 
         public static StructureHandle AppendTableRow(TableHandle table, out RfcErrorInfo errorInfo)
         {
-            return new StructureHandle(Interopt.RfcAppendNewRow(table.Ptr, out errorInfo));
+            var ptr = Interopt.RfcAppendNewRow(table.Ptr, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new StructureHandle(ptr);
 
         }
 
