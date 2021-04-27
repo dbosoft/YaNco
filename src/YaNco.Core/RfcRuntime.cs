@@ -1,15 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Dbosoft.YaNco.Internal;
+using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
+using FieldMappingContext = Dbosoft.YaNco.TypeMapping.FieldMappingContext;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Dbosoft.YaNco
 {
     public class RfcRuntime : IRfcRuntime
     {
-        public RfcRuntime(ILogger logger = null)
+        private readonly IFieldMapper _fieldMapper;
+
+        public RfcRuntime(ILogger logger = null, IFieldMapper fieldMapper = null)
         {
             Logger = logger == null ? Option<ILogger>.None : Option<ILogger>.Some(logger);
+            _fieldMapper = fieldMapper ?? 
+                           new DefaultFieldMapper(
+                                new CachingConverterResolver(
+                                    DefaultConverterResolver.CreateWithBuildInConverters()));
+
         }
 
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcErrorInfo errorInfo, bool logAsError = false)
@@ -291,6 +302,27 @@ namespace Dbosoft.YaNco
         }
 
         public Option<ILogger> Logger { get; }
+
+        public Either<RfcErrorInfo, Unit> SetFieldValue<T>(IDataContainerHandle handle, T value, Func<Either<RfcErrorInfo, RfcFieldInfo>> func)
+        {
+            return func().Bind(fieldInfo =>
+            {
+                Logger.IfSome(l => l.LogTrace("setting field value", new { handle, fieldInfo, SourceType= typeof(T) }));
+                return _fieldMapper.SetField(value, new FieldMappingContext(this, handle, fieldInfo));
+            });
+            
+        }
+
+        public Either<RfcErrorInfo, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcErrorInfo, RfcFieldInfo>> func)
+        {
+            return func().Bind(fieldInfo =>
+            {
+                Logger.IfSome(l => l.LogTrace("reading field value", new { handle, fieldInfo, TargetType = typeof(T) }));
+                return _fieldMapper.GetField<T>(new FieldMappingContext(this, handle, fieldInfo));
+            });
+
+
+        }
 
         public Either<RfcErrorInfo, Unit> SetInt(IDataContainerHandle containerHandle, string name, int value)
         {

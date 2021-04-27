@@ -319,13 +319,13 @@ namespace Dbosoft.YaNco.Internal
             if (rc != RfcRc.RFC_BUFFER_TOO_SMALL)
             {
                 buffer = new byte[bufferLength];
-                tempBuffer.CopyTo(buffer, 0);
+                Array.Copy(tempBuffer, buffer, bufferLength);
 
                 return rc;
             }
 
             tempBuffer = new byte[bufferLength];
-            rc = Interopt.RfcGetXString(containerHandle.Ptr, name, tempBuffer, 255, out _, out errorInfo);
+            rc = Interopt.RfcGetXString(containerHandle.Ptr, name, tempBuffer, bufferLength, out _, out errorInfo);
             buffer = new byte[bufferLength];
             tempBuffer.CopyTo(buffer, 0);
 
