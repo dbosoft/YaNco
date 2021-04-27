@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dbosoft.YaNco.Converters
+namespace Dbosoft.YaNco.TypeMapping
 {
     public class AbapLongValue : AbapValue, IConvertible
     {

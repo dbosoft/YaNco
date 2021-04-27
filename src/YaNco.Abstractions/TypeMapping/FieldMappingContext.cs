@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Dbosoft.YaNco.Converters
+﻿namespace Dbosoft.YaNco.TypeMapping
 {
     public class FieldMappingContext
     {

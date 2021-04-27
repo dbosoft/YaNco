@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dbosoft.YaNco.Converters;
 using Dbosoft.YaNco.Internal;
+using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
+using FieldMappingContext = Dbosoft.YaNco.TypeMapping.FieldMappingContext;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Dbosoft.YaNco

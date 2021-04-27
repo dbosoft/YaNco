@@ -2,7 +2,7 @@
 using System.Globalization;
 using LanguageExt;
 
-namespace Dbosoft.YaNco.Converters
+namespace Dbosoft.YaNco.TypeMapping
 {
     public class DateTimeValueConverter: IToAbapValueConverter<DateTime>, IFromAbapValueConverter<DateTime>
     {

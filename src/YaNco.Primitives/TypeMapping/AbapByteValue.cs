@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-
-namespace Dbosoft.YaNco.Converters
+﻿namespace Dbosoft.YaNco.TypeMapping
 {
     public class AbapByteValue : AbapValue
     {

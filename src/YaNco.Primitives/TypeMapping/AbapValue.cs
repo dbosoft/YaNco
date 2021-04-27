@@ -1,4 +1,4 @@
-﻿namespace Dbosoft.YaNco.Converters
+﻿namespace Dbosoft.YaNco.TypeMapping
 {
     public class AbapValue
     {

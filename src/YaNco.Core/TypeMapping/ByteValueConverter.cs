@@ -1,7 +1,7 @@
 ﻿using System;
 using LanguageExt;
 
-namespace Dbosoft.YaNco.Converters
+namespace Dbosoft.YaNco.TypeMapping
 {
     public class ByteValueConverter: IToAbapValueConverter<byte[]>, IFromAbapValueConverter<byte[]>
     {

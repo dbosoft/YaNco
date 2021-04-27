@@ -2,7 +2,7 @@
 using System.Globalization;
 using LanguageExt;
 
-namespace Dbosoft.YaNco.Converters
+namespace Dbosoft.YaNco.TypeMapping
 {
     public class IntValueConverter<T>: IToAbapValueConverter<T>
     {

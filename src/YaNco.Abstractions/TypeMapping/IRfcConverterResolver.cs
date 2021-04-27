@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Dbosoft.YaNco.Converters
+namespace Dbosoft.YaNco.TypeMapping
 {
     public interface IRfcConverterResolver
     {

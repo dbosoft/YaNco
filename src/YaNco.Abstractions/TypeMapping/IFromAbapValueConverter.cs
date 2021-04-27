@@ -1,6 +1,6 @@
 ﻿using LanguageExt;
 
-namespace Dbosoft.YaNco.Converters
+namespace Dbosoft.YaNco.TypeMapping
 {
     public interface IFromAbapValueConverter<T>
     {
