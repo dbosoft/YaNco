@@ -1,31 +1,35 @@
 ﻿using System;
+using LanguageExt;
 
 namespace Dbosoft.YaNco.Converters
 {
     public class ByteValueConverter: IToAbapValueConverter<byte[]>, IFromAbapValueConverter<byte[]>
     {
-        public AbapValue ConvertFrom(byte[] value, RfcFieldInfo fieldInfo)
+        public Try<AbapValue> ConvertFrom(byte[] value, RfcFieldInfo fieldInfo)
         {
-            if (!IsSupportedRfcType(fieldInfo.Type))
-                throw new NotSupportedException($"Cannot convert from RfcType {fieldInfo.Type} to byte array.");
+            return Prelude.Try<AbapValue>(() =>
+            {
+                if (!IsSupportedRfcType(fieldInfo.Type))
+                    throw new NotSupportedException($"Cannot convert from RfcType {fieldInfo.Type} to byte array.");
 
-            return new AbapByteValue(fieldInfo, value);
+                return new AbapByteValue(fieldInfo, value);
+            });
+
         }
 
-        public bool CanConvertFrom(byte[] value, RfcFieldInfo fieldInfo)
+        public bool CanConvertFrom(RfcType rfcType)
         {
-            if (!IsSupportedRfcType(fieldInfo.Type))
-                return false;
+            return IsSupportedRfcType(rfcType);
+        }
 
-            try
-            {
-                ConvertFrom(value, fieldInfo);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+        public Try<byte[]> ConvertTo(AbapValue abapValue)
+        {
+            return Prelude.Try(() => (abapValue as AbapByteValue)?.Value);
+        }
+
+        public bool CanConvertTo(RfcType rfcType)
+        {
+            return IsSupportedRfcType(rfcType);
         }
 
         private bool IsSupportedRfcType(RfcType rfcType)
@@ -40,16 +44,6 @@ namespace Dbosoft.YaNco.Converters
                     return false;
             }
 
-        }
-
-        public byte[] ConvertTo(AbapValue abapValue)
-        {
-            return (abapValue as AbapByteValue)?.Value;
-        }
-
-        public bool CanConvertTo(AbapValue abapValue)
-        {
-            return (abapValue is AbapByteValue);
         }
     }
 }

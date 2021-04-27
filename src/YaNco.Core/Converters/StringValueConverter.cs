@@ -1,50 +1,44 @@
 ﻿using System;
 using System.Globalization;
+using LanguageExt;
 
 namespace Dbosoft.YaNco.Converters
 {
     public class StringValueConverter<T> : IToAbapValueConverter<T>
     {
-        public AbapValue ConvertFrom(T value, RfcFieldInfo fieldInfo)
+        public Try<AbapValue> ConvertFrom(T value, RfcFieldInfo fieldInfo)
         {
-            if (!IsSupportedRfcType(fieldInfo.Type))
-                throw new NotSupportedException($"Cannot convert string to RfcType {fieldInfo.Type} .");
-
-            string stringValue = null;
-
-            if (value is IConvertible convertible)
+            return Prelude.Try<AbapValue>(() =>
             {
-                switch (convertible.GetTypeCode())
+                if (!IsSupportedRfcType(fieldInfo.Type))
+                    throw new NotSupportedException($"Cannot convert string to RfcType {fieldInfo.Type} .");
+
+                string stringValue = null;
+
+                if (value is IConvertible convertible)
                 {
-                    case TypeCode.Boolean:
-                        stringValue = Convert.ToBoolean(value, CultureInfo.InvariantCulture) ? "X" : "";
-                        break;
-                    default:
-                        stringValue = (string) Convert.ChangeType(value, typeof(string), CultureInfo.InvariantCulture);
-                        break;
+                    switch (convertible.GetTypeCode())
+                    {
+                        case TypeCode.Boolean:
+                            stringValue = Convert.ToBoolean(value, CultureInfo.InvariantCulture) ? "X" : "";
+                            break;
+                        default:
+                            stringValue = (string)Convert.ChangeType(value, typeof(string), CultureInfo.InvariantCulture);
+                            break;
+                    }
                 }
-            }
 
-            return new AbapStringValue(fieldInfo, stringValue);
+                return new AbapStringValue(fieldInfo, stringValue);
+
+            });
         }
 
-        public bool CanConvertFrom(T value, RfcFieldInfo fieldInfo)
+        public bool CanConvertFrom(RfcType rfcType)
         {
-            if (!IsSupportedRfcType(fieldInfo.Type))
-                return false;
-
-            try
-            {
-                ConvertFrom(value, fieldInfo);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return IsSupportedRfcType(rfcType);
         }
 
-        private bool IsSupportedRfcType(RfcType rfcType)
+        private static bool IsSupportedRfcType(RfcType rfcType)
         {
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (rfcType)

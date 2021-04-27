@@ -1,26 +1,38 @@
 ﻿using System;
 using System.Globalization;
+using LanguageExt;
 
 namespace Dbosoft.YaNco.Converters
 {
     public class DefaultFromAbapValueConverter<T> : IFromAbapValueConverter<T>
     {
-        public T ConvertTo(AbapValue abapValue)
+        public Try<T> ConvertTo(AbapValue abapValue)
         {
-            return (T) Convert.ChangeType(abapValue, typeof(T), CultureInfo.InvariantCulture);
+            return Prelude.Try( () => (T) Convert.ChangeType(abapValue, typeof(T), CultureInfo.InvariantCulture));
         }
 
-        public bool CanConvertTo(AbapValue abapValue)
+        public bool CanConvertTo(RfcType rfcType)
         {
-            try
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+            switch (rfcType)
             {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                Convert.ChangeType(abapValue, typeof(T), CultureInfo.InvariantCulture);
-                return true;
-            }
-            catch
-            {
-                return false;
+                case RfcType.CHAR:
+                case RfcType.DATE:
+                case RfcType.BCD:
+                case RfcType.TIME:
+                case RfcType.BYTE:
+                case RfcType.NUM:
+                case RfcType.FLOAT:
+                case RfcType.INT:
+                case RfcType.INT2:
+                case RfcType.INT1:
+                case RfcType.DECF16:
+                case RfcType.DECF34:
+                case RfcType.STRING:
+                case RfcType.INT8:
+                    return true;
+                default:
+                    return false;
             }
         }
     }

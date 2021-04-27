@@ -1,35 +1,29 @@
 ﻿using System;
 using System.Globalization;
+using LanguageExt;
 
 namespace Dbosoft.YaNco.Converters
 {
     public class LongValueConverter<T> : IToAbapValueConverter<T>
     {
-        public AbapValue ConvertFrom(T value, RfcFieldInfo fieldInfo)
+        public Try<AbapValue> ConvertFrom(T value, RfcFieldInfo fieldInfo)
         {
-            if (!IsSupportedRfcType(fieldInfo.Type))
-                throw new NotSupportedException($"Cannot convert from RfcType {fieldInfo.Type} to long value.");
+            return Prelude.Try<AbapValue>(() =>
+            {
+                if (!IsSupportedRfcType(fieldInfo.Type))
+                    throw new NotSupportedException($"Cannot convert from RfcType {fieldInfo.Type} to long value.");
 
-            return new AbapLongValue(fieldInfo, (long)Convert.ChangeType(value, typeof(long), CultureInfo.InvariantCulture));
+                return new AbapLongValue(fieldInfo, (long)Convert.ChangeType(value, typeof(long), CultureInfo.InvariantCulture));
+
+            });
         }
 
-        public bool CanConvertFrom(T value, RfcFieldInfo fieldInfo)
+        public bool CanConvertFrom(RfcType rfcType)
         {
-            if (!IsSupportedRfcType(fieldInfo.Type))
-                return false;
-
-            try
-            {
-                ConvertFrom(value, fieldInfo);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return IsSupportedRfcType(rfcType);
         }
 
-        private bool IsSupportedRfcType(RfcType rfcType)
+        private static bool IsSupportedRfcType(RfcType rfcType)
         {
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (rfcType)

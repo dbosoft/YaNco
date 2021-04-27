@@ -1,9 +1,11 @@
-﻿namespace Dbosoft.YaNco.Converters
+﻿using LanguageExt;
+
+namespace Dbosoft.YaNco.Converters
 {
-    public interface IToAbapValueConverter<in T>
+    public interface IToAbapValueConverter<T>
     {
-        AbapValue ConvertFrom(T value, RfcFieldInfo fieldInfo);
-        bool CanConvertFrom(T value, RfcFieldInfo fieldInfo);
+        Try<AbapValue> ConvertFrom(T value, RfcFieldInfo fieldInfo);
+        bool CanConvertFrom(RfcType rfcType);
 
     }
 }

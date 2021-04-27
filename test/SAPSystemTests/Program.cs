@@ -60,15 +60,15 @@ namespace SAPSystemTests
             {
                 await context.PingAsync();
 
-                //await RunIntegrationTests(context);
+                await RunIntegrationTests(context);
 
                 long totalTest1 = 0;
                 long totalTest2 = 0;
 
                 for (var run = 0; run < repeats; run++)
                 {
-                    //Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 01");
-                    //totalTest1 += await RunPerformanceTest01(context, rows);
+                    Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 01");
+                    totalTest1 += await RunPerformanceTest01(context, rows);
                     Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 02");
                     totalTest2 += await RunPerformanceTest02(context, rows);
 
@@ -87,7 +87,9 @@ namespace SAPSystemTests
         private static async Task RunIntegrationTests(IRfcContext context)
         {
             Console.WriteLine("*** BEGIN OF Integration Tests ***");
+
             await RunIntegrationTest01(context);
+
             Console.WriteLine("*** END OF Integration Tests ***");
         }
         private static async Task RunIntegrationTest01(IRfcContext context)
@@ -208,7 +210,7 @@ namespace SAPSystemTests
                         r => r,
                         l =>
                         {
-                            Console.WriteLine(l);
+                            Console.WriteLine(l.Message);
                             return new TypesTestData();
                         });
             // ReSharper restore StringLiteralTypo
