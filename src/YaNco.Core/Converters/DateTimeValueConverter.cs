@@ -4,9 +4,9 @@ using LanguageExt;
 
 namespace Dbosoft.YaNco.Converters
 {
-    public class DateTimeValueConverter<T> : IToAbapValueConverter<T>, IFromAbapValueConverter<T>
+    public class DateTimeValueConverter: IToAbapValueConverter<DateTime>, IFromAbapValueConverter<DateTime>
     {
-        public Try<AbapValue> ConvertFrom(T value, RfcFieldInfo fieldInfo)
+        public Try<AbapValue> ConvertFrom(DateTime value, RfcFieldInfo fieldInfo)
         {
             return Prelude.Try<AbapValue>(() =>
             {
@@ -55,7 +55,7 @@ namespace Dbosoft.YaNco.Converters
 
         }
 
-        public Try<T> ConvertTo(AbapValue abapValue)
+        public Try<DateTime> ConvertTo(AbapValue abapValue)
         {
             return Prelude.Try(() =>
             {
@@ -85,7 +85,7 @@ namespace Dbosoft.YaNco.Converters
                             $"It is not supported to convert RfcType {abapValue.FieldInfo.Type} to DateTime");
                 }
 
-                return (T)Convert.ChangeType(dateTime, typeof(T));
+                return dateTime;
 
             });
 

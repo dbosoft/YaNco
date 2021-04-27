@@ -14,7 +14,7 @@ namespace Dbosoft.YaNco.Converters
         {
             fromRfcConverters = (fromRfcConverters ?? new Type[0]).Append(new []
             {
-                typeof(DateTimeValueConverter<>),
+                typeof(DateTimeValueConverter),
                 typeof(ByteValueConverter),
                 typeof(DefaultFromAbapValueConverter<>),
             });
@@ -25,7 +25,7 @@ namespace Dbosoft.YaNco.Converters
                 typeof(LongValueConverter<>),
                 typeof(StringValueConverter<>),
                 typeof(ByteValueConverter),
-                typeof(DateTimeValueConverter<>)
+                typeof(DateTimeValueConverter)
             });
             
             return new DefaultConverterResolver(
