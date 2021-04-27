@@ -25,7 +25,7 @@ This package contains primitive type definitions.</Description>
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
   </ItemGroup>
 
 </Project>
