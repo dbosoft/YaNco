@@ -149,6 +149,9 @@ namespace Dbosoft.YaNco.Internal
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcDestroyFunctionDesc(IntPtr funcDesc, out RfcErrorInfo errorInfo);
 
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcDestroyTable(IntPtr tableHandle, out RfcErrorInfo errorInfo);
+
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         internal struct RfcConnectionParameter

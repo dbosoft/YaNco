@@ -129,7 +129,7 @@ namespace Dbosoft.YaNco.Internal
             out RfcErrorInfo errorInfo)
         {
             var rc = Interopt.RfcGetTable(dataContainer.Ptr, name, out var tablePtr, out errorInfo);
-            table = tablePtr == IntPtr.Zero ? null : new TableHandle(tablePtr);
+            table = tablePtr == IntPtr.Zero ? null : new TableHandle(tablePtr, false);
             return rc;
 
         }
@@ -137,7 +137,7 @@ namespace Dbosoft.YaNco.Internal
         public static TableHandle CloneTable(TableHandle tableHandle, out RfcErrorInfo errorInfo)
         {
             var ptr = Interopt.RfcCloneTable(tableHandle.Ptr, out errorInfo);
-            return ptr == IntPtr.Zero ? null : new TableHandle(ptr);
+            return ptr == IntPtr.Zero ? null : new TableHandle(ptr, true);
         }
 
         public static void AllowStartOfPrograms(ConnectionHandle connectionHandle, StartProgramDelegate callback, out
