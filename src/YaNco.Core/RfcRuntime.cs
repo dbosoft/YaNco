@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using Dbosoft.YaNco.Converters;
 using Dbosoft.YaNco.Internal;
 using LanguageExt;
 // ReSharper disable UnusedMember.Global
@@ -291,6 +295,152 @@ namespace Dbosoft.YaNco
         }
 
         public Option<ILogger> Logger { get; }
+
+        private static readonly IEnumerable<Type> ToRfcConverters = new[]
+        {
+            typeof(IntValueConverter<>),
+            typeof(LongValueConverter<>),
+            typeof(StringValueConverter<>),
+            typeof(ByteValueConverter),
+            typeof(DateTimeValueConverter<>)
+        };
+
+        private static readonly IEnumerable<Type> FromRfcConverters = new[]
+        {
+            typeof(DateTimeValueConverter<>),
+            typeof(ByteValueConverter),
+            typeof(DefaultFromAbapValueConverter<>),
+        };
+
+        private Type CreateConverterType(Type type, Type targetType = null, Type abapType = null)
+        {
+            if (!type.IsGenericTypeDefinition)
+                return type;
+
+            var typeArguments = new List<Type>();
+            foreach (var argument in type.GetGenericArguments())
+            {
+                if(!(targetType is null) && !argument.IsSubclassOf(typeof(AbapValue)))
+
+                    typeArguments.Add(targetType);
+                else
+                {
+                    if (abapType != null)
+                    {
+                        if (abapType.IsSubclassOf(typeof(AbapValue)))
+                            typeArguments.Add(abapType);
+                    }
+                }
+            }
+
+            return type.MakeGenericType(typeArguments.ToArray());
+        }
+
+        private IEnumerable<IToAbapValueConverter<T>> GetToRfcConverters<T>()
+        {
+            return ToRfcConverters
+                .Map(type => Activator.CreateInstance(CreateConverterType(type, typeof(T))) as IToAbapValueConverter<T>)
+                .Where(type => type != null);
+
+        }
+
+        private IEnumerable<IFromAbapValueConverter<T>> GetFromRfcConverters<T>(AbapValue abapValue)
+        {
+            return FromRfcConverters
+                .Map(type =>
+                    Activator.CreateInstance(CreateConverterType(type, typeof(T), abapValue.GetType())) as
+                        IFromAbapValueConverter<T>)
+                .Where(type => type != null);
+
+        }
+
+        public Either<RfcErrorInfo, Unit> SetFieldValue<T>(IDataContainerHandle handle, T value, Func<Either<RfcErrorInfo, RfcFieldInfo>> func)
+        {
+            return func().Bind(fieldInfo =>
+            {
+                var converter =
+                    GetToRfcConverters<T>().FirstOrDefault(c => c.CanConvertFrom(value, fieldInfo));
+
+
+                Debug.Assert(converter != null, nameof(converter) + " != null");
+                var abapValue = converter.ConvertFrom(value, fieldInfo);
+
+                switch (abapValue)
+                {
+                    case AbapIntValue abapIntValue:
+                        return SetInt(handle, fieldInfo.Name, abapIntValue.Value);
+                    case AbapLongValue abapLongValue:
+                        return SetLong(handle, fieldInfo.Name, abapLongValue.Value);
+                    case AbapByteValue abapByteValue:
+                        return SetBytes(handle, fieldInfo.Name, abapByteValue.Value, abapByteValue.Value.LongLength);
+                    case AbapStringValue abapStringValue:
+                        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+                        switch (fieldInfo.Type)
+                        {
+                            case RfcType.DATE:
+                                return SetDateString(handle, fieldInfo.Name, abapStringValue.Value);
+                            case RfcType.TIME:
+                                return SetTimeString(handle, fieldInfo.Name, abapStringValue.Value);
+                            default:
+                                return SetString(handle, fieldInfo.Name, abapStringValue.Value);
+                        }
+                        
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(abapValue));
+                }
+
+            });
+        }
+
+        public Either<RfcErrorInfo, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcErrorInfo, RfcFieldInfo>> func)
+        {
+            var res = func().Bind(fieldInfo =>
+            {
+                switch (fieldInfo.Type)
+                {
+                    case RfcType.DATE:
+                        return GetDateString(handle, fieldInfo.Name).Map(v =>
+                            (AbapValue)new AbapStringValue(fieldInfo, v));
+                    case RfcType.TIME:
+                        return GetTimeString(handle, fieldInfo.Name).Map(v =>
+                            (AbapValue)new AbapStringValue(fieldInfo, v));
+                    case RfcType.CHAR:
+                    case RfcType.NUM:
+                    case RfcType.STRING:
+                    case RfcType.BCD:
+                    case RfcType.FLOAT:
+                    case RfcType.DECF16:
+                    case RfcType.DECF34:
+                        return GetString(handle, fieldInfo.Name).Map(v =>
+                            (AbapValue) new AbapStringValue(fieldInfo, v));
+                    case RfcType.INT:
+                    case RfcType.INT2:
+                    case RfcType.INT1:
+                        return GetInt(handle, fieldInfo.Name).Map(v =>
+                            (AbapValue) new AbapIntValue(fieldInfo, v));
+                    case RfcType.INT8:
+                        return GetLong(handle, fieldInfo.Name).Map(v =>
+                            (AbapValue) new AbapLongValue(fieldInfo, v));
+                    case RfcType.BYTE:
+                    case RfcType.XSTRING:
+                        return GetBytes(handle, fieldInfo.Name).Map(v =>
+                            (AbapValue)new AbapByteValue(fieldInfo, v));
+
+                    default:
+                        throw new NotSupportedException(
+                            $"Reading a field of RfcType {fieldInfo.Type} is not supported for this method.");
+                }
+            }).Map(v =>
+            {
+                var converter =
+                    GetFromRfcConverters<T>(v).FirstOrDefault(c => c.CanConvertTo(v));
+
+                Debug.Assert(converter != null, nameof(converter) + " != null");
+                return converter.ConvertTo(v);
+            });
+
+            return res;
+        }
 
         public Either<RfcErrorInfo, Unit> SetInt(IDataContainerHandle containerHandle, string name, int value)
         {
