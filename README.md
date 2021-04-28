@@ -72,35 +72,29 @@ var settings = new Dictionary<string, string>
 
 };
 ```
-
-To open the connection create a RfcContext instance and pass the settings as argument.
+With these settings you can now create a ConnectionBuilder instance and use it to open a RfcContext.
 
 ```csharp
-using (var context = new RfcContext(settings))
+
+var connectionBuilder = new ConnectionBuilder(settings);
+var connFunc = connectionBuilder.Build();
+
+using (var context = new RfcContext(connFunc))
 {
    ...
 
 }
-  ```
-
-A alternative way is to create the RfcContext by a RfcRuntime instance. You will also need a function to open the connection with the settings. 
+```
+The connection builders Build() method returns a function that can be reused to open additional connections. The RfcContext will do that internally in case the connection breaks.
+Under the hood the ConnectionBuilder also creates also a RfcRuntime instance. The RfcRuntime is a low level API that you will typical never use directly. 
+But you can customize it on the connection builder with the ConfigureRuntime method. For example to add a logger:
 
 ```csharp
-var runtime = new RfcRuntime();
+var connectionBuilder = new ConnectionBuilder(settings)
+    .ConfigureRuntime(c => 
+        c.WithLogger(new MyLogger()));
+```
 
-Task<IConnection> ConnFunc() => Connection.Create(settings, runtime);
-
-using (var context = new RfcContext(ConnFunc))
-{
-   ...
-
-}
-  ```
-
-The RfcRuntime is a low level API that you will typical never use directly. But by using this method to open a connection you can replace connection and RfcRuntime by DI containers and for Unit testing.
-
-
-You can now use the RFCContext instance to call ABAP RFMs. 
 
 **calling functions**
 
@@ -132,7 +126,7 @@ The Result of the function is a Either<L,R> type (see language.ext [Either left 
 Structures can be set or retrieved the same way. Another example extracting company code details (you may have to change the company code if you try this example):
 
 ```csharp
-using (var context = new RfcContext(ConnFunc))
+using (var context = new RfcContext(connFunc))
 {
     await context.CallFunction("BAPI_COMPANYCODE_GETDETAIL",
             Input: f => f
@@ -150,7 +144,7 @@ using (var context = new RfcContext(ConnFunc))
 Alternatively, you can also use a LINQ syntax:
 
 ```csharp
-using (var context = new RfcContext(ConnFunc))
+using (var context = new RfcContext(connFunc))
 {
     await context.CallFunction("BAPI_COMPANYCODE_GETDETAIL",
         Input: f => f
@@ -173,7 +167,7 @@ Especially for complex structures, the LINQ syntax is often easier to read.
 Getting table results is possible by iterating over the table rows to retrieve the table structures. Here an example to extract all company code name and descriptions:
 
 ```csharp
-using (var context = new RfcContext(ConnFunc))
+using (var context = new RfcContext(connFunc))
 {
     await context.CallFunction("BAPI_COMPANYCODE_GETLIST",
             Output: f => f
