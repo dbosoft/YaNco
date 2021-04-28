@@ -87,16 +87,16 @@ using (var context = new RfcContext(connFunc))
 ```
 The connection builders Build() method returns a function that can be reused to open additional connections. The RfcContext will do that internally in case the connection breaks.
 Under the hood the ConnectionBuilder also creates also a RfcRuntime instance. The RfcRuntime is a low level API that you will typical never use directly. 
-But you can customize it on the connection builder with the ConfigureRuntime method. For example to add a logger:
+But you can customize it on the ConnectionBuilder with the ConfigureRuntime() method. For example to add a logger:
 
 ```csharp
-var connectionBuilder = new ConnectionBuilder(settings)
+var connectionBuilder = new ConnectionBuilder(connFunc)
     .ConfigureRuntime(c => 
         c.WithLogger(new MyLogger()));
 ```
 
 
-**calling functions**
+**Calling functions**
 
 We provide a extension method on the RFCContext that supports a syntax similar to the ABAP call function command, except that it is using function callbacks to pass or retrieve data: 
 
@@ -105,7 +105,7 @@ We provide a extension method on the RFCContext that supports a syntax similar t
 - *CHANGING* and *TABLES* parameters can be used in both functions 
 
 ```csharp
-using (var context = new RfcContext(settings))
+using (var context = new RfcContext(connFunc))
 {
     await context.CallFunction("DDIF_FIELDLABEL_GET",
             Input: f => f
