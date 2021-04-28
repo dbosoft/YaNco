@@ -16,11 +16,15 @@ namespace Dbosoft.YaNco
         public RfcRuntime(ILogger logger = null, IFieldMapper fieldMapper = null)
         {
             Logger = logger == null ? Option<ILogger>.None : Option<ILogger>.Some(logger);
-            _fieldMapper = fieldMapper ?? 
-                           new DefaultFieldMapper(
-                                new CachingConverterResolver(
-                                    DefaultConverterResolver.CreateWithBuildInConverters()));
+            _fieldMapper = fieldMapper ?? CreateDefaultFieldMapper();
+        }
 
+        public static IFieldMapper CreateDefaultFieldMapper(IEnumerable<Type> fromRfcConverters = null,
+            IEnumerable<Type> toRfcConverters = null)
+        {
+            return new DefaultFieldMapper(
+                new CachingConverterResolver(
+                    DefaultConverterResolver.CreateWithBuildInConverters(fromRfcConverters, toRfcConverters)));
         }
 
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcErrorInfo errorInfo, bool logAsError = false)
