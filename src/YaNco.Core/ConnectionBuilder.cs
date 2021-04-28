@@ -43,10 +43,10 @@ namespace Dbosoft.YaNco
             var runtime = runtimeConfigurer.Create();
             
             if(_startProgramDelegate == null)
-                return () => Connection.Create(_connectionParam, runtime);
+                return () => _connectionFactory(_connectionParam, runtime);
 
 
-            return () => (from c in Connection.Create(_connectionParam, runtime)
+            return () => (from c in _connectionFactory(_connectionParam, runtime)
                 from _ in c.AllowStartOfPrograms(_startProgramDelegate)
                 select c);
         }
