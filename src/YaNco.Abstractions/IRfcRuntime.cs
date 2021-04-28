@@ -53,6 +53,8 @@ namespace Dbosoft.YaNco
 
         Either<RfcErrorInfo, Unit> SetFieldValue<T>(IDataContainerHandle handle, T value, Func<Either<RfcErrorInfo, RfcFieldInfo>> func);
         Either<RfcErrorInfo, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcErrorInfo, RfcFieldInfo>> func);
+
+        RfcRuntimeOptions Options { get; }
     }
 
 

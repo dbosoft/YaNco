@@ -18,7 +18,11 @@ namespace Dbosoft.YaNco
         {
             get
             {
-                return _rfcRuntime.CloneTable(_handle)
+                var handle = _rfcRuntime.Options.CloneTableForRowEnumerator 
+                    ? _rfcRuntime.CloneTable(_handle) 
+                    : _handle.Apply(h => Prelude.Right(h).Bind<RfcErrorInfo>());
+
+                return handle
                     .Map(clonedHandle => new TableRowEnumerator(_rfcRuntime, Prelude.Some(clonedHandle)))
                     .Match(
                         r => new EnumeratorAdapter<Structure>(r),
