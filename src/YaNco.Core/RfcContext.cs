@@ -13,11 +13,6 @@ namespace Dbosoft.YaNco
         private Option<IConnection> _connection;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 
-        public RfcContext(IDictionary<string, string> connectionParams, ILogger logger = null)
-        {
-            _connectionBuilder = () => Connection.Create(connectionParams, new RfcRuntime(logger));
-        }
-
         public RfcContext(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionBuilder)
         {
             _connectionBuilder = connectionBuilder;
