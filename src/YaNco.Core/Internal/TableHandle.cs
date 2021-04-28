@@ -16,12 +16,12 @@ namespace Dbosoft.YaNco.Internal
 
         public void Dispose()
         {
-            //if (Ptr == IntPtr.Zero) return;
+            if (Ptr == IntPtr.Zero) return;
 
-            //if(_destroyable)
-            //    Interopt.RfcDestroyTable(Ptr, out _);
+            if (_destroyable)
+                Interopt.RfcDestroyTable(Ptr, out _);
 
-            //Ptr = IntPtr.Zero;
+            Ptr = IntPtr.Zero;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Dbosoft.YaNco
     {
         private readonly IFieldMapper _fieldMapper;
 
-        public RfcRuntime(ILogger logger = null, IFieldMapper fieldMapper = null)
+        public RfcRuntime(ILogger logger = null, IFieldMapper fieldMapper = null, RfcRuntimeOptions options = null)
         {
             Logger = logger == null ? Option<ILogger>.None : Option<ILogger>.Some(logger);
             _fieldMapper = fieldMapper ?? 
@@ -21,7 +21,10 @@ namespace Dbosoft.YaNco
                                 new CachingConverterResolver(
                                     DefaultConverterResolver.CreateWithBuildInConverters()));
 
+            Options = options ?? new RfcRuntimeOptions();
         }
+
+        public RfcRuntimeOptions Options { get; }
 
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcErrorInfo errorInfo, bool logAsError = false)
         {
