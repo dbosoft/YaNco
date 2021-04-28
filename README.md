@@ -86,6 +86,7 @@ using (var context = new RfcContext(connFunc))
 }
 ```
 The connection builders Build() method returns a function that can be reused to open additional connections. The RfcContext will do that internally in case the connection breaks.
+
 Under the hood the ConnectionBuilder also creates also a RfcRuntime instance. The RfcRuntime is a low level API that you will typical never use directly. 
 But you can customize it on the ConnectionBuilder with the ConfigureRuntime() method. For example to add a logger:
 
