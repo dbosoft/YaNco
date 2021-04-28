@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -46,43 +45,94 @@ namespace Dbosoft.YaNco
         }
 
 
-        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken = default)
+        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function)
+        {
+            return InvokeFunction(function, CancellationToken.None);
+        }
+
+        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken)
         {
             return GetConnection()
                 .Bind(conn => conn.InvokeFunction(function, cancellationToken));            
         }
 
-        public EitherAsync<RfcErrorInfo, IRfcContext> Ping(CancellationToken cancellationToken = default)
+        public EitherAsync<RfcErrorInfo, IRfcContext> Ping()
+        {
+            return Ping(CancellationToken.None);
+        }
+
+        public EitherAsync<RfcErrorInfo, IRfcContext> Ping(CancellationToken cancellationToken)
         {
             return CreateFunction("RFC_PING", cancellationToken)
                 .Bind(f=>InvokeFunction(f, cancellationToken))
                 .Map(r => (IRfcContext) this );
         }
 
-        public Task<Either<RfcErrorInfo, IRfcContext>> PingAsync(CancellationToken cancellationToken = default)
+        public EitherAsync<RfcErrorInfo, Unit> Commit()
+        {
+            return Commit(CancellationToken.None);
+        }
+
+        public Task<Either<RfcErrorInfo, IRfcContext>> PingAsync()
+        {
+            return PingAsync(CancellationToken.None);
+        }
+
+        public Task<Either<RfcErrorInfo, IRfcContext>> PingAsync(CancellationToken cancellationToken)
         {
             return Ping(cancellationToken).ToEither();
         }
 
+        public Task<Either<RfcErrorInfo, Unit>> CommitAsync()
+        {
+            return CommitAsync(CancellationToken.None);
+        }
 
-        public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name, CancellationToken cancellationToken=default) => 
+
+        public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name)
+        {
+            return CreateFunction(name, CancellationToken.None);
+        }
+
+        public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name, CancellationToken cancellationToken) => 
             GetConnection().Bind(conn => conn.CreateFunction(name));
 
-        public EitherAsync<RfcErrorInfo, Unit> Commit(CancellationToken cancellationToken = default) => 
+        public EitherAsync<RfcErrorInfo, Unit> Commit(CancellationToken cancellationToken) => 
             GetConnection().Bind(conn => conn.Commit(cancellationToken));
 
-        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait(CancellationToken cancellationToken = default) => 
+        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait()
+        {
+            return CommitAndWait(CancellationToken.None);
+        }
+
+        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait(CancellationToken cancellationToken) => 
             GetConnection().Bind(conn => conn.CommitAndWait(cancellationToken));
 
-        public EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken = default) => 
+        public EitherAsync<RfcErrorInfo, Unit> Rollback()
+        {
+            return Rollback(CancellationToken.None);
+        }
+
+        public EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken) => 
             GetConnection().Bind(conn => conn.Rollback(cancellationToken));
 
-        public Task<Either<RfcErrorInfo, Unit>> CommitAsync(CancellationToken cancellationToken = default) => 
+        public Task<Either<RfcErrorInfo, Unit>> CommitAsync(CancellationToken cancellationToken) => 
             Commit(cancellationToken).ToEither();
 
-        public Task<Either<RfcErrorInfo, Unit>> CommitAndWaitAsync(CancellationToken cancellationToken = default) => 
+        public Task<Either<RfcErrorInfo, Unit>> CommitAndWaitAsync()
+        {
+            return CommitAndWaitAsync(CancellationToken.None);
+        }
+
+        public Task<Either<RfcErrorInfo, Unit>> CommitAndWaitAsync(CancellationToken cancellationToken) => 
             CommitAndWait(cancellationToken).ToEither();
-        public Task<Either<RfcErrorInfo, Unit>> RollbackAsync(CancellationToken cancellationToken = default) => 
+
+        public Task<Either<RfcErrorInfo, Unit>> RollbackAsync()
+        {
+            return RollbackAsync(CancellationToken.None);
+        }
+
+        public Task<Either<RfcErrorInfo, Unit>> RollbackAsync(CancellationToken cancellationToken) => 
             Rollback(cancellationToken).ToEither();
 
         public void Dispose()

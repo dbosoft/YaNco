@@ -93,7 +93,12 @@ namespace Dbosoft.YaNco
             return runtime.OpenConnection(connectionParams).ToAsync().Map(handle => (IConnection) new Connection(handle, runtime));
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait(CancellationToken cancellationToken = default)
+        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait()
+        {
+            return CommitAndWait(CancellationToken.None);
+        }
+
+        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait(CancellationToken cancellationToken)
         {
             return CreateFunction("BAPI_TRANSACTION_COMMIT")
                 .Bind(f => f.SetField("WAIT", "X").Map(_=>f).ToAsync())
@@ -103,7 +108,12 @@ namespace Dbosoft.YaNco
 
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> Commit(CancellationToken cancellationToken = default)
+        public EitherAsync<RfcErrorInfo, Unit> Commit()
+        {
+            return Commit(CancellationToken.None);
+        }
+
+        public EitherAsync<RfcErrorInfo, Unit> Commit(CancellationToken cancellationToken)
         {
             return CreateFunction("BAPI_TRANSACTION_COMMIT")
                 .Bind(f => InvokeFunction(f,cancellationToken).Map(u=>f))
@@ -112,7 +122,12 @@ namespace Dbosoft.YaNco
 
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken = default)
+        public EitherAsync<RfcErrorInfo, Unit> Rollback()
+        {
+            return Rollback(CancellationToken.None);
+        }
+
+        public EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken)
         {
             return CreateFunction("BAPI_TRANSACTION_ROLLBACK")
                 .Bind(f=> InvokeFunction(f, cancellationToken));
@@ -140,13 +155,19 @@ namespace Dbosoft.YaNco
             }).ConfigureAwait(false);
 
             if (token.IsCancellationRequested && _functionCalled)
-                await Cancel().ToEither().ConfigureAwait(false); ;
+                await Cancel().ToEither().ConfigureAwait(false); 
         }
     
         public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name) =>
             _stateAgent.Tell(new CreateFunctionMessage(name)).ToAsync().Map(r => (IFunction) r);
 
-        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken = default) 
+        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function)
+        {
+            return InvokeFunction(function,CancellationToken.None);
+
+        }
+
+        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken) 
             => _stateAgent.Tell(new InvokeFunctionMessage(function, cancellationToken)).ToAsync().Map(_ => Unit.Default);
 
         public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback) =>
