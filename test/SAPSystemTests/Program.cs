@@ -57,7 +57,12 @@ namespace SAPSystemTests
                 return RfcErrorInfo.Ok();
             };
 
-            using (var context = new RfcContext(settings, new SimpleConsoleLogger()))
+            var connectionBuilder = new ConnectionBuilder(settings)
+                .WithStartProgramCallback(callback)
+                .ConfigureRuntime(c => 
+                    c.WithLogger(new SimpleConsoleLogger()));
+
+            using (var context = new RfcContext(connectionBuilder.Build()))
             {
                 await context.PingAsync();
 
