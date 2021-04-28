@@ -17,6 +17,21 @@ namespace Dbosoft.YaNco.Internal
             return ptr == IntPtr.Zero ? null : new ConnectionHandle(ptr);
         }
 
+        public static RfcRc IsConnectionHandleValid(ConnectionHandle connectionHandle, out bool isValid, out RfcErrorInfo errorInfo)
+        {
+            if (connectionHandle.Ptr == IntPtr.Zero)
+            {
+                errorInfo = RfcErrorInfo.EmptyResult();
+                isValid = false;
+                return RfcRc.RFC_INVALID_HANDLE;
+            }
+
+            var rc = Interopt.RfcIsConnectionHandleValid(connectionHandle.Ptr, out var isValidInt, out errorInfo);
+            isValid = isValidInt == 0;
+            return rc;
+        }
+
+
         public static FunctionDescriptionHandle GetFunctionDescription(FunctionHandle functionHandle,
             out RfcErrorInfo errorInfo)
         {
@@ -114,6 +129,12 @@ namespace Dbosoft.YaNco.Internal
         {
             return Interopt.RfcInvoke(connectionHandle.Ptr, functionHandle.Ptr, out errorInfo);
 
+        }
+
+        public static RfcRc CancelConnection(ConnectionHandle connectionHandle,
+            out RfcErrorInfo errorInfo)
+        {
+            return Interopt.RfcCancel(connectionHandle.Ptr, out errorInfo);
         }
 
         public static RfcRc GetStructure(IDataContainerHandle dataContainer, string name,

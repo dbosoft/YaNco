@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using KellermanSoftware.CompareNetObjects;
@@ -240,6 +241,8 @@ namespace SAPSystemTests
                         Int04 = int04
                     })).ToEither();
 
+            result.IfLeft(l => Console.WriteLine(l.Message));
+
             watch.Stop();
             return watch.ElapsedMilliseconds;
 
@@ -248,6 +251,8 @@ namespace SAPSystemTests
         private static async Task<long> RunPerformanceTest02(IRfcContext context, int rows = 0)
         {
             var watch = Stopwatch.StartNew();
+            var cancelSource = new CancellationTokenSource();
+            cancelSource.CancelAfter(500);
 
             var result = await context.CallFunction("ZYANCO_PT_READ_2",
                 func => SetRows(func, rows),
@@ -264,7 +269,9 @@ namespace SAPSystemTests
                             Int04 = int04,
                             String = str
                         }
-                    )).ToEither();
+                    ), cancelSource.Token).ToEither();
+
+            result.IfLeft(l => Console.WriteLine(l.Message));
 
             watch.Stop();
             return watch.ElapsedMilliseconds;

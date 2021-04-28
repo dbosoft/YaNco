@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using LanguageExt;
 
 namespace Dbosoft.YaNco
@@ -65,14 +66,20 @@ namespace Dbosoft.YaNco
         /// <param name="functionName"></param>
         /// <param name="Input">Input function lifted in either monad.</param>
         /// <param name="Output">Output function lifted in either monad.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TRInput, TResult>(this IRfcContext context, string functionName, Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TRInput>> Input, Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TResult>> Output)
+        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TRInput, TResult>(
+            this IRfcContext context, 
+            string functionName, 
+            Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TRInput>> Input, 
+            Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TResult>> Output,
+            CancellationToken cancellationToken = default)
         {
             return context.CreateFunction(functionName).Use(
                 ef => ef.Bind(func => 
                     
                     from input in Input(Prelude.Right(func)).ToAsync()
-                    from _ in context.InvokeFunction(func)
+                    from _ in context.InvokeFunction(func, cancellationToken)
                     from output in Output(Prelude.Right(func)).ToAsync()
                     select output)
                 );
@@ -86,12 +93,17 @@ namespace Dbosoft.YaNco
         /// <param name="context"></param>
         /// <param name="functionName"></param>
         /// <param name="Output">Output function lifted in either monad.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TResult>(this IRfcContext context, string functionName, Func<Either<RfcErrorInfo,IFunction>, Either<RfcErrorInfo, TResult>> Output)
+        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TResult>(
+            this IRfcContext context, 
+            string functionName, 
+            Func<Either<RfcErrorInfo,IFunction>, Either<RfcErrorInfo, TResult>> Output,
+            CancellationToken cancellationToken = default)
         {
             return context.CreateFunction(functionName).Use(
                 ef => ef.Bind(func =>
-                    from _ in context.InvokeFunction(func)
+                    from _ in context.InvokeFunction(func, cancellationToken)
                     from output in Output(Prelude.Right(func)).ToAsync()
                     select output)
             );
@@ -102,11 +114,15 @@ namespace Dbosoft.YaNco
         /// </summary>
         /// <param name="context"></param>
         /// <param name="functionName"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, Unit> CallFunctionOneWay(this IRfcContext context, string functionName)
+        public static EitherAsync<RfcErrorInfo, Unit> CallFunctionOneWay(
+            this IRfcContext context, 
+            string functionName,
+            CancellationToken cancellationToken = default)
         {
             return context.CreateFunction(functionName).Use(
-                func => func.Bind(context.InvokeFunction));
+                func => func.Bind(f => context.InvokeFunction(f,cancellationToken)));
 
         }
 
@@ -116,14 +132,19 @@ namespace Dbosoft.YaNco
         /// <param name="context"></param>
         /// <param name="functionName"></param>
         /// <param name="Input">Input function lifted in either monad.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, Unit> CallFunctionOneWay<TRInput>(this IRfcContext context, string functionName, Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TRInput>> Input)
+        public static EitherAsync<RfcErrorInfo, Unit> CallFunctionOneWay<TRInput>(
+            this IRfcContext context, 
+            string functionName, 
+            Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TRInput>> Input,
+            CancellationToken cancellationToken = default)
         {
             return context.CreateFunction(functionName).Use(
                 ef => ef.Bind(func =>
 
                     from input in Input(Prelude.Right(func)).ToAsync()
-                    from _ in context.InvokeFunction(func)
+                    from _ in context.InvokeFunction(func, cancellationToken)
                     select Unit.Default)
             );
         }

@@ -26,6 +26,9 @@ namespace Dbosoft.YaNco
         Either<RfcErrorInfo, RfcFieldInfo> GetTypeFieldDescription(ITypeDescriptionHandle descriptionHandle, int index);
         Either<RfcErrorInfo, RfcFieldInfo> GetTypeFieldDescription(ITypeDescriptionHandle descriptionHandle, string name);
         Either<RfcErrorInfo, Unit> Invoke(IConnectionHandle connectionHandle, IFunctionHandle functionHandle);
+        Either<RfcErrorInfo, Unit> CancelConnection(IConnectionHandle connectionHandle);
+        Either<RfcErrorInfo, bool> IsConnectionHandleValid(IConnectionHandle connectionHandle);
+
         Either<RfcErrorInfo, Unit> MoveToNextTableRow(ITableHandle tableHandle);
         Either<RfcErrorInfo, Unit> MoveToFirstTableRow(ITableHandle tableHandle);
         Either<RfcErrorInfo, IConnectionHandle> OpenConnection(IDictionary<string, string> connectionParams);

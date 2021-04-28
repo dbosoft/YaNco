@@ -177,6 +177,21 @@ namespace Dbosoft.YaNco
 
         }
 
+        public Either<RfcErrorInfo, Unit> CancelConnection(IConnectionHandle connectionHandle)
+        {
+            Logger.IfSome(l => l.LogTrace("cancelling function", new { connectionHandle }));
+            var rc = Api.CancelConnection(connectionHandle as ConnectionHandle, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
+
+        }
+
+        public Either<RfcErrorInfo, bool> IsConnectionHandleValid(IConnectionHandle connectionHandle)
+        {
+            Logger.IfSome(l => l.LogTrace("checking connection state", new { connectionHandle }));
+            var rc = Api.IsConnectionHandleValid(connectionHandle as ConnectionHandle, out var isValid, out var errorInfo);
+            return ResultOrError(isValid, rc, errorInfo);
+        }
+
         public Either<RfcErrorInfo, IStructureHandle> GetStructure(IDataContainerHandle dataContainer, string name)
         {
             Logger.IfSome(l => l.LogTrace("creating structure by data container handle and name", new { dataContainer, name }));

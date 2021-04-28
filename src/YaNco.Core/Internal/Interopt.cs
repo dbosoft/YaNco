@@ -17,6 +17,13 @@ namespace Dbosoft.YaNco.Internal
         [DllImport(SapNwRfcName)]
         public static extern RfcRc RfcCloseConnection(IntPtr rfcHandle, out RfcErrorInfo errorInfo);
 
+        [DllImport(SapNwRfcName)]
+        public static extern RfcRc RfcIsConnectionHandleValid(IntPtr rfcHandle, out int isValid, out RfcErrorInfo errorInfo);
+        
+        [DllImport(SapNwRfcName)]
+        public static extern RfcRc RfcCancel(IntPtr rfcHandle, out RfcErrorInfo errorInfo);
+
+
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern IntPtr RfcGetFunctionDesc(IntPtr rfcHandle, string funcName, out RfcErrorInfo errorInfo);
 
