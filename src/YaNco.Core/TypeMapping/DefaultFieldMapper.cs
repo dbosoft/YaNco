@@ -14,50 +14,37 @@ namespace Dbosoft.YaNco.TypeMapping
 
         public Either<RfcErrorInfo, Unit> SetField<T>(T value, FieldMappingContext context)
         {
-            AbapValue abapValue = null;
-
-            foreach (var converter in _converterResolver.GetToRfcConverters<T>(context.FieldInfo.Type))
+            return ToAbapValue(value, context.FieldInfo).Bind(abapValue =>
             {
-                var result = converter.ConvertFrom(value, context.FieldInfo)();
-                if(result.IsFaulted)
-                    continue;
-                result.IfSucc(v => abapValue = v);
-                break;
+                switch (abapValue)
+                {
+                    case AbapIntValue abapIntValue:
+                        return context.RfcRuntime.SetInt(context.Handle, context.FieldInfo.Name, abapIntValue.Value);
+                    case AbapLongValue abapLongValue:
+                        return context.RfcRuntime.SetLong(context.Handle, context.FieldInfo.Name, abapLongValue.Value);
+                    case AbapByteValue abapByteValue:
+                        return context.RfcRuntime.SetBytes(context.Handle, context.FieldInfo.Name, abapByteValue.Value,
+                            abapByteValue.Value.LongLength);
+                    case AbapStringValue abapStringValue:
+                        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+                        switch (context.FieldInfo.Type)
+                        {
+                            case RfcType.DATE:
+                                return context.RfcRuntime.SetDateString(context.Handle, context.FieldInfo.Name,
+                                    abapStringValue.Value);
+                            case RfcType.TIME:
+                                return context.RfcRuntime.SetTimeString(context.Handle, context.FieldInfo.Name,
+                                    abapStringValue.Value);
+                            default:
+                                return context.RfcRuntime.SetString(context.Handle, context.FieldInfo.Name,
+                                    abapStringValue.Value);
+                        }
 
-            }
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(abapValue));
+                }
+            });
 
-            if (abapValue == null)
-                return new RfcErrorInfo(RfcRc.RFC_CONVERSION_FAILURE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "",
-                    $"Converting from type {typeof(T)} to abap type {context.FieldInfo.Type} is not supported.",
-                    "", "E", "", "", "", "", "");
-
-            switch (abapValue)
-            {
-                case AbapIntValue abapIntValue:
-                    return context.RfcRuntime.SetInt(context.Handle, context.FieldInfo.Name, abapIntValue.Value);
-                case AbapLongValue abapLongValue:
-                    return context.RfcRuntime.SetLong(context.Handle, context.FieldInfo.Name, abapLongValue.Value);
-                case AbapByteValue abapByteValue:
-                    return context.RfcRuntime.SetBytes(context.Handle, context.FieldInfo.Name, abapByteValue.Value,
-                        abapByteValue.Value.LongLength);
-                case AbapStringValue abapStringValue:
-                    // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-                    switch (context.FieldInfo.Type)
-                    {
-                        case RfcType.DATE:
-                            return context.RfcRuntime.SetDateString(context.Handle, context.FieldInfo.Name,
-                                abapStringValue.Value);
-                        case RfcType.TIME:
-                            return context.RfcRuntime.SetTimeString(context.Handle, context.FieldInfo.Name,
-                                abapStringValue.Value);
-                        default:
-                            return context.RfcRuntime.SetString(context.Handle, context.FieldInfo.Name, abapStringValue.Value);
-                    }
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(abapValue));
-
-            }
         }
 
         public Either<RfcErrorInfo, T> GetField<T>(FieldMappingContext context)
@@ -98,25 +85,68 @@ namespace Dbosoft.YaNco.TypeMapping
                         throw new NotSupportedException(
                             $"Reading a field of RfcType {context.FieldInfo.Type} is not supported for this method.");
                 }
-            }).Bind(abapValue =>
+            }).Bind(FromAbapValue<T>);
+        }
+
+        public Either<RfcErrorInfo, T> FromAbapValue<T>(AbapValue abapValue)
+        {
+            if (abapValue is T tv)
+                return tv;
+
+            T value = default;
+            foreach (var converter in _converterResolver.GetFromRfcConverters<T>(abapValue.FieldInfo.Type, abapValue.GetType()))
             {
-                T value = default;
-                foreach (var converter in _converterResolver.GetFromRfcConverters<T>(context.FieldInfo.Type, abapValue.GetType()))
-                {
-                    var result = converter.ConvertTo(abapValue)();
-                    if (result.IsFaulted)
-                        continue;
-                    result.IfSucc(v => value = v);
-                    break;
-                }
+                var result = converter.ConvertTo(abapValue)();
+                if (result.IsFaulted)
+                    continue;
+                result.IfSucc(v => value = v);
+                break;
+            }
 
-                if (value == null)
-                    return new RfcErrorInfo(RfcRc.RFC_CONVERSION_FAILURE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "",
-                        $"Converting from abap type {context.FieldInfo.Type} to type {typeof(T)} is not supported.",
-                        "", "E", "", "", "", "", "");
+            if (value == null)
+                return new RfcErrorInfo(RfcRc.RFC_CONVERSION_FAILURE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "",
+                    $"Converting from abap type {abapValue.FieldInfo.Type} to type {typeof(T)} is not supported.",
+                    "", "E", "", "", "", "", "");
 
-                return Prelude.Right<RfcErrorInfo,T>(value);
-            });
+            return Prelude.Right<RfcErrorInfo, T>(value);
+        }
+
+        public Either<RfcErrorInfo, AbapValue> ToAbapValue<T>(T value, RfcFieldInfo fieldInfo)
+        {
+            AbapValue abapValue = null;
+
+            if (value is AbapValue av)
+                return av;
+
+            foreach (var converter in _converterResolver.GetToRfcConverters<T>(fieldInfo.Type))
+            {
+                var result = converter.ConvertFrom(value, fieldInfo)();
+                if (result.IsFaulted)
+                    continue;
+                result.IfSucc(v => abapValue = v);
+                break;
+
+            }
+
+            if (abapValue == null)
+                return new RfcErrorInfo(RfcRc.RFC_CONVERSION_FAILURE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "",
+                    $"Converting from type {typeof(T)} to abap type {fieldInfo.Type} is not supported.",
+                    "", "E", "", "", "", "", "");
+
+            return abapValue;
+        }
+
+        public Either<RfcErrorInfo, Unit> SetFieldValue<T>(IRfcRuntime rfcRuntime, IDataContainerHandle handle, T value, Func<Either<RfcErrorInfo, RfcFieldInfo>> func)
+        {
+            return func().Bind(fieldInfo => 
+                SetField(value, new FieldMappingContext(rfcRuntime, handle, fieldInfo)));
+
+        }
+
+        public Either<RfcErrorInfo, T> GetFieldValue<T>(IRfcRuntime rfcRuntime, IDataContainerHandle handle, Func<Either<RfcErrorInfo, RfcFieldInfo>> func)
+        {
+            return func().Bind(fieldInfo => 
+                GetField<T>(new FieldMappingContext(rfcRuntime, handle, fieldInfo)));
         }
     }
 }
