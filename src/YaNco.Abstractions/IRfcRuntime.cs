@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
 
 namespace Dbosoft.YaNco
@@ -50,6 +51,7 @@ namespace Dbosoft.YaNco
         Either<RfcErrorInfo, string> GetTimeString(IDataContainerHandle containerHandle, string name);
 
         Option<ILogger> Logger { get; }
+        IFieldMapper FieldMapper { get; }
 
         Either<RfcErrorInfo, Unit> SetFieldValue<T>(IDataContainerHandle handle, T value, Func<Either<RfcErrorInfo, RfcFieldInfo>> func);
         Either<RfcErrorInfo, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcErrorInfo, RfcFieldInfo>> func);

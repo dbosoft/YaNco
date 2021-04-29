@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.TypeMapping;
 using KellermanSoftware.CompareNetObjects;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
@@ -95,6 +96,7 @@ namespace SAPSystemTests
             Console.WriteLine("*** BEGIN OF Integration Tests ***");
 
             await RunIntegrationTest01(context);
+            await RunIntegrationTest02(context);
 
             Console.WriteLine("*** END OF Integration Tests ***");
         }
@@ -221,12 +223,158 @@ namespace SAPSystemTests
                         });
             // ReSharper restore StringLiteralTypo
 
-
-            CompareLogic compareLogic = new CompareLogic();
+            var compareLogic = new CompareLogic(new ComparisonConfig() { MaxDifferences = int.MaxValue });
             var result = compareLogic.Compare(inputData, outputData);
 
             Console.WriteLine(!result.AreEqual ? result.DifferencesString : "Test succeed");
         }
+
+        private static async Task RunIntegrationTest02(IRfcContext context)
+        {
+            Console.WriteLine("Integration Tests 02 (I/O field with dictionary)");
+
+            // ReSharper disable StringLiteralTypo
+            var inputData = new TypesTestData
+            {
+                ACCP = "123456",
+                CHAR = "AB",
+                CLNT = "ABC",
+                CUKY = "ABCDE",
+                CURR = 9.12,
+                DATS = DateTime.MaxValue.Date,
+                DEC = 1.999M,
+                FLTP = +1E-6143,
+                INT1 = 1,
+                INT2 = 32767,
+                INT4 = 2147483647,
+                LANG = "A",
+                LCHR = RandomString(256),
+                LRAW = RandomByteArray(256),
+                NUMC = "123",
+                PREC = 99,
+                QUAN = 99.123,
+                RAW = RandomByteArray(10),
+                SSTRING = RandomString(10),
+                TIMS = default(DateTime).Add(new TimeSpan(23, 59, 59)),
+                STRING = "ABCDE",
+                RAWSTRING = RandomByteArray(300),
+                UNIT = "ABC"
+            };
+
+            var outputDictionary = await context.CallFunction("ZYANCO_IT_1",
+                Input: f => f.SetStructure("IS_IN",
+                    s => s
+                        .SetField("FIELD_ACCP", inputData.ACCP)
+                        .SetField("FIELD_CHAR", inputData.CHAR)
+                        .SetField("FIELD_CLNT", inputData.CLNT)
+                        .SetField("FIELD_CUKY", inputData.CUKY)
+                        .SetField("FIELD_CURR", inputData.CURR)
+                        .SetField("FIELD_DATS", inputData.DATS)
+                        .SetField("FIELD_DEC", inputData.DEC)
+                        .SetField("FIELD_FLTP", inputData.FLTP)
+                        .SetField("FIELD_INT1", inputData.INT1)
+                        .SetField("FIELD_INT2", inputData.INT2)
+                        .SetField("FIELD_INT4", inputData.INT4)
+                        .SetField("FIELD_LANG", inputData.LANG)
+                        .SetField("FIELD_LCHR", inputData.LCHR)
+                        .SetField("FIELD_LRAW", inputData.LRAW)
+                        .SetField("FIELD_NUMC", inputData.NUMC)
+                        .SetField("FIELD_PREC", inputData.PREC)
+                        .SetField("FIELD_QUAN", inputData.QUAN)
+                        .SetField("FIELD_RAW", inputData.RAW)
+                        .SetField("FIELD_SSTRING", inputData.SSTRING)
+                        .SetField("FIELD_TIMS", inputData.TIMS)
+                        .SetField("FIELD_STRING", inputData.STRING)
+                        .SetField("FIELD_RAWSTRING", inputData.RAWSTRING)
+                        .SetField("FIELD_UNIT", inputData.UNIT)
+                ),
+                Output: f => f.MapStructure("ES_ECHO", s =>
+                    s.ToDictionary()))
+                .Match(
+                    r => r,
+                    l =>
+                    {
+                        Console.WriteLine(l.Message);
+                        return new Dictionary<string, AbapValue>();
+                    });
+
+
+            var outputData = await context.CallFunction("ZYANCO_IT_1",
+                Input: f => f.SetStructure("IS_IN", es => 
+                    es.Bind(s=>s.SetFromDictionary(outputDictionary))),
+
+                Output: f => f.MapStructure("ES_ECHO", s =>
+                    // ReSharper disable InconsistentNaming
+                    // ReSharper disable IdentifierTypo
+                    from fieldACCP in s.GetField<string>("FIELD_ACCP")
+                    from fieldCHAR in s.GetField<string>("FIELD_CHAR")
+                    from fieldCLNT in s.GetField<string>("FIELD_CLNT")
+                    from fieldCUKY in s.GetField<string>("FIELD_CUKY")
+                    from fieldCURR in s.GetField<double>("FIELD_CURR")
+                    from fieldDATS in s.GetField<DateTime>("FIELD_DATS")
+                    from fieldDEC in s.GetField<decimal>("FIELD_DEC")
+                    from fieldFLTP in s.GetField<double>("FIELD_FLTP")
+                    from fieldINT1 in s.GetField<int>("FIELD_INT1")
+                    from fieldINT2 in s.GetField<short>("FIELD_INT2")
+                    from fieldINT4 in s.GetField<int>("FIELD_INT4")
+                    from fieldLANG in s.GetField<string>("FIELD_LANG")
+                    from fieldLCHR in s.GetField<string>("FIELD_LCHR")
+                    from fieldLRAW in s.GetField<byte[]>("FIELD_LRAW")
+                    from fieldNUMC in s.GetField<string>("FIELD_NUMC")
+                    from fieldPREC in s.GetField<int>("FIELD_PREC")
+                    from fieldQUAN in s.GetField<double>("FIELD_QUAN")
+                    from fieldRAW in s.GetField<byte[]>("FIELD_RAW")
+                    from fieldSSTRING in s.GetField<string>("FIELD_SSTRING")
+                    from fieldTIMS in s.GetField<DateTime>("FIELD_TIMS")
+                    from fieldSTRING in s.GetField<string>("FIELD_STRING")
+                    from fieldRAWSTRING in s.GetField<byte[]>("FIELD_RAWSTRING")
+                    from fieldUNIT in s.GetField<string>("FIELD_UNIT")
+                        // ReSharper restore InconsistentNaming
+                        // ReSharper restore IdentifierTypo
+
+                    select new TypesTestData
+                    {
+                        ACCP = fieldACCP,
+                        CHAR = fieldCHAR,
+                        CLNT = fieldCLNT,
+                        CUKY = fieldCUKY,
+                        CURR = fieldCURR,
+                        DATS = fieldDATS,
+                        DEC = fieldDEC,
+                        FLTP = fieldFLTP,
+                        INT1 = fieldINT1,
+                        INT2 = fieldINT2,
+                        INT4 = fieldINT4,
+                        LANG = fieldLANG,
+                        LCHR = fieldLCHR,
+                        LRAW = fieldLRAW,
+                        NUMC = fieldNUMC,
+                        PREC = fieldPREC,
+                        QUAN = fieldQUAN,
+                        RAW = fieldRAW,
+                        SSTRING = fieldSSTRING,
+                        TIMS = fieldTIMS,
+                        STRING = fieldSTRING,
+                        RAWSTRING = fieldRAWSTRING,
+                        UNIT = fieldUNIT
+
+                    })).Match(
+                        r => r,
+                        l =>
+                        {
+                            Console.WriteLine(l.Message);
+                            return new TypesTestData();
+                        });
+
+            // ReSharper restore StringLiteralTypo
+
+            var compareLogic = new CompareLogic(new ComparisonConfig(){MaxDifferences = int.MaxValue});
+            var result = compareLogic.Compare(inputData, outputData);
+
+            Console.WriteLine(!result.AreEqual ? result.DifferencesString : "Test succeed");
+        }
+
+
         private static async Task<long> RunPerformanceTest01(IRfcContext context, int rows=0)
         {
             var watch = Stopwatch.StartNew();

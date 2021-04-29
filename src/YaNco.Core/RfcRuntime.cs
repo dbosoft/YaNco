@@ -11,12 +11,12 @@ namespace Dbosoft.YaNco
 {
     public class RfcRuntime : IRfcRuntime
     {
-        private readonly IFieldMapper _fieldMapper;
+        public IFieldMapper FieldMapper { get; }
 
         public RfcRuntime(ILogger logger = null, IFieldMapper fieldMapper = null, RfcRuntimeOptions options = null)
         {
             Logger = logger == null ? Option<ILogger>.None : Option<ILogger>.Some(logger);
-            _fieldMapper = fieldMapper ?? CreateDefaultFieldMapper();
+            FieldMapper = fieldMapper ?? CreateDefaultFieldMapper();
             Options = options ?? new RfcRuntimeOptions();
         }
 
@@ -330,7 +330,7 @@ namespace Dbosoft.YaNco
             return func().Bind(fieldInfo =>
             {
                 Logger.IfSome(l => l.LogTrace("setting field value", new { handle, fieldInfo, SourceType= typeof(T) }));
-                return _fieldMapper.SetField(value, new FieldMappingContext(this, handle, fieldInfo));
+                return FieldMapper.SetField(value, new FieldMappingContext(this, handle, fieldInfo));
             });
             
         }
@@ -340,7 +340,7 @@ namespace Dbosoft.YaNco
             return func().Bind(fieldInfo =>
             {
                 Logger.IfSome(l => l.LogTrace("reading field value", new { handle, fieldInfo, TargetType = typeof(T) }));
-                return _fieldMapper.GetField<T>(new FieldMappingContext(this, handle, fieldInfo));
+                return FieldMapper.GetField<T>(new FieldMappingContext(this, handle, fieldInfo));
             });
 
 

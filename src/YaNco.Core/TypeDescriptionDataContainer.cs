@@ -4,19 +4,19 @@ namespace Dbosoft.YaNco
 {
     internal abstract class TypeDescriptionDataContainer : DataContainer
     {
-        private readonly IDataContainerHandle _handle;
-        private readonly IRfcRuntime _rfcRuntime;
+        protected readonly IDataContainerHandle Handle;
+        protected readonly IRfcRuntime RfcRuntime;
 
         protected TypeDescriptionDataContainer(IDataContainerHandle handle, IRfcRuntime rfcRuntime) : base(handle, rfcRuntime)
         {
-            _handle = handle;
-            _rfcRuntime = rfcRuntime;
+            Handle = handle;
+            RfcRuntime = rfcRuntime;
         }
 
         protected override Either<RfcErrorInfo, RfcFieldInfo> GetFieldInfo(string name)
         {
-            return _rfcRuntime.GetTypeDescription(_handle).Use(used => used
-                .Bind(handle => _rfcRuntime.GetTypeFieldDescription(handle, name)));
+            return RfcRuntime.GetTypeDescription(Handle).Use(used => used
+                .Bind(handle => RfcRuntime.GetTypeFieldDescription(handle, name)));
 
         }
     }
