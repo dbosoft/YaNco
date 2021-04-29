@@ -29,5 +29,8 @@ namespace Dbosoft.YaNco
         Task<Either<RfcErrorInfo, Unit>> CommitAndWaitAsync(CancellationToken cancellationToken);
         Task<Either<RfcErrorInfo, Unit>> RollbackAsync();
         Task<Either<RfcErrorInfo, Unit>> RollbackAsync(CancellationToken cancellationToken);
+
+        EitherAsync<RfcErrorInfo, IConnection> GetConnection();
+
     }
 }

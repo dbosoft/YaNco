@@ -16,8 +16,8 @@ namespace Dbosoft.YaNco
         {
             _connectionBuilder = connectionBuilder;
         }
-
-        private EitherAsync<RfcErrorInfo, IConnection> GetConnection()
+        
+        public EitherAsync<RfcErrorInfo, IConnection> GetConnection()
         {
 
             async Task<Either<RfcErrorInfo, IConnection>> GetConnectionAsync()
