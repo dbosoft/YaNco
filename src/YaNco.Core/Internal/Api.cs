@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -162,15 +163,25 @@ namespace Dbosoft.YaNco.Internal
                 return;
             }
 
-            StartProgramCallback = callback;
-
+            RegisteredCallbacks.AddOrUpdate(connectionHandle.Ptr, callback, (c,v) => v );
+            
         }
 
-        public static StartProgramDelegate StartProgramCallback;
+        private static readonly ConcurrentDictionary<IntPtr, StartProgramDelegate> RegisteredCallbacks 
+            = new ConcurrentDictionary<IntPtr, StartProgramDelegate>();
+
         private static readonly Interopt.RfcServerFunction StartProgramHandler = RFC_START_PROGRAM_Handler;
 
         static RfcRc RFC_START_PROGRAM_Handler(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo)
         {
+            if (!RegisteredCallbacks.TryGetValue(rfcHandle, out var startProgramDelegate))
+            {
+                errorInfo = new RfcErrorInfo(RfcRc.RFC_INVALID_HANDLE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "", 
+                    "no connection registered for this callback", "", "", "", "", "", "", "");
+                return RfcRc.RFC_INVALID_HANDLE;
+
+            }
+            
             var commandBuffer = new char[513];
 
             var rc = Interopt.RfcGetStringByIndex(funcHandle, 0, commandBuffer, (uint)commandBuffer.Length - 1, out var commandLength, out errorInfo);
@@ -179,9 +190,15 @@ namespace Dbosoft.YaNco.Internal
                 return rc;
 
             var command = new string(commandBuffer, 0, (int)commandLength);
-            errorInfo = StartProgramCallback(command);
+            errorInfo = startProgramDelegate(command);
 
             return errorInfo.Code;
+        }
+
+
+        public static void RemoveCallbackHandler(IntPtr connectionHandle)
+        {
+            RegisteredCallbacks.TryRemove(connectionHandle, out var _);
         }
 
         public static RfcRc GetTableRowCount(TableHandle table, out int count, out RfcErrorInfo errorInfo)
