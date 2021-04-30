@@ -15,7 +15,9 @@ namespace Dbosoft.YaNco.Internal
         {
             if (Ptr == IntPtr.Zero) return;
 
+            Api.RemoveCallbackHandler(Ptr);
             Interopt.RfcCloseConnection(Ptr, out _);
+            
             Ptr = IntPtr.Zero;
         }
     }
