@@ -20,7 +20,7 @@ This package contains abstraction definitions.
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dbosoft.Functional" Version="(1.0,2.0)" />
+    <PackageReference Include="Dbosoft.Functional" Version="[1.0,2.0)" />
     <PackageReference Include="GitVersionTask" Version="5.3.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
