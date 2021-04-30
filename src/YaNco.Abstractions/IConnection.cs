@@ -20,6 +20,7 @@ namespace Dbosoft.YaNco
         EitherAsync<RfcErrorInfo, Unit> Cancel();
 
         bool Disposed { get; }
+        IRfcRuntime RfcRuntime { get;  }
 
     }
 }

@@ -10,7 +10,7 @@ namespace Dbosoft.YaNco
     public class Connection : IConnection
     {
         private readonly IConnectionHandle _connectionHandle;
-        private readonly IRfcRuntime _rfcRuntime;
+        public IRfcRuntime RfcRuntime { get; }
         private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
         public bool Disposed { get; private set; }
         private bool _functionCalled;
@@ -20,7 +20,7 @@ namespace Dbosoft.YaNco
             IRfcRuntime rfcRuntime)
         {
             _connectionHandle = connectionHandle;
-            _rfcRuntime = rfcRuntime;
+            RfcRuntime = rfcRuntime;
 
             _stateAgent = Agent.Start<IConnectionHandle, AgentMessage, Either<RfcErrorInfo, object>>(
                 connectionHandle, (handle, msg) =>
@@ -136,7 +136,7 @@ namespace Dbosoft.YaNco
 
         public EitherAsync<RfcErrorInfo, Unit> Cancel()
         {
-            var res = _rfcRuntime.CancelConnection(_connectionHandle).ToAsync();
+            var res = RfcRuntime.CancelConnection(_connectionHandle).ToAsync();
             Dispose();
             return res;
         }
