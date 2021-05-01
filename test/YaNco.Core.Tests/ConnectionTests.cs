@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
-using Dbosoft.YaNco.Internal;
 using LanguageExt;
 using Moq;
 using Xunit;
@@ -16,54 +15,55 @@ namespace YaNco.Core.Tests
         public async Task Connection_is_Opened()
         {
             var rfcRuntimeMock = new Mock<IRfcRuntime>();
-            var handleMock = new Mock<IConnectionHandle>();
+            rfcRuntimeMock.SetupOpenConnection(out _);
 
-            rfcRuntimeMock.Setup(x =>
-                    x.OpenConnection(new Dictionary<string, string>()))
-                .Returns(Prelude.Right(handleMock.Object));
+            await rfcRuntimeMock.CreateConnection();
 
-            var connection = await Connection.Create(new Dictionary<string, string>(), 
-                rfcRuntimeMock.Object)
-                .IfLeft(l => throw new Exception(l.Message));
-
-            rfcRuntimeMock.Verify();
+            rfcRuntimeMock.VerifyAll();
 
         }
-        
+
         [Fact]
         public async Task Function_is_created()
         {
-            var rfcRuntimeMock = new Mock<IRfcRuntime>();
-            var descMock = new Mock<IFunctionDescriptionHandle>();
-            var funcMock = new Mock<IFunctionHandle>();
-            var connMock = new Mock<IConnectionHandle>();
+            var rfcRuntimeMock = new Mock<IRfcRuntime>()
+                .SetupOpenConnection(out _)
+                .SetupGetFunctionDescription("RFC_PING", out var descHandle)
+                .SetupGetFunction(descHandle, out _);
 
-            rfcRuntimeMock.Setup(x =>
-                    x.OpenConnection(new Dictionary<string, string>()))
-                .Returns(Prelude.Right(connMock.Object));
-
-
-            rfcRuntimeMock.Setup(x =>
-                    x.GetFunctionDescription(
-                        It.IsAny<IConnectionHandle>(),
-                        "RFC_PING"))
-                .Returns(Prelude.Right(descMock.Object));
-
-            rfcRuntimeMock.Setup(x =>
-                    x.CreateFunction(
-                        descMock.Object))
-                .Returns(Prelude.Right(funcMock.Object));
-
-
-            var connection = await Connection.Create(new Dictionary<string, string>(),
-                    rfcRuntimeMock.Object)
-                .IfLeft(l => throw new Exception(l.Message));
-
-            await connection.CreateFunction("RFC_PING")
+            await (await rfcRuntimeMock.CreateConnection())
+                .CreateFunction("RFC_PING")
                 .IfLeft(l => throw new Exception(l.Message));
 
 
-            rfcRuntimeMock.Verify();
+            rfcRuntimeMock.VerifyAll();
+
+        }
+
+        [Fact]
+        public async Task Commit_is_called()
+        {
+
+            var rfcRuntimeMock = new Mock<IRfcRuntime>()
+                .SetupOpenConnection(out var connHandle)
+                .SetupFunction("BAPI_TRANSACTION_COMMIT", connHandle, (r,h) =>
+                {
+                    var structureHandle = new Mock<IStructureHandle>();
+
+                    r.Setup(x => x.GetStructure(h, "RETURN"))
+                        .Returns(Prelude.Right(structureHandle.Object));
+                    r.Setup(x =>
+                            x.GetFieldValue<string>(structureHandle.Object,
+                                It.IsAny<Func<Either<RfcErrorInfo, RfcFieldInfo>>>()))
+                        .Returns(Prelude.Right(""));
+                });
+
+            await (await rfcRuntimeMock.CreateConnection())
+                .Commit()
+                .IfLeft(l => throw new Exception(l.Message));
+
+
+            rfcRuntimeMock.VerifyAll();
 
         }
     }
