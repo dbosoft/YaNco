@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using LanguageExt;
@@ -54,14 +55,19 @@ namespace YaNco.Core.Tests.RfcMock
             return mock;
         }        
         
-        public static Mock<IRfcRuntime> SetupFunction(this Mock<IRfcRuntime> mock, string functionName, Mock<IConnectionHandle> connHandle, Action<Mock<IRfcRuntime>, IFunctionHandle> functionBuilder)
+        public static Mock<IRfcRuntime> SetupFunction(this Mock<IRfcRuntime> mock, string functionName, Mock<IConnectionHandle> connHandle, Action<Mock<IRfcRuntime>, IFunctionHandle> functionBuilder, bool delay = false)
         {
             mock.SetupGetFunctionDescription(functionName, out var descHandle)
                 .SetupGetFunction(descHandle, out var funcHandle);
 
             mock.Setup(x =>
                     x.Invoke(connHandle.Object, funcHandle.Object))
-                .Returns(Prelude.Right(Unit.Default));
+                .Returns(() =>
+                {
+                    if(delay)
+                        Thread.Sleep(2000);
+                    return Prelude.Right(Unit.Default);
+                });
 
             functionBuilder(mock,funcHandle.Object);
 
