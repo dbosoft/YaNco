@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Dbosoft.YaNco.Internal;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
@@ -9,6 +10,7 @@ using FieldMappingContext = Dbosoft.YaNco.TypeMapping.FieldMappingContext;
 
 namespace Dbosoft.YaNco
 {
+    [ExcludeFromCodeCoverage]
     public class RfcRuntime : IRfcRuntime
     {
         public IFieldMapper FieldMapper { get; }

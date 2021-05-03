@@ -13,6 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAPSystemTests", "test\SAPS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{21F1B3B7-CD78-4776-AB18-DA978C1EE0B5}"
 	ProjectSection(SolutionItems) = preProject
+		.runsettings.xml = .runsettings.xml
 		azure-pipelines.yml = azure-pipelines.yml
 		gitversion.yml = gitversion.yml
 	EndProjectSection
@@ -25,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco.NwRfcSdk.win-x86", "s
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{4CE500A9-6E94-4F65-90D1-7457E1F2D77C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YaNco.Core.Tests", "test\YaNco.Core.Tests\YaNco.Core.Tests.csproj", "{2BE812C9-07BF-4184-B8BD-6504094ADE83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco.Core.Tests", "test\YaNco.Core.Tests\YaNco.Core.Tests.csproj", "{2BE812C9-07BF-4184-B8BD-6504094ADE83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
