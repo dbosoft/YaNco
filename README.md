@@ -210,6 +210,19 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 See also the list of [contributors](https://github.com/Dbosoft/YaNco/contributors) who participated in this project.
 
+## Commercial support
+
+The creators of YaNco, [dbosoft](https://www.dbosoft.eu), offer [professional support plans which we strongly](https://support.dbosoft.eu/hc/en-us/articles/360021454080-YaNco-Support-Plans) recommend for any organisations using YaNco on a commercial basis. 
+
+They includes:
+
+- Prioritised resolution of any bugs. If you find a bug that’s blocking you, we’ll prioritise it and release a hot fix as soon as it’s ready.
+- Prioritised resolution and escalation of issues. If there’s a possible issue or question, we’ll prioritise dealing with it.
+- Prioritised feature requests: Get new features that are important to you added first.
+- Personalised support and guidance via email, telephone or video. Speak to one of our team for advice and best practices on how to best manage deployments.
+- Discounts on training and coaching services
+
+
 
 ## License
 
