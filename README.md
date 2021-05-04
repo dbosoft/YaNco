@@ -215,3 +215,6 @@ See also the list of [contributors](https://github.com/Dbosoft/YaNco/contributor
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
+## Trademark notice
+
+SAP, Netweaver are trademarks of SAP SE
