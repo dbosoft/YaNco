@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "WebApi.Shared": {
+      "commandName": "Project"
+    }
+  }
+}

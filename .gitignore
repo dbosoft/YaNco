@@ -260,6 +260,13 @@ paket-files/
 __pycache__/
 *.pyc
 
+
+!nwrfcsdk/linux-x64
+nwrfcsdk/linux-x64/demo
+nwrfcsdk/linux-x64/doc
+nwrfcsdk/linux-x64/include
+nwrfcsdk/linux-x64/lib
+
 !nwrfcsdk/x64
 nwrfcsdk/x64/demo
 nwrfcsdk/x64/doc
