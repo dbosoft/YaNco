@@ -26,7 +26,7 @@ namespace WebApi
                 if (currentPathVariable.Contains(executeableDir))
                     return;
 
-                if (!currentPathVariable.EndsWith(';'))
+                if (!currentPathVariable.EndsWith(";"))
                     currentPathVariable += ';';
 
             }
