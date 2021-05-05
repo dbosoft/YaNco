@@ -2,8 +2,8 @@
 {
     public class CompanyModel
     {
-        public string CompanyCode { get; set; }
-        public string CompanyName { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
 
     }
 }

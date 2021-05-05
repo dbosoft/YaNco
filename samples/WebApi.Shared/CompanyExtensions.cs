@@ -19,8 +19,8 @@ namespace WebApi.Shared
                         from name in s.GetField<string>("COMP_NAME")
                         select new CompanyModel
                         {
-                            CompanyCode = code,
-                            CompanyName = name
+                            Code = code,
+                            Name = name
                         }));
 
         }
