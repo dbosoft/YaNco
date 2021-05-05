@@ -15,9 +15,7 @@
       "launchUrl": "api/company",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "ancmHostingModel": "OutOfProcess"
-
+      }
     },
     "SAPWebAPI": {
       "commandName": "Project",
@@ -32,11 +30,10 @@
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/api/company",
+      "publishAllPorts": true,
       "environmentVariables": {
         "LD_LIBRARY_PATH": "/app/bin/Debug/netcoreapp2.1/"
-      },
-      "publishAllPorts": true,
-      "useSSL": true
+      }
     }
   }
 }

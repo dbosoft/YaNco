@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApi;
 
 namespace SAPWebAPI
 {
@@ -13,6 +14,8 @@ namespace SAPWebAPI
     {
         public static void Main(string[] args)
         {
+            RfcLibraryHelper.EnsurePathVariable();
+
             CreateHostBuilder(args).Build().Run();
         }
 
