@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WebApi.Shared": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "LD_LIBRARY_PATH": "/app/bin/Debug/netcoreapp3.1/"
+      }
+    }
+  }
+}
