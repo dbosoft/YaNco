@@ -97,7 +97,7 @@ var connectionBuilder = new ConnectionBuilder(connFunc)
 ```
 
 
-**Calling functions**
+**Calling ABAP Function Modules**
 
 We provide a extension method on the RFCContext that supports a syntax similar to the ABAP call function command, except that it is using function callbacks to pass or retrieve data: 
 
