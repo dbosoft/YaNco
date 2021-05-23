@@ -197,10 +197,10 @@ using (var context = new RfcContext(connFunc))
 
 We use Visual Studio 2019 for building. 
 
-As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_. 
+As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Support Portal_. 
 Download both the x64 and the x86 versions and place then in the repository folder nwrfcsdk/x64 and nwrfcsdk/x86.
 
-The sdk is required to build the C++/CLI library for windows and to build the reference helper libraries. 
+The sdk is required to build the test application and reference helper library. 
 
 
 ## Versioning
