@@ -33,10 +33,13 @@ Library can be downloaded here: https://support.microsoft.com/en-us/help/2977003
 
 **SAP Netweaver RFC SDK**
 
-To use and build YaNco you need to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_.
+To use and build YaNco you need to obtain _SAP NW RFC Library 750_ from _SAP Support Portal_.
 
-A prerequisite to download is having a **customer or partner account** on _SAP Service Marketplace_ and if you
+A prerequisite to download is having a **customer or partner account** on _SAP Support Portal_ and if you
 are SAP employee please check [SAP Note 1037575 - Software download authorizations for SAP employees](https://launchpad.support.sap.com/#/notes/1037575).
+
+You can automate the download of the SAP NW RFC SDK with the dotnet tool [sapnwrfc-download](https://www.nuget.org/packages/Dbosoft.SAPNwRfc.DownloadTool).  
+See https://www.dbosoft.eu/en-us/blog/sap-netweaver-rfc-sdk-download-tool for details. 
 
 _SAP NW RFC Library_ is fully backwards compatible, supporting all NetWeaver systems, from today, down to release R/3 4.6C.
 You can therefore always use the newest version released on Service Marketplace and connect to older systems as well.
