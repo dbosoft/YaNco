@@ -33,7 +33,7 @@ Library can be downloaded here: https://support.microsoft.com/en-us/help/2977003
 
 **SAP Netweaver RFC SDK**
 
-To use and build YaNco you need to obtain _SAP NW RFC Library 750_ from _SAP Support Portal_.
+To use and build YaNco you need to obtain _SAP NW RFC SDK 750_ from _[SAP Support Portal](https://launchpad.support.sap.com/#/softwarecenter/template/products/_APP=00200682500000001943&_EVENT=DISPHIER&HEADER=N&FUNCTIONBAR=Y&EVENT=TREE&TMPL=INTRO_SWDC_SP_AD&V=MAINT&REFERER=CATALOG-PATCHES&ROUTENAME=products/By%20Category%20-%20Additional%20Components)_.
 
 A prerequisite to download is having a **customer or partner account** on _SAP Support Portal_ and if you
 are SAP employee please check [SAP Note 1037575 - Software download authorizations for SAP employees](https://launchpad.support.sap.com/#/notes/1037575).
@@ -41,16 +41,12 @@ are SAP employee please check [SAP Note 1037575 - Software download authorizatio
 You can automate the download of the SAP NW RFC SDK with the dotnet tool [sapnwrfc-download](https://www.nuget.org/packages/Dbosoft.SAPNwRfc.DownloadTool).  
 See https://www.dbosoft.eu/en-us/blog/sap-netweaver-rfc-sdk-download-tool for details. 
 
-_SAP NW RFC Library_ is fully backwards compatible, supporting all NetWeaver systems, from today, down to release R/3 4.6C.
+_SAP NW RFC SDK 750_ is fully backwards compatible, supporting all NetWeaver systems, from today, down to release R/3 4.6C.
 You can therefore always use the newest version released on Service Marketplace and connect to older systems as well.
 
 ## Getting started
 
 The easiest way to get started is by installing [the available NuGet package](https://www.nuget.org/packages/Dbosoft.YaNco). Take a look at the [Using](#using) section learning how to configure and use YaNco. Go to the [Build](#build) section to find out how to build YaNco. 
-
-As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Service Marketplace_. Download the RFC SDK for the platform required for your project. You will only need the files from the lib directory - include them as solution item and copy the files to the build output directory.
-
-You also have to change your project platform configuration to the corresponding platform (x64/x86).
 
 ## Using
 
