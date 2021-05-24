@@ -7,7 +7,7 @@ Stable                     |  Latest                   |
 
 ## Description
 
-This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC SDK_.
+This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_.
 
 **Features**:
 - thin, modern layer above native SAP Netweaver RFC SDK
