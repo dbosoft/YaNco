@@ -42,7 +42,7 @@ You can automate the download of the SAP NW RFC SDK with the dotnet tool [sapnwr
 See https://www.dbosoft.eu/en-us/blog/sap-netweaver-rfc-sdk-download-tool for details. 
 
 _SAP NW RFC SDK 750_ is fully backwards compatible, supporting all NetWeaver systems, from today, down to release R/3 4.6C.
-You can therefore always use the newest version released on Service Marketplace and connect to older systems as well.
+You can therefore always use the newest version released on SAP Support Portal and connect to older systems as well.
 
 ## Getting started
 
