@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Dbosoft.YaNco.Internal
 {
+    [ExcludeFromCodeCoverage]
     public static class Api
     {
         

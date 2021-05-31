@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace Dbosoft.YaNco.Internal
 {
+    [ExcludeFromCodeCoverage]
     internal static class Interopt
     {
         private const string SapNwRfcName = "sapnwrfc";
