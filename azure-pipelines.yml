@@ -4,94 +4,37 @@ trigger:
       - master
 
 pool:
-  name: default
+  vmImage: windows-latest  
 
 variables:
   buildConfiguration: 'Release'
 
-steps:   
-- task: DotNetCoreCLI@2
-  displayName: restore packages
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'  
-    
-- task: DeleteFiles@1
-  displayName: delete old packages
-  inputs:
-    sourceFolder: $(Build.SourcesDirectory)\build-packages
-    contents: '**'
-    
-- task: CopyFiles@2
-  displayName: copy nwrfcsdk
-  inputs: 
-    sourceFolder: \\dfs\Development\Packages\nwrfcsdk
-    targetFolder: $(Build.SourcesDirectory)\nwrfcsdk
-    cleanTargetFolder: true
-    
+steps:
 - task: UseGitVersion@5
   inputs:
     versionSpec: '5.x'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet build
+  inputs:
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+  
+- task: DotNetCoreCLI@2
+  displayName: dotnet test
+  inputs:
+    command: test
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+  
+- task: DotNetCoreCLI@2
+  displayName: dotnet pack
+  inputs:
+    command: pack
+    nobuild: true
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     
-# x86 platform builds
-- task: VSBuild@1
-  displayName: x86 platform builds
-  inputs:
-    platform: x86
-    configuration: Release
-   
-# x64 platform builds
-- task: VSBuild@1
-  displayName: x64 platform builds
-  inputs:
-    platform: x64
-    configuration: Release
-    
-# cleanup packages created in platform builds
-- task: DeleteFiles@1
-  displayName: cleanup packages created in platform builds
-  inputs:
-    sourceFolder: $(Build.SourcesDirectory)\build-packages
-    contents: '**'
-
-# final build
-- task: VSBuild@1
-  displayName: package build
-  inputs:
-    platform: 'Any CPU'
-    configuration: Release   
-
-# packing
-# due to issues with GitVersion task pack one after the other...
-- task: DotNetCoreCLI@2
-  displayName: pack YaNco.Primitives
-  inputs:
-    command: 'pack'
-    packagesToPack: '**/YaNco.Primitives.csproj'
-    nobuild: true
-    versioningScheme: 'off'
-
-- task: DotNetCoreCLI@2
-  displayName: pack YaNco.Abstractions
-  inputs:
-    command: 'pack'
-    nobuild: true    
-    packagesToPack: '**/YaNco.Abstractions.csproj'
-
-- task: DotNetCoreCLI@2
-  displayName: pack YaNco.Core
-  inputs:
-    command: 'pack'
-    nobuild: true
-    packagesToPack: '**/YaNco.Core.csproj'
- 
-- task: DotNetCoreCLI@2
-  displayName: pack YaNco
-  inputs:
-    command: 'pack'
-    nobuild: true
-    packagesToPack: '**/YaNco.csproj'
-
 - task: PublishBuildArtifacts@1
   inputs:
     ArtifactName: build-packages
