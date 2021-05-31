@@ -3,7 +3,6 @@
   <PropertyGroup>
     <AssemblyName>Dbosoft.YaNco.Core</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>7.1</LangVersion>
     <RootNamespace>Dbosoft.YaNco</RootNamespace>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageOutputPath>..\..\build-packages</PackageOutputPath>
