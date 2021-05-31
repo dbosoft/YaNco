@@ -2,23 +2,11 @@
 
   <PropertyGroup>
     <AssemblyName>Dbosoft.YaNco.Primitives</AssemblyName>
-    <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Dbosoft.YaNco</RootNamespace>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageOutputPath>..\..\build-packages</PackageOutputPath>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/dbosoft/YaNco</PackageProjectUrl>
-    <Copyright>Library created by dbosoft; SAP, Netweaver are trademarks of SAP SE</Copyright>
-    <Authors>dbosoft</Authors>
-    <Company>dbosoft GmbH</Company>
-    <Product>YaNco</Product>
-    <RepositoryUrl>https://github.com/dbosoft/YaNco</RepositoryUrl>
     <Description>YaNco is a modern alternative to the SAP .NET Connector. 
 This package contains primitive type definitions.</Description>
-
   </PropertyGroup>
-
 
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="5.6.10">
