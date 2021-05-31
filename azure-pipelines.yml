@@ -29,30 +29,68 @@ steps:
     targetFolder: $(Build.SourcesDirectory)\nwrfcsdk
     cleanTargetFolder: true
     
-- task: DotNetCoreCLI@2
+- task: UseGitVersion@5
   inputs:
-    command: 'restore'
-    restoreArguments: '--disable-parallel'
+    versionSpec: '5.x'
+    
+# x86 platform builds
+- task: VSBuild@1
+  displayName: x86 platform builds
+  inputs:
+    platform: x86
+    configuration: Release
+   
+# x64 platform builds
+- task: VSBuild@1
+  displayName: x64 platform builds
+  inputs:
+    platform: x64
+    configuration: Release
+    
+# cleanup packages created in platform builds
+- task: DeleteFiles@1
+  displayName: cleanup packages created in platform builds
+  inputs:
+    sourceFolder: $(Build.SourcesDirectory)\build-packages
+    contents: '**'
+
+# final build
+- task: VSBuild@1
+  displayName: package build
+  inputs:
+    platform: 'Any CPU'
+    configuration: Release   
+
+# packing
+# due to issues with GitVersion task pack one after the other...
+- task: DotNetCoreCLI@2
+  displayName: pack YaNco.Primitives
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/YaNco.Primitives.csproj'
+    nobuild: true
+    versioningScheme: 'off'
 
 - task: DotNetCoreCLI@2
-  displayName: dotnet build
+  displayName: pack YaNco.Abstractions
   inputs:
-    command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --no-restore'
-  
+    command: 'pack'
+    nobuild: true    
+    packagesToPack: '**/YaNco.Abstractions.csproj'
+
 - task: DotNetCoreCLI@2
-  displayName: dotnet test
+  displayName: pack YaNco.Core
   inputs:
-    command: test
-    projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --collect "Code coverage" --no-build'
-  
+    command: 'pack'
+    nobuild: true
+    packagesToPack: '**/YaNco.Core.csproj'
+ 
 - task: DotNetCoreCLI@2
-  displayName: dotnet pack
+  displayName: pack YaNco
   inputs:
-    command: pack
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) --no-build'
+    command: 'pack'
+    nobuild: true
+    packagesToPack: '**/YaNco.csproj'
 
 - task: PublishBuildArtifacts@1
   inputs:
