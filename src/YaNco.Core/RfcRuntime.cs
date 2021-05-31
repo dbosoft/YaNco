@@ -73,6 +73,12 @@ namespace Dbosoft.YaNco
 
         public Either<RfcErrorInfo, IConnectionHandle> OpenConnection(IDictionary<string, string> connectionParams)
         {
+            if (connectionParams.Count == 0)
+                return new RfcErrorInfo(RfcRc.RFC_EXTERNAL_FAILURE,
+                    RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, RfcRc.RFC_EXTERNAL_FAILURE.ToString(),
+                    "Cannot open SAP connection with empty connection settings.",
+                    "", "", "", "", "", "", "");
+
             var loggedParams = new Dictionary<string,string>(connectionParams);
 
             // ReSharper disable StringLiteralTypo
