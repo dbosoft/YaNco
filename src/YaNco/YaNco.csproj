@@ -3,24 +3,12 @@
   <PropertyGroup>
     <AssemblyName>Dbosoft.YaNco</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <NoBuild>false</NoBuild>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageOutputPath>..\..\build-packages</PackageOutputPath>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/dbosoft/YaNco</PackageProjectUrl>
-    <Copyright>Library created by dbosoft; SAP, Netweaver are trademarks of SAP SE</Copyright>
-    <Authors>dbosoft</Authors>
-    <Company>dbosoft GmbH</Company>
-    <Product>YaNco</Product>
-    <RepositoryUrl>https://github.com/dbosoft/YaNco</RepositoryUrl>
     <Description>YaNco -Yet another .NET Connector
 This library provides an alternative SAP .NET Connector based on the SAP NetWeaver RFC SDK.
 </Description>
     <RootNamespace>Dbosoft.YaNco</RootNamespace>
-
   </PropertyGroup>
+
 
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="5.6.10">

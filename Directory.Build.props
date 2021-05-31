@@ -1,0 +1,25 @@
+
+<Project>
+  <PropertyGroup>
+    <PackageOutputPath>..\..\build-packages</PackageOutputPath>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/dbosoft/YaNco</PackageProjectUrl>
+    <Copyright>Library created by dbosoft; SAP, Netweaver are trademarks of SAP SE</Copyright>
+    <Authors>dbosoft</Authors>
+    <Company>dbosoft GmbH</Company>
+    <Product>YaNco</Product>
+    <RepositoryUrl>https://github.com/dbosoft/YaNco</RepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+
+  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
+</Project>
+
