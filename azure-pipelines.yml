@@ -15,25 +15,32 @@ steps:
     versionSpec: '5.x'
 
 - task: DotNetCoreCLI@2
+  displayName: dotnet restore
+  inputs:
+    command: 'restore'
+ #   restoreArguments: '--disable-parallel'
+
+
+- task: DotNetCoreCLI@2
   displayName: dotnet build
   inputs:
     command: build
     projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration)  --no-restore'
   
 - task: DotNetCoreCLI@2
   displayName: dotnet test
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"  --no-build'
   
 - task: DotNetCoreCLI@2
   displayName: dotnet pack
   inputs:
     command: pack
     nobuild: true
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)  --no-build'
     
 - task: PublishBuildArtifacts@1
   inputs:

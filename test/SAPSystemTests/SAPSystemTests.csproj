@@ -2,12 +2,18 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <PackageOutputPath>..\..\build-tools</PackageOutputPath>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>D662BD92-26B8-421C-9C14-33E009457A3B</UserSecretsId>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="4.73.0" />
+    <PackageReference Include="GitVersion.MsBuild" Version="5.6.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.15" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.15" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.15" />
