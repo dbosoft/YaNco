@@ -74,12 +74,14 @@ namespace SAPSystemTests
 
                 for (var run = 0; run < repeats; run++)
                 {
-                    Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 01");
-                    totalTest1 += await RunPerformanceTest01(context, rows);
-                    Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 02");
-                    totalTest2 += await RunPerformanceTest02(context, rows);
+                    await RunIntegrationTests(context);
 
-                    GC.Collect();
+                    //Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 01");
+                    //totalTest1 += await RunPerformanceTest01(context, rows);
+                    //Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 02");
+                    //totalTest2 += await RunPerformanceTest02(context, rows);
+
+                    //GC.Collect();
 
                 }
 
