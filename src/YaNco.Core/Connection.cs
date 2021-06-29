@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using Dbosoft.Functional;
 using LanguageExt;
 
@@ -13,7 +14,6 @@ namespace Dbosoft.YaNco
         public IRfcRuntime RfcRuntime { get; }
         private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
         public bool Disposed { get; private set; }
-        private bool _functionCalled;
 
         public Connection(
             IConnectionHandle connectionHandle, 
@@ -50,17 +50,13 @@ namespace Dbosoft.YaNco
 
                             case InvokeFunctionMessage invokeFunctionMessage:
                             {
-                                _functionCalled = true;
-                                StartWaitForFunctionCancellation(invokeFunctionMessage.CancellationToken);
-                                try
+                                using (var callContext = new FunctionCallContext())
                                 {
+                                    StartWaitForFunctionCancellation(callContext, invokeFunctionMessage.CancellationToken);
                                     var result = rfcRuntime.Invoke(handle, invokeFunctionMessage.Function.Handle)
                                         .Map(u => (object) u);
                                     return (handle, result);
-                                }
-                                finally
-                                {
-                                    _functionCalled = false;
+
                                 }
                             }
 
@@ -141,20 +137,20 @@ namespace Dbosoft.YaNco
             return res;
         }
 
-        private async void StartWaitForFunctionCancellation(CancellationToken token)
+        private async void StartWaitForFunctionCancellation(FunctionCallContext context, CancellationToken token)
         {
             // ReSharper disable once MethodSupportsCancellation
-            await Task.Run(() =>
+            await Task.Factory.StartNew(() =>
             {
-                while (!token.IsCancellationRequested && _functionCalled)
+                while (!token.IsCancellationRequested && !context.Exited)
                 {
-                    if(token.WaitHandle.WaitOne(1000))
+                    if(token.WaitHandle.WaitOne(500,true))
                         break;
 
                 }
-            }).ConfigureAwait(false);
+            }, TaskCreationOptions.LongRunning).ConfigureAwait(false);
 
-            if (token.IsCancellationRequested && _functionCalled)
+            if (token.IsCancellationRequested && !context.Exited)
                 await Cancel().ToEither().ConfigureAwait(false); 
         }
     
@@ -230,5 +226,158 @@ namespace Dbosoft.YaNco
             _stateAgent.Tell(new DisposeMessage(RfcErrorInfo.EmptyResult()));
 
         }
+
+        private class FunctionCallContext : IDisposable
+        {
+            public bool Exited { get; private set;  }
+            public void Dispose()
+            {
+                Exited = true;
+            }
+        }
     }
+
+
+    public static class Agent
+    {
+        public static IAgent<TMsg> Start<TMsg>(Action<TMsg> action, CancellationToken cancellationToken = default)
+           => new StatelessAgent<TMsg>(action, cancellationToken);
+
+        public static IAgent<TMsg> Start<TState, TMsg>
+           (Func<TState> initState
+           , Func<TState, TMsg, TState> process, CancellationToken cancellationToken = default)
+           => new StatefulAgent<TState, TMsg>(initState(), process, cancellationToken);
+
+        public static IAgent<TMsg> Start<TState, TMsg>
+           (TState initialState
+           , Func<TState, TMsg, TState> process, CancellationToken cancellationToken = default)
+           => new StatefulAgent<TState, TMsg>(initialState, process, cancellationToken);
+
+        public static IAgent<TMsg> Start<TState, TMsg>
+           (TState initialState
+           , Func<TState, TMsg, Task<TState>> process, CancellationToken cancellationToken = default)
+           => new StatefulAgent<TState, TMsg>(initialState, process, cancellationToken);
+
+        public static IAgent<TMsg, TReply> Start<TState, TMsg, TReply>
+           (TState initialState
+           , Func<TState, TMsg, (TState, TReply)> process, CancellationToken cancellationToken = default)
+           => new TwoWayAgent<TState, TMsg, TReply>(initialState, process, cancellationToken);
+
+        public static IAgent<TMsg, TReply> Start<TState, TMsg, TReply>
+           (TState initialState
+           , Func<TState, TMsg, Task<(TState, TReply)>> process, CancellationToken cancellationToken = default)
+           => new TwoWayAgent<TState, TMsg, TReply>(initialState, process, cancellationToken);
+    }
+
+    public interface IAgent<in TMsg>
+    {
+        void Tell(TMsg message);
+    }
+
+    public interface IAgent<in TMsg, TReply>
+    {
+        Task<TReply> Tell(TMsg message);
+    }
+
+    class StatelessAgent<TMsg> : IAgent<TMsg>
+    {
+        private readonly ActionBlock<TMsg> _actionBlock;
+
+        public StatelessAgent(Action<TMsg> process, CancellationToken cancellationToken)
+        {
+            _actionBlock = new ActionBlock<TMsg>(process, new ExecutionDataflowBlockOptions { CancellationToken = cancellationToken });
+        }
+
+        public StatelessAgent(Func<TMsg, Task> process, CancellationToken cancellationToken)
+        {
+            _actionBlock = new ActionBlock<TMsg>(process, new ExecutionDataflowBlockOptions { CancellationToken = cancellationToken });
+
+        }
+
+        public void Tell(TMsg message) => _actionBlock.Post(message);
+    }
+
+    class StatefulAgent<TState, TMsg> : IAgent<TMsg>
+    {
+        private TState _state;
+        private readonly ActionBlock<TMsg> _actionBlock;
+
+        public StatefulAgent(TState initialState
+           , Func<TState, TMsg, TState> process, CancellationToken cancellationToken)
+        {
+            _state = initialState;
+
+            _actionBlock = new ActionBlock<TMsg>(
+               msg => _state = process(_state, msg),// process the message with the current state, and store the resulting new state as the current state of the agent
+               new ExecutionDataflowBlockOptions { CancellationToken = cancellationToken });
+        }
+
+        public StatefulAgent(TState initialState
+           , Func<TState, TMsg, Task<TState>> process, CancellationToken cancellationToken)
+        {
+            _state = initialState;
+
+            _actionBlock = new ActionBlock<TMsg>(
+               async msg => _state = await process(_state, msg),
+               new ExecutionDataflowBlockOptions { CancellationToken = cancellationToken });
+        }
+
+        public void Tell(TMsg message) => _actionBlock.Post(message);
+    }
+
+    class TwoWayAgent<TState, TMsg, TReply> : IAgent<TMsg, TReply>
+    {
+        private readonly CancellationToken _cancellationToken;
+        private readonly ActionBlock<(TMsg, TaskCompletionSource<TReply>)> _actionBlock;
+
+        public TwoWayAgent(TState initialState, Func<TState, TMsg, (TState, TReply)> process, CancellationToken cancellationToken)
+        {
+            _cancellationToken = cancellationToken;
+            var state = initialState;
+
+            _actionBlock = new ActionBlock<(TMsg, TaskCompletionSource<TReply>)>(
+               t =>
+               {
+                   var result = process(state, t.Item1);
+                   state = result.Item1;
+                   t.Item2.SetResult(result.Item2);
+               }, new ExecutionDataflowBlockOptions { CancellationToken = cancellationToken });
+        }
+
+        // creates a 2-way agent with an async processing func
+        public TwoWayAgent(TState initialState, Func<TState, TMsg, Task<(TState, TReply)>> process, CancellationToken cancellationToken)
+        {
+            var state = initialState;
+            _cancellationToken = cancellationToken;
+
+            _actionBlock = new ActionBlock<(TMsg, TaskCompletionSource<TReply>)>(
+               async t =>
+               {
+
+                   await process(state, t.Item1)
+                        .ContinueWith(task =>
+                        {
+                            if (task.Status == TaskStatus.Faulted)
+                                t.Item2.SetException(task.Exception);
+                            else
+                            {
+                                state = task.Result.Item1;
+                                t.Item2.SetResult(task.Result.Item2);
+                            }
+                        })
+                       .ConfigureAwait(false);
+               }, new ExecutionDataflowBlockOptions { CancellationToken = cancellationToken });
+        }
+
+        public Task<TReply> Tell(TMsg message)
+        {
+            var tcs = new TaskCompletionSource<TReply>();
+            _actionBlock.Post((message, tcs));
+
+            // this will help to relax the task scheduler, for some reason the task may block if directly returned
+            //tcs.Task.Wait(_cancellationToken);
+            return tcs.Task;
+        }
+    }
+
 }
