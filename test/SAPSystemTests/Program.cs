@@ -60,7 +60,7 @@ namespace SAPSystemTests
 
             var connectionBuilder = new ConnectionBuilder(settings)
                 .WithStartProgramCallback(callback)
-                .ConfigureRuntime(c => 
+                .ConfigureRuntime(c =>
                     c.WithLogger(new SimpleConsoleLogger()));
 
             using (var context = new RfcContext(connectionBuilder.Build()))
@@ -126,7 +126,7 @@ namespace SAPSystemTests
                 QUAN = 99.123,
                 RAW = RandomByteArray(10),
                 SSTRING = RandomString(10),
-                TIMS = default(DateTime).Add(new TimeSpan(23, 59,59)),
+                TIMS = default(DateTime).Add(new TimeSpan(23, 59, 59)),
                 STRING = "ABCDE",
                 RAWSTRING = RandomByteArray(300),
                 UNIT = "ABC"
@@ -188,7 +188,7 @@ namespace SAPSystemTests
                         // ReSharper restore InconsistentNaming
                         // ReSharper restore IdentifierTypo
 
-                        select new TypesTestData
+                    select new TypesTestData
                     {
                         ACCP = fieldACCP,
                         CHAR = fieldCHAR,
@@ -300,8 +300,8 @@ namespace SAPSystemTests
 
 
             var outputData = await context.CallFunction("ZYANCO_IT_1",
-                Input: f => f.SetStructure("IS_IN", es => 
-                    es.Bind(s=>s.SetFromDictionary(outputDictionary))),
+                Input: f => f.SetStructure("IS_IN", es =>
+                    es.Bind(s => s.SetFromDictionary(outputDictionary))),
 
                 Output: f => f.MapStructure("ES_ECHO", s =>
                     // ReSharper disable InconsistentNaming
@@ -368,14 +368,14 @@ namespace SAPSystemTests
 
             // ReSharper restore StringLiteralTypo
 
-            var compareLogic = new CompareLogic(new ComparisonConfig(){MaxDifferences = int.MaxValue});
+            var compareLogic = new CompareLogic(new ComparisonConfig() { MaxDifferences = int.MaxValue });
             var result = compareLogic.Compare(inputData, outputData);
 
             Console.WriteLine(!result.AreEqual ? result.DifferencesString : "Test succeed");
         }
 
 
-        private static async Task<long> RunPerformanceTest01(IRfcContext context, int rows=0)
+        private static async Task<long> RunPerformanceTest01(IRfcContext context, int rows = 0)
         {
             var watch = Stopwatch.StartNew();
 
@@ -385,7 +385,7 @@ namespace SAPSystemTests
                     from char40 in s.GetField<string>("FIELD_CHAR40")
                     from char01 in s.GetField<string>("FIELD_CHAR01")
                     from int04 in s.GetField<int>("FIELD_INT4")
-                    //from s in s.GetField<string>("FIELD_STRING")
+                        //from s in s.GetField<string>("FIELD_STRING")
 
                     select new TestData
                     {
@@ -462,7 +462,7 @@ namespace SAPSystemTests
         public int Int04 { get; set; }
 
         public string String { get; set; }
-        
+
     }
 
     public class TypesTestData

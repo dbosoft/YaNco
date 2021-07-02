@@ -13,7 +13,6 @@ namespace Dbosoft.YaNco
         public IRfcRuntime RfcRuntime { get; }
         private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
         public bool Disposed { get; private set; }
-        private bool _functionCalled;
 
         public Connection(
             IConnectionHandle connectionHandle, 
@@ -50,17 +49,13 @@ namespace Dbosoft.YaNco
 
                             case InvokeFunctionMessage invokeFunctionMessage:
                             {
-                                _functionCalled = true;
-                                StartWaitForFunctionCancellation(invokeFunctionMessage.CancellationToken);
-                                try
+                                using (var callContext = new FunctionCallContext())
                                 {
+                                    StartWaitForFunctionCancellation(callContext, invokeFunctionMessage.CancellationToken);
                                     var result = rfcRuntime.Invoke(handle, invokeFunctionMessage.Function.Handle)
                                         .Map(u => (object) u);
                                     return (handle, result);
-                                }
-                                finally
-                                {
-                                    _functionCalled = false;
+
                                 }
                             }
 
@@ -141,20 +136,20 @@ namespace Dbosoft.YaNco
             return res;
         }
 
-        private async void StartWaitForFunctionCancellation(CancellationToken token)
+        private async void StartWaitForFunctionCancellation(FunctionCallContext context, CancellationToken token)
         {
             // ReSharper disable once MethodSupportsCancellation
-            await Task.Run(() =>
+            await Task.Factory.StartNew(() =>
             {
-                while (!token.IsCancellationRequested && _functionCalled)
+                while (!token.IsCancellationRequested && !context.Exited)
                 {
-                    if(token.WaitHandle.WaitOne(1000))
+                    if(token.WaitHandle.WaitOne(500,true))
                         break;
 
                 }
-            }).ConfigureAwait(false);
+            }, TaskCreationOptions.LongRunning).ConfigureAwait(false);
 
-            if (token.IsCancellationRequested && _functionCalled)
+            if (token.IsCancellationRequested && !context.Exited)
                 await Cancel().ToEither().ConfigureAwait(false); 
         }
     
@@ -230,5 +225,15 @@ namespace Dbosoft.YaNco
             _stateAgent.Tell(new DisposeMessage(RfcErrorInfo.EmptyResult()));
 
         }
+
+        private class FunctionCallContext : IDisposable
+        {
+            public bool Exited { get; private set;  }
+            public void Dispose()
+            {
+                Exited = true;
+            }
+        }
     }
+
 }
