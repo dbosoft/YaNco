@@ -187,6 +187,31 @@ using (var context = new RfcContext(connFunc))
 
 }
   ```
+  
+**Input mapping**
+
+For Input (importing / changing ) arguments you can pass the value with the methods SetField, SetStructure and SetTable or a combination of all. 
+For example to set values for a table you pass a IEnumerable to be processed to the SetTable method and provide a mapping function for each record in the IEnumerable:
+
+```csharp
+var userNamesSearch = new string[] {"A*", "B*", "C*"};
+
+var userList = await context.CallFunction("BAPI_USER_GETLIST",
+    Input:f => f.SetTable("SELECTION_RANGE", userNamesSearch , (structure,userName) => structure
+            .SetField("PARAMETER", "USERNAME")
+            .SetField("SIGN", "I")
+            .SetField("OPTION", "CP")
+            .SetField("LOW", userName)
+        ),
+
+    Output: f=> f.MapTable("USERLIST", s=>s.GetField<string>("USERNAME"))
+).IfLeftAsync(l=>throw new Exception(l.Message));
+
+foreach (var userName in userList)
+{
+    Console.WriteLine(userName);
+}
+  ```
 
 
 ## Build
