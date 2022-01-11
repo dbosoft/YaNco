@@ -8,6 +8,9 @@ namespace Dbosoft.YaNco
 {
     public interface IRfcRuntime
     {
+        Either<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback);
+
+        [Obsolete("Use method AllowStartOfPrograms without connectionHandle argument. This method signature will be removed in next major release.")]
         Either<RfcErrorInfo, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle, StartProgramDelegate callback);
         Either<RfcErrorInfo, IStructureHandle> AppendTableRow(ITableHandle tableHandle);
         Either<RfcErrorInfo, IFunctionHandle> CreateFunction(IFunctionDescriptionHandle descriptionHandle);

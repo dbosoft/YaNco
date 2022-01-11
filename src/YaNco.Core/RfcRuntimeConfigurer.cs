@@ -10,12 +10,20 @@ namespace Dbosoft.YaNco
             _runtimeFactory = (logger, mapper, options) => new RfcRuntime(logger, mapper, options);
 
         private ILogger _logger;
+        private StartProgramDelegate _startProgramDelegate;
+
         private RfcRuntimeOptions _options = new RfcRuntimeOptions();
         private Action<RfcMappingConfigurer> _configureMapping = (m) => { };
 
         public RfcRuntimeConfigurer WithLogger(ILogger logger)
         {
             _logger = logger;
+            return this;
+        }
+
+        public RfcRuntimeConfigurer AllowStartOfPrograms(StartProgramDelegate startProgramDelegate)
+        {
+            _startProgramDelegate = startProgramDelegate;
             return this;
         }
 
@@ -43,7 +51,12 @@ namespace Dbosoft.YaNco
             _configureMapping(mappingConfigurer);
             var mapping = mappingConfigurer.Create();
             
-            return _runtimeFactory(_logger, mapping,_options);
+            var runtime = _runtimeFactory(_logger, mapping,_options);
+
+            if (_startProgramDelegate != null)
+                runtime.AllowStartOfPrograms(_startProgramDelegate);
+
+            return runtime;
         }
     }
     

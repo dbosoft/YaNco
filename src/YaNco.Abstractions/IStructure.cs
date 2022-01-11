@@ -28,5 +28,6 @@ namespace Dbosoft.YaNco
         /// <param name="dictionary"></param>
         /// <returns></returns>
         Either<RfcErrorInfo, Unit> SetFromDictionary<T>(IDictionary<string, T> dictionary);
+
     }
 }

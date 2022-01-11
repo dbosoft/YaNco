@@ -1,4 +1,6 @@
-﻿namespace Dbosoft.YaNco
+﻿using System;
+
+namespace Dbosoft.YaNco
 {
     public delegate RfcErrorInfo StartProgramDelegate(string command);
 }

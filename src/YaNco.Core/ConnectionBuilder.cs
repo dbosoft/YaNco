@@ -7,7 +7,6 @@ namespace Dbosoft.YaNco
     public class ConnectionBuilder
     {
         private readonly IDictionary<string, string> _connectionParam;
-        private StartProgramDelegate _startProgramDelegate;
         private Action<RfcRuntimeConfigurer> _configureRuntime = (c) => {};
         private Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo,IConnection>> 
             _connectionFactory = Connection.Create;
@@ -23,10 +22,10 @@ namespace Dbosoft.YaNco
             return this;
         }
 
+        [Obsolete("Use method AllowStartOfPrograms on RfcRuntimeConfigurer (ConfigureRuntime) instead. This method will be removed in next major release.")]
         public ConnectionBuilder WithStartProgramCallback(StartProgramDelegate startProgramDelegate)
         {
-            _startProgramDelegate = startProgramDelegate;
-            return this;
+            return ConfigureRuntime(c => c.AllowStartOfPrograms(startProgramDelegate));
         }
 
         public ConnectionBuilder UseFactory(
@@ -42,13 +41,8 @@ namespace Dbosoft.YaNco
             _configureRuntime(runtimeConfigurer);
             var runtime = runtimeConfigurer.Create();
             
-            if(_startProgramDelegate == null)
-                return () => _connectionFactory(_connectionParam, runtime);
+            return () => _connectionFactory(_connectionParam, runtime);
 
-
-            return () => (from c in _connectionFactory(_connectionParam, runtime)
-                from _ in c.AllowStartOfPrograms(_startProgramDelegate)
-                select c);
         }
     }
 }
