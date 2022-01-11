@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using LanguageExt;
 
 namespace Dbosoft.YaNco.Internal
 {
@@ -34,6 +36,12 @@ namespace Dbosoft.YaNco.Internal
             return rc;
         }
 
+        public static FunctionDescriptionHandle CreateFunctionDescription(string functionName,
+            out RfcErrorInfo errorInfo)
+        {
+            var ptr = Interopt.RfcCreateFunctionDesc(functionName, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new FunctionDescriptionHandle(ptr);
+        }
 
         public static FunctionDescriptionHandle GetFunctionDescription(FunctionHandle functionHandle,
             out RfcErrorInfo errorInfo)
@@ -97,6 +105,24 @@ namespace Dbosoft.YaNco.Internal
             return ptr == IntPtr.Zero ? null : new FunctionHandle(ptr);
 
         }
+
+        public static RfcRc AddFunctionParameter(FunctionDescriptionHandle descriptionHandle, RfcParameterDescription parameterDescription, out RfcErrorInfo errorInfo)
+        {
+            var parameterDesc = new Interopt.RFC_PARAMETER_DESC
+            {
+                Name = parameterDescription.Name,
+                Type = parameterDescription.Type,
+                Direction = parameterDescription.Direction,
+                Optional = parameterDescription.Optional ? 'X' : ' ',
+                Decimals = parameterDescription.Decimals,
+                NucLength = parameterDescription.NucLength,
+                UcLength = parameterDescription.UcLength,
+                TypeDescHandle = parameterDescription.TypeDescriptionHandle
+            };
+
+            return Interopt.RfcAddParameter(descriptionHandle.Ptr, ref parameterDesc, out errorInfo);
+        }
+
 
         public static RfcRc GetFunctionParameterCount(FunctionDescriptionHandle descriptionHandle, out int count,
             out RfcErrorInfo errorInfo)
@@ -164,64 +190,119 @@ namespace Dbosoft.YaNco.Internal
             return ptr == IntPtr.Zero ? null : new TableHandle(ptr, true);
         }
 
+        public static RfcRc RegisterServerFunctionHandler(string sysId, FunctionDescriptionHandle functionDescription,
+            RfcFunctionDelegate functionHandler, out RfcErrorInfo errorInfo)
+        {
+            var rc = Interopt.RfcInstallServerFunction(sysId, functionDescription.Ptr, RFC_Function_Handler, out errorInfo);
+            if (rc != RfcRc.RFC_OK)
+            {
+                return rc;
+            }
+
+            RegisteredFunctions.AddOrUpdate(functionDescription.Ptr, functionHandler, (c, v) => v);
+            return rc;
+
+        }
+
+        private static bool _rfcStartProgramRegistered;
+        private static readonly object AllowStartOfProgramsLock = new object();
+
+        public static void AllowStartOfPrograms(StartProgramDelegate callback, out RfcErrorInfo errorInfo)
+        {
+            lock (AllowStartOfProgramsLock)
+            {
+                if (_rfcStartProgramRegistered)
+                {
+                    errorInfo = RfcErrorInfo.Ok();
+                    return;
+                }
+
+                RfcErrorInfo errorInfoLocal = default;
+                new FunctionBuilder("RFC_START_PROGRAM")
+                    .AddChar("COMMAND", RfcDirection.Import, 512)
+                    .Build()
+                    .Match(funcDescriptionHandle =>
+                    {
+                        RegisterServerFunctionHandler(null, funcDescriptionHandle as FunctionDescriptionHandle,
+                            (_, funcHandle) =>
+                            {
+                                var functionHandle = funcHandle as FunctionHandle;
+                                Debug.Assert(functionHandle != null, nameof(functionHandle) + " != null");
+
+                                var commandBuffer = new char[513];
+                                var rc = Interopt.RfcGetStringByIndex(functionHandle.Ptr, 0, commandBuffer,
+                                    (uint)commandBuffer.Length - 1, out var commandLength, out var error);
+
+                                if (rc != RfcRc.RFC_OK)
+                                    return Unit.Default;
+
+                                var command = new string(commandBuffer, 0, (int)commandLength);
+                                error = callback(command);
+
+                                if (error.Code == RfcRc.RFC_OK)
+                                    return Unit.Default;
+
+                                return error;
+                            }, out errorInfoLocal);
+                    }, l => errorInfoLocal = l);
+
+                errorInfo = errorInfoLocal;
+                if (errorInfo.Code == RfcRc.RFC_OK)
+                    _rfcStartProgramRegistered = true;
+            }
+        }
+
+        [Obsolete("Use method AllowStartOfPrograms without connectionHandle argument. This method signature will be removed in next major release.")]
+        // ReSharper disable once UnusedParameter.Global
+        // ReSharper disable once UnusedMember.Global
         public static void AllowStartOfPrograms(ConnectionHandle connectionHandle, StartProgramDelegate callback, out
             RfcErrorInfo errorInfo)
         {
-            var descriptionHandle = new FunctionDescriptionHandle(Interopt.RfcCreateFunctionDesc("RFC_START_PROGRAM", out errorInfo));
-            if (descriptionHandle.Ptr == IntPtr.Zero)
-            {
-                return;
-            }
-
-            var paramDesc = new Interopt.RFC_PARAMETER_DESC { Name = "COMMAND", Type = RfcType.CHAR, Direction = RfcDirection.Import, NucLength = 512, UcLength = 1024 };
-            var rc = Interopt.RfcAddParameter(descriptionHandle.Ptr, ref paramDesc, out errorInfo);
-            if (rc != RfcRc.RFC_OK)
-            {
-                return;
-            }
-
-            rc = Interopt.RfcInstallServerFunction(null, descriptionHandle.Ptr, StartProgramHandler, out errorInfo);
-            if (rc != RfcRc.RFC_OK)
-            {
-                return;
-            }
-
-            RegisteredCallbacks.AddOrUpdate(connectionHandle.Ptr, callback, (c,v) => v );
-            
+            AllowStartOfPrograms(callback, out errorInfo);
         }
 
-        private static readonly ConcurrentDictionary<IntPtr, StartProgramDelegate> RegisteredCallbacks 
-            = new ConcurrentDictionary<IntPtr, StartProgramDelegate>();
 
-        private static readonly Interopt.RfcServerFunction StartProgramHandler = RFC_START_PROGRAM_Handler;
+        private static readonly ConcurrentDictionary<IntPtr, RfcFunctionDelegate> RegisteredFunctions
+            = new ConcurrentDictionary<IntPtr, RfcFunctionDelegate>();
 
-        static RfcRc RFC_START_PROGRAM_Handler(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo)
+        private static RfcRc RFC_Function_Handler(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo)
         {
-            if (!RegisteredCallbacks.TryGetValue(rfcHandle, out var startProgramDelegate))
+            var descriptionHandle = Interopt.RfcDescribeFunction(funcHandle, out errorInfo);
+            if (descriptionHandle == IntPtr.Zero)
+                return errorInfo.Code;
+
+
+            if (!RegisteredFunctions.TryGetValue(descriptionHandle, out var functionDelegate))
             {
-                errorInfo = new RfcErrorInfo(RfcRc.RFC_INVALID_HANDLE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "", 
-                    "no connection registered for this callback", "", "", "", "", "", "", "");
+                Interopt.RfcGetFunctionName(descriptionHandle, out var funcName, out _);
+                if (string.IsNullOrWhiteSpace(funcName))
+                    funcName = "[unknown function]";
+
+                errorInfo = new RfcErrorInfo(RfcRc.RFC_INVALID_HANDLE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "",
+                    $"no function handler registered for function '{funcName}'", "", "", "", "", "", "", "");
                 return RfcRc.RFC_INVALID_HANDLE;
 
             }
-            
-            var commandBuffer = new char[513];
 
-            var rc = Interopt.RfcGetStringByIndex(funcHandle, 0, commandBuffer, (uint)commandBuffer.Length - 1, out var commandLength, out errorInfo);
+            RfcErrorInfo errorInfoLocal = default;
+            var rc = functionDelegate(new RfcHandle(rfcHandle), new FunctionHandle(funcHandle)).Match(
+                Right: r => RfcRc.RFC_OK,
+                l =>
+            {
+                errorInfoLocal = l;
+                return l.Code;
 
-            if (rc != RfcRc.RFC_OK)
-                return rc;
+            });
 
-            var command = new string(commandBuffer, 0, (int)commandLength);
-            errorInfo = startProgramDelegate(command);
+            errorInfo = errorInfoLocal;
+            return rc;
 
-            return errorInfo.Code;
         }
 
-
+        [Obsolete("Callback handlers are no longer bound to connection. This method will do nothing and will be removed in next major release.")]
+        // ReSharper disable once UnusedParameter.Global
         public static void RemoveCallbackHandler(IntPtr connectionHandle)
         {
-            RegisteredCallbacks.TryRemove(connectionHandle, out var _);
         }
 
         public static RfcRc GetTableRowCount(TableHandle table, out int count, out RfcErrorInfo errorInfo)
@@ -373,4 +454,6 @@ namespace Dbosoft.YaNco.Internal
         }
 
     }
+
+
 }

@@ -59,14 +59,6 @@ namespace Dbosoft.YaNco
                                 }
                             }
 
-                            case AllowStartOfProgramsMessage allowStartOfProgramsMessage:
-                            {
-                                var result = rfcRuntime.AllowStartOfPrograms(handle,
-                                    allowStartOfProgramsMessage.Callback).Map(u => (object)u);
-                                return (handle, result) ;
-
-                            }
-
                             case DisposeMessage disposeMessage:
                             {
                                 handle.Dispose();
@@ -165,9 +157,12 @@ namespace Dbosoft.YaNco
         public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken) 
             => _stateAgent.Tell(new InvokeFunctionMessage(function, cancellationToken)).ToAsync().Map(_ => Unit.Default);
 
-        public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback) =>
-            _stateAgent.Tell(new AllowStartOfProgramsMessage(callback)).ToAsync().Map(r => Unit.Default);
 
+        [Obsolete("Use method AllowStartOfPrograms of IRfcRuntime instead. This method signature will be removed in next major release.")]
+        public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
+        {
+            return RfcRuntime.AllowStartOfPrograms(callback).ToAsync();
+        }
 
         private class AgentMessage
         {
@@ -193,16 +188,6 @@ namespace Dbosoft.YaNco
             {
                 CancellationToken = cancellationToken;
                 Function = function;
-            }
-        }
-
-        private class AllowStartOfProgramsMessage : AgentMessage
-        {
-            public readonly StartProgramDelegate Callback;
-
-            public AllowStartOfProgramsMessage(StartProgramDelegate callback)
-            {
-                Callback = callback;
             }
         }
 

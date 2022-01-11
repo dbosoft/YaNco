@@ -231,13 +231,19 @@ namespace Dbosoft.YaNco
 
         }
 
+        public Either<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
+        {
+            Logger.IfSome(l => l.LogTrace("Setting allow start of programs callback"));
+            Api.AllowStartOfPrograms(callback, out var errorInfo);
+            return ResultOrError(Unit.Default, errorInfo.Code, errorInfo);
+
+        }
+
+        [Obsolete("Use method AllowStartOfPrograms without connectionHandle argument. This method signature will be removed in next major release.")]
         public Either<RfcErrorInfo, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle,
             StartProgramDelegate callback)
         {
-            Logger.IfSome(l => l.LogTrace("Setting allow start of programs callback"));
-            Api.AllowStartOfPrograms(connectionHandle as ConnectionHandle, callback, out var errorInfo);
-            return ResultOrError(Unit.Default, errorInfo.Code, errorInfo);
-
+            return AllowStartOfPrograms(callback);
         }
 
         public Either<RfcErrorInfo, int> GetTableRowCount(ITableHandle tableHandle)

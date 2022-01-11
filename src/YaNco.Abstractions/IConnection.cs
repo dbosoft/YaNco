@@ -16,6 +16,8 @@ namespace Dbosoft.YaNco
         EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name);
         EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function);
         EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken);
+
+        [Obsolete("Use method AllowStartOfPrograms of IRfcRuntime instead. This method signature will be removed in next major release.")]
         EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback);
         EitherAsync<RfcErrorInfo, Unit> Cancel();
 
