@@ -10,13 +10,13 @@
 
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="4.74.0" />
-    <PackageReference Include="GitVersion.MsBuild" Version="5.8.1">
+    <PackageReference Include="GitVersion.MsBuild" Version="5.9.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.22" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.22" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.23" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.22" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
