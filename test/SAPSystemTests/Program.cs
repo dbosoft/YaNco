@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.Internal;
 using Dbosoft.YaNco.TypeMapping;
 using KellermanSoftware.CompareNetObjects;
 using LanguageExt;
@@ -66,7 +67,41 @@ namespace SAPSystemTests
 
             using (var context = new RfcContext(connectionBuilder.Build()))
             {
+                //await context.OnFunctionCalled("ZYANCO_SERVER_FUNCTION_1",
+                //    Input: f => f.GetField<string>("TEST"),
+                //    Console.WriteLine).ToEither();
+
+                await context.OnFunctionCalled("ZYANCO_SERVER_FUNCTION_1",
+                    f =>
+                    {
+
+                        f.Input(i => 
+                            i.GetField<string>("TEST"));
+                        
+
+                        return Unit.Default;
+                    }).ToEither();
+
+
+                await context.GetConnection().Bind(c =>
+                {
+                    return c.CreateFunction("ZYANCO_SERVER_FUNCTION_1").Bind(func =>
+                    {
+                        return c.RfcRuntime.AddFunctionHandler("NA1", func, f =>
+                        {
+                            var value = f.GetField<string>("TEST");
+                            return Unit.Default;
+                        }).ToAsync();
+
+                    });
+
+                    
+                }).ToEither();
+
+                await context.CallFunctionOneWay("ZYANCO_IT_3", f=>f).ToEither();
+
                 await context.PingAsync();
+                
 
                 await RunIntegrationTests(context);
 

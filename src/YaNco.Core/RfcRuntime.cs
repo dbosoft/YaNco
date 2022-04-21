@@ -100,6 +100,26 @@ namespace Dbosoft.YaNco
 
         }
 
+
+        public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunction function, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
+        {
+            return GetFunctionDescription(function.Handle)
+                .Use(used => used.Bind(d => AddFunctionHandler(sysid, d, handler)));
+        }
+
+        public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunctionDescriptionHandle descriptionHandle, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
+        {
+            Api.RegisterServerFunctionHandler(sysid, descriptionHandle as FunctionDescriptionHandle,
+                (rfcHandle, functionHandle) =>
+                {
+                    var func = new Function(functionHandle, this);
+                    return handler(func);
+                },
+                out var errorInfo);
+
+            return ResultOrError(Unit.Default, errorInfo);
+        }
+
         public Either<RfcErrorInfo, IFunctionDescriptionHandle> GetFunctionDescription(IFunctionHandle functionHandle)
         {
             Logger.IfSome(l => l.LogTrace("reading function description by function handle", functionHandle));

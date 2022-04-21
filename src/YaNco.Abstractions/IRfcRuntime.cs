@@ -60,6 +60,12 @@ namespace Dbosoft.YaNco
         Either<RfcErrorInfo, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcErrorInfo, RfcFieldInfo>> func);
 
         RfcRuntimeOptions Options { get; }
+
+
+        Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunction function, Func<IFunction, Either<RfcErrorInfo, Unit>> handler);
+
+        Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunctionDescriptionHandle descriptionHandle,
+            Func<IFunction, Either<RfcErrorInfo, Unit>> handler);
     }
 
 
