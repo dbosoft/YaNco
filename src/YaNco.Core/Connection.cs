@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.Functional;
@@ -159,6 +160,7 @@ namespace Dbosoft.YaNco
 
 
         [Obsolete("Use method AllowStartOfPrograms of IRfcRuntime instead. This method signature will be removed in next major release.")]
+        [ExcludeFromCodeCoverage]
         public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
         {
             return RfcRuntime.AllowStartOfPrograms(callback).ToAsync();

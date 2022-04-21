@@ -8,6 +8,7 @@ namespace Dbosoft.YaNco
 {
     public interface IRfcContext : IDisposable
     {
+        IServerContext CallbackContext { get;  }
         EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name);
         EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name, CancellationToken cancellationToken);
         EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function);
@@ -31,6 +32,11 @@ namespace Dbosoft.YaNco
         Task<Either<RfcErrorInfo, Unit>> RollbackAsync(CancellationToken cancellationToken);
 
         EitherAsync<RfcErrorInfo, IConnection> GetConnection();
+
+    }
+
+    public interface IServerContext
+    {
 
     }
 }

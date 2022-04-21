@@ -11,7 +11,7 @@ namespace Dbosoft.YaNco
         private readonly Func<EitherAsync<RfcErrorInfo, IConnection>> _connectionBuilder;
         private Option<IConnection> _connection;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
-
+        
         public RfcContext(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionBuilder)
         {
             _connectionBuilder = connectionBuilder;
@@ -88,6 +88,8 @@ namespace Dbosoft.YaNco
             return CommitAsync(CancellationToken.None);
         }
 
+
+        public IServerContext CallbackContext { get; }
 
         public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name)
         {
