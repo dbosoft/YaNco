@@ -213,7 +213,7 @@ foreach (var userName in userList)
 
 ## Build
 
-We use Visual Studio 2019 for building. 
+We use Visual Studio 2022 for building. 
 
 As explained above you have to obtain _SAP NW RFC Library 750_ from _SAP Support Portal_. 
 But the SDK is only required to run test applications, so just building works without the RFC SDK. 
