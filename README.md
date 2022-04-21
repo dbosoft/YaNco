@@ -233,7 +233,7 @@ See also the list of [contributors](https://github.com/Dbosoft/YaNco/contributor
 
 ## Commercial support
 
-The creators of YaNco, [dbosoft](https://www.dbosoft.eu), offer [professional support plans](https://support.dbosoft.eu/hc/en-us/articles/360021454080-YaNco-Support-Plans)  which we strongly recommend for any organisations using YaNco on a commercial basis. 
+The creators of YaNco, [dbosoft](https://www.dbosoft.eu), offer [professional support plans](https://support.dbosoft.eu/hc/en-us/articles/360021454080-YaNco-Support-Plans) which we strongly recommend for any organization using YaNco on a commercial basis. 
 
 They includes:
 
