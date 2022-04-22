@@ -89,8 +89,6 @@ namespace Dbosoft.YaNco
         }
 
 
-        public IServerContext CallbackContext { get; }
-
         public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name)
         {
             return CreateFunction(name, CancellationToken.None);

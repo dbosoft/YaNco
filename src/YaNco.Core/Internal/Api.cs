@@ -36,6 +36,33 @@ namespace Dbosoft.YaNco.Internal
             return rc;
         }
 
+        public static RfcRc GetConnectionAttributes(ConnectionHandle connectionHandle, out ConnectionAttributes attributes, out RfcErrorInfo errorInfo)
+        {
+            var rc = Interopt.RfcGetConnectionAttributes(connectionHandle.Ptr, out var rfcAttributes, out errorInfo);
+            attributes = rfcAttributes.ToConnectionAttributes();
+            return rc;
+        }
+
+        public static RfcRc LaunchServer(RfcServerHandle serverHandle, out RfcErrorInfo errorInfo)
+        {
+            return Interopt.RfcLaunchServer(serverHandle.Ptr, out errorInfo);
+        }
+
+        public static RfcRc ShutdownServer(RfcServerHandle serverHandle, int timeout, out RfcErrorInfo errorInfo)
+        {
+            return Interopt.RfcShutdownServer(serverHandle.Ptr, (uint) timeout, out errorInfo);
+        }
+
+        public static RfcServerHandle CreateServer(IDictionary<string, string> connectionParams,
+            out RfcErrorInfo errorInfo)
+        {
+            var rfcOptions = connectionParams.Select(x => new Interopt.RfcConnectionParameter { Name = x.Key, Value = x.Value })
+                .ToArray();
+
+            var ptr = Interopt.RfcCreateServer(rfcOptions, (uint)rfcOptions.Length, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new RfcServerHandle(ptr);
+        }
+
         public static FunctionDescriptionHandle CreateFunctionDescription(string functionName,
             out RfcErrorInfo errorInfo)
         {
@@ -204,26 +231,30 @@ namespace Dbosoft.YaNco.Internal
 
         }
 
-        private static bool _rfcStartProgramRegistered;
         private static readonly object AllowStartOfProgramsLock = new object();
 
-        public static void AllowStartOfPrograms(StartProgramDelegate callback, out RfcErrorInfo errorInfo)
+
+        [Obsolete("Use method AllowStartOfPrograms of ConnectionBuilder. This method will be removed in next major release.")]
+        public static void AllowStartOfPrograms(ConnectionHandle connectionHandle, StartProgramDelegate callback, out
+            RfcErrorInfo errorInfo)
         {
             lock (AllowStartOfProgramsLock)
             {
-                if (_rfcStartProgramRegistered)
-                {
-                    errorInfo = RfcErrorInfo.Ok();
+
+                GetConnectionAttributes(connectionHandle, out var attributes, out errorInfo);
+                if (errorInfo.Code != RfcRc.RFC_OK)
                     return;
-                }
+
 
                 RfcErrorInfo errorInfoLocal = default;
-                new FunctionBuilder("RFC_START_PROGRAM")
+                //function runtime is not available at this API level => as workaround create a new runtime -> in FunctionBuilder it is 
+                //only used to wrap this API implementation.
+                new FunctionBuilder(new RfcRuntime(),"RFC_START_PROGRAM")
                     .AddChar("COMMAND", RfcDirection.Import, 512)
                     .Build()
                     .Match(funcDescriptionHandle =>
                     {
-                        RegisterServerFunctionHandler(null, funcDescriptionHandle as FunctionDescriptionHandle,
+                        RegisterServerFunctionHandler(attributes.SystemId, funcDescriptionHandle as FunctionDescriptionHandle,
                             (_, funcHandle) =>
                             {
                                 var functionHandle = funcHandle as FunctionHandle;
@@ -247,18 +278,8 @@ namespace Dbosoft.YaNco.Internal
                     }, l => errorInfoLocal = l);
 
                 errorInfo = errorInfoLocal;
-                if (errorInfo.Code == RfcRc.RFC_OK)
-                    _rfcStartProgramRegistered = true;
             }
-        }
 
-        [Obsolete("Use method AllowStartOfPrograms without connectionHandle argument. This method signature will be removed in next major release.")]
-        // ReSharper disable once UnusedParameter.Global
-        // ReSharper disable once UnusedMember.Global
-        public static void AllowStartOfPrograms(ConnectionHandle connectionHandle, StartProgramDelegate callback, out
-            RfcErrorInfo errorInfo)
-        {
-            AllowStartOfPrograms(callback, out errorInfo);
         }
 
 

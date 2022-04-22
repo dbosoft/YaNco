@@ -13,6 +13,8 @@ namespace Dbosoft.YaNco
         private readonly IConnectionHandle _connectionHandle;
         public IRfcRuntime RfcRuntime { get; }
         private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
+
+
         public bool Disposed { get; private set; }
 
         public Connection(
@@ -129,6 +131,11 @@ namespace Dbosoft.YaNco
             return res;
         }
 
+        public EitherAsync<RfcErrorInfo, ConnectionAttributes> GetAttributes()
+        {
+            return RfcRuntime.GetConnectionAttributes(_connectionHandle).ToAsync();
+        }
+
         private async void StartWaitForFunctionCancellation(FunctionCallContext context, CancellationToken token)
         {
             // ReSharper disable once MethodSupportsCancellation
@@ -159,11 +166,11 @@ namespace Dbosoft.YaNco
             => _stateAgent.Tell(new InvokeFunctionMessage(function, cancellationToken)).ToAsync().Map(_ => Unit.Default);
 
 
-        [Obsolete("Use method AllowStartOfPrograms of IRfcRuntime instead. This method signature will be removed in next major release.")]
+        [Obsolete("Use method WithStartProgramCallback of ConnectionBuilder instead. This method signature will be removed in next major release.")]
         [ExcludeFromCodeCoverage]
         public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
         {
-            return RfcRuntime.AllowStartOfPrograms(callback).ToAsync();
+            return RfcRuntime.AllowStartOfPrograms(_connectionHandle, callback).ToAsync();
         }
 
         private class AgentMessage
