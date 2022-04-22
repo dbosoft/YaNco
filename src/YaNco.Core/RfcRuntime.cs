@@ -71,6 +71,38 @@ namespace Dbosoft.YaNco
             return result;
         }
 
+        public Either<RfcErrorInfo, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams)
+        {
+            if (connectionParams.Count == 0)
+                return new RfcErrorInfo(RfcRc.RFC_EXTERNAL_FAILURE,
+                    RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, RfcRc.RFC_EXTERNAL_FAILURE.ToString(),
+                    "Cannot open SAP connection with empty connection settings.",
+                    "", "", "", "", "", "", "");
+
+            var loggedParams = new Dictionary<string, string>(connectionParams);
+
+            Logger.IfSome(l => l.LogTrace("creating rfc server", loggedParams));
+            IRfcServerHandle handle = Api.CreateServer(connectionParams, out var errorInfo);
+            return ResultOrError(handle, errorInfo, true);
+
+        }
+
+        public Either<RfcErrorInfo, Unit> LaunchServer(IRfcServerHandle rfcServerHandle)
+        {
+            Logger.IfSome(l => l.LogTrace("starting rfc server", rfcServerHandle));
+            var rc = Api.LaunchServer(rfcServerHandle as RfcServerHandle, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
+
+        }
+
+        public Either<RfcErrorInfo, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout)
+        {
+            Logger.IfSome(l => l.LogTrace($"stopping rfc server with timeout of {timeout} seconds.", rfcServerHandle));
+            var rc = Api.ShutdownServer(rfcServerHandle as RfcServerHandle, timeout, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
+
+        }
+
         public Either<RfcErrorInfo, IConnectionHandle> OpenConnection(IDictionary<string, string> connectionParams)
         {
             if (connectionParams.Count == 0)
@@ -89,6 +121,20 @@ namespace Dbosoft.YaNco
             Logger.IfSome(l => l.LogTrace("Opening connection", loggedParams));
             IConnectionHandle handle = Api.OpenConnection(connectionParams, out var errorInfo);
             return ResultOrError(handle, errorInfo, true);
+        }
+
+        public Either<RfcErrorInfo, IFunctionDescriptionHandle> CreateFunctionDescription(string functionName)
+        {
+            Logger.IfSome(l => l.LogTrace("creating function description without connection", functionName));
+            IFunctionDescriptionHandle handle = Api.CreateFunctionDescription(functionName, out var errorInfo);
+            return ResultOrError(handle, errorInfo);
+        }
+
+        public Either<RfcErrorInfo, IFunctionDescriptionHandle> AddFunctionParameter(IFunctionDescriptionHandle descriptionHandle, RfcParameterDescription parameterDescription)
+        {
+            Logger.IfSome(l => l.LogTrace("adding parameter to function description", new{handle = descriptionHandle, parameter = parameterDescription}));
+            var rc = Api.AddFunctionParameter(descriptionHandle as FunctionDescriptionHandle, parameterDescription, out var errorInfo);
+            return ResultOrError(descriptionHandle, rc, errorInfo);
         }
 
         public Either<RfcErrorInfo, IFunctionDescriptionHandle> GetFunctionDescription(IConnectionHandle connectionHandle,
@@ -227,6 +273,13 @@ namespace Dbosoft.YaNco
             return ResultOrError(isValid, rc, errorInfo);
         }
 
+        public Either<RfcErrorInfo, ConnectionAttributes> GetConnectionAttributes(IConnectionHandle connectionHandle)
+        {
+            Logger.IfSome(l => l.LogTrace("reading connection attributes", new { connectionHandle }));
+            var rc = Api.GetConnectionAttributes(connectionHandle as ConnectionHandle, out var attributes, out var errorInfo);
+            return ResultOrError(attributes, rc, errorInfo);
+        }
+
         public Either<RfcErrorInfo, IStructureHandle> GetStructure(IDataContainerHandle dataContainer, string name)
         {
             Logger.IfSome(l => l.LogTrace("creating structure by data container handle and name", new { dataContainer, name }));
@@ -251,19 +304,14 @@ namespace Dbosoft.YaNco
 
         }
 
-        public Either<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
-        {
-            Logger.IfSome(l => l.LogTrace("Setting allow start of programs callback"));
-            Api.AllowStartOfPrograms(callback, out var errorInfo);
-            return ResultOrError(Unit.Default, errorInfo.Code, errorInfo);
 
-        }
-
-        [Obsolete("Use method AllowStartOfPrograms without connectionHandle argument. This method signature will be removed in next major release.")]
+        [Obsolete("Use method AllowStartOfPrograms of ConnectionBuilder. This method will be removed in next major release.")]
         public Either<RfcErrorInfo, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle,
             StartProgramDelegate callback)
         {
-            return AllowStartOfPrograms(callback);
+            Logger.IfSome(l => l.LogTrace("Setting allow start of programs callback"));
+            Api.AllowStartOfPrograms(connectionHandle as ConnectionHandle, callback, out var errorInfo);
+            return ResultOrError(Unit.Default, errorInfo.Code, errorInfo);
         }
 
         public Either<RfcErrorInfo, int> GetTableRowCount(ITableHandle tableHandle)
@@ -281,6 +329,7 @@ namespace Dbosoft.YaNco
             return ResultOrError(handle, errorInfo);
 
         }
+
 
         public Either<RfcErrorInfo, IStructureHandle> AppendTableRow(ITableHandle tableHandle)
         {

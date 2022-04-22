@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
-using Dbosoft.YaNco.Internal;
 using Dbosoft.YaNco.TypeMapping;
 using KellermanSoftware.CompareNetObjects;
 using LanguageExt;
@@ -40,14 +38,19 @@ namespace SAPSystemTests
                 {"client", config["saprfc:client"]},
                 {"user", config["saprfc:username"]},
                 {"passwd", config["saprfc:password"]},
-                {"lang", "EN"}
+                {"lang", "EN"},
+                {"PROGRAM_ID", "YANCO_TEST"},
+                {"GWHOST",config["saprfc:ashost"]},
+                {"GWSERV", "sapgw" + config["saprfc:sysnr"]},
+                {"REG_COUNT", "2"},
+                {"TRACE", "1"}
+
             };
             var rows = Convert.ToInt32(config["tests:rows"]);
             var repeats = Convert.ToInt32(config["tests:repeats"]);
             Console.WriteLine($"Test rows: {rows}");
             Console.WriteLine($"Test repeats: {repeats}");
-
-
+            
 
             StartProgramDelegate callback = command =>
             {
@@ -56,23 +59,30 @@ namespace SAPSystemTests
                 return RfcErrorInfo.Ok();
             };
 
-            var connectionBuilder = new ConnectionBuilder(settings)
-                .ConfigureRuntime(c =>
-                {
-                    c.WithLogger(new SimpleConsoleLogger());
-                    c.AllowStartOfPrograms(callback);
-                });
 
-            using (var context = new RfcContext(connectionBuilder.Build()))
-            {
-                await context.OnFunctionCalled("ZYANCO_SERVER_FUNCTION_1",
+            var connectionBuilder = new ConnectionBuilder(settings)
+                .WithFunctionHandler("ZYANCO_SERVER_FUNCTION_1",
                     cf => cf
                         .Input(i =>
                             i.GetField<string>("SEND"))
                         .Process(Console.WriteLine)
-                        .Reply((_, f)=> f
-                            .SetField("RECEIVE", "Hello from YaNco"))).ToEither();
-                
+                        .Reply((_, f) => f
+                            .SetField("RECEIVE", "Hello from YaNco")))
+                .WithStartProgramCallback(callback)
+
+                .ConfigureRuntime(c =>
+                {
+                    c.WithLogger(new SimpleConsoleLogger());
+                });
+            
+            //var rfcServer = await RfcServer.Create(settings, new RfcRuntime())
+            //    .Bind(s => s.Start()).ToEither();
+            
+            //Console.WriteLine("Server started");
+            //Console.ReadLine();
+
+            using (var context = new RfcContext(connectionBuilder.Build()))
+            {
                 await context.CallFunctionOneWay("ZYANCO_IT_3", f=>f).ToEither();
 
                 await context.PingAsync();

@@ -6,30 +6,6 @@ namespace Dbosoft.YaNco
 {
     public static class FunctionalServerExtensions
     {
-        /// <summary>
-        /// CallFunction with input and output with RfcErrorInfo lifted input and output functions.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="functionName">ABAP function name</param>
-        /// <param name="calledFunc">callback for function</param>
-        /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo, Unit> OnFunctionCalled(
-            this IRfcContext context, 
-            string functionName,
-            Func<CalledFunction, Either<RfcErrorInfo,Unit>> calledFunc)
-        {
-
-            return context.GetConnection().Bind(c =>
-            {
-                return c.CreateFunction(functionName).Bind(func =>
-                {
-                    return c.RfcRuntime.AddFunctionHandler(null, func, f => calledFunc(new CalledFunction(f))).ToAsync();
-                });
-
-
-            });
-
-        }
 
         public static Either<RfcErrorInfo, FunctionProcessed<TOutput>> Process<TInput, TOutput>(
             this Either<RfcErrorInfo, FunctionInput<TInput>> input,

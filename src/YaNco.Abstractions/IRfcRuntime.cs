@@ -8,13 +8,13 @@ namespace Dbosoft.YaNco
 {
     public interface IRfcRuntime
     {
-        Either<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback);
-
-        [Obsolete("Use method AllowStartOfPrograms without connectionHandle argument. This method signature will be removed in next major release.")]
+        [Obsolete("Use method AllowStartOfPrograms of ConnectionBuilder. This method will be removed in next major release.")]
         Either<RfcErrorInfo, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle, StartProgramDelegate callback);
         Either<RfcErrorInfo, IStructureHandle> AppendTableRow(ITableHandle tableHandle);
         Either<RfcErrorInfo, IFunctionHandle> CreateFunction(IFunctionDescriptionHandle descriptionHandle);
         Either<RfcErrorInfo, IStructureHandle> GetCurrentTableRow(ITableHandle tableHandle);
+        Either<RfcErrorInfo, IFunctionDescriptionHandle> CreateFunctionDescription(string functionName);
+        Either<RfcErrorInfo, IFunctionDescriptionHandle> AddFunctionParameter(IFunctionDescriptionHandle descriptionHandle, RfcParameterDescription parameterDescription);
         Either<RfcErrorInfo, IFunctionDescriptionHandle> GetFunctionDescription(IConnectionHandle connectionHandle, string functionName);
         Either<RfcErrorInfo, IFunctionDescriptionHandle> GetFunctionDescription(IFunctionHandle functionHandle);
         Either<RfcErrorInfo, string> GetFunctionName(IFunctionDescriptionHandle descriptionHandle);
@@ -66,6 +66,11 @@ namespace Dbosoft.YaNco
 
         Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunctionDescriptionHandle descriptionHandle,
             Func<IFunction, Either<RfcErrorInfo, Unit>> handler);
+
+        Either<RfcErrorInfo, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams);
+        Either<RfcErrorInfo, Unit> LaunchServer(IRfcServerHandle rfcServerHandle);
+        Either<RfcErrorInfo, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout);
+        Either<RfcErrorInfo, ConnectionAttributes> GetConnectionAttributes(IConnectionHandle connectionHandle);
     }
 
 
