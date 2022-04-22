@@ -41,9 +41,7 @@ namespace SAPSystemTests
                 {"user", config["saprfc:username"]},
                 {"passwd", config["saprfc:password"]},
                 {"lang", "EN"}
-
             };
-
             var rows = Convert.ToInt32(config["tests:rows"]);
             var repeats = Convert.ToInt32(config["tests:repeats"]);
             Console.WriteLine($"Test rows: {rows}");
@@ -67,37 +65,14 @@ namespace SAPSystemTests
 
             using (var context = new RfcContext(connectionBuilder.Build()))
             {
-                //await context.OnFunctionCalled("ZYANCO_SERVER_FUNCTION_1",
-                //    Input: f => f.GetField<string>("TEST"),
-                //    Console.WriteLine).ToEither();
-
                 await context.OnFunctionCalled("ZYANCO_SERVER_FUNCTION_1",
-                    f =>
-                    {
-
-                        f.Input(i => 
-                            i.GetField<string>("TEST"));
-                        
-
-                        return Unit.Default;
-                    }).ToEither();
-
-
-                await context.GetConnection().Bind(c =>
-                {
-                    return c.CreateFunction("ZYANCO_SERVER_FUNCTION_1").Bind(func =>
-                    {
-                        return c.RfcRuntime.AddFunctionHandler("NA1", func, f =>
-                        {
-                            var value = f.GetField<string>("TEST");
-                            return Unit.Default;
-                        }).ToAsync();
-
-                    });
-
-                    
-                }).ToEither();
-
+                    cf => cf
+                        .Input(i =>
+                            i.GetField<string>("SEND"))
+                        .Process(Console.WriteLine)
+                        .Reply((_, f)=> f
+                            .SetField("RECEIVE", "Hello from YaNco"))).ToEither();
+                
                 await context.CallFunctionOneWay("ZYANCO_IT_3", f=>f).ToEither();
 
                 await context.PingAsync();
