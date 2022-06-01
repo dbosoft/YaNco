@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Linq;
@@ -28,6 +29,8 @@ namespace CreateSalesOrder
             public int Quantity { get; set; }
             public string ProductId { get; set; }
 
+            public static IEnumerable<int> OneLine = Enumerable.Range(0, 1);
+
             public Handler(IRfcContext rfcContext, IConfiguration configuration)
             {
                 _rfcContext = rfcContext;
@@ -54,17 +57,17 @@ namespace CreateSalesOrder
                                 .SetField("DIVISION", _customizingSettings.Division != null ? "X" : "")
                             )
                             //we only support documents with one item line
-                            .SetTable("SALES_ITEMS_IN", Enumerable.Range(0,1), (s, _) => s
+                            .SetTable("SALES_ITEMS_IN", OneLine, (s, _) => s
                                 .SetField("MATERIAL", ProductId)
                             )
-                            .SetTable("SALES_ITEMS_INX", Enumerable.Range(0, 1), (s, _) => s
+                            .SetTable("SALES_ITEMS_INX", OneLine, (s, _) => s
                                 .SetField("MATERIAL", "X")
                             )
-                            .SetTable("SALES_PARTNERS", Enumerable.Range(0, 1), (s, _) => s
+                            .SetTable("SALES_PARTNERS", OneLine, (s, _) => s
                                 .SetField("PARTN_ROLE", "AG")
                                 .SetField("PARTN_NUMB", CustomerNo)
                             )
-                            .SetTable("SALES_SCHEDULES_IN", Enumerable.Range(0, 1), (s, _) => s
+                            .SetTable("SALES_SCHEDULES_IN", OneLine, (s, _) => s
                                 //item numbers are not necessary, the function will automatically assign it to the item
                                 .SetField("REQ_DATE", DateTime.Now)
                                 .SetField("REQ_QTY", Quantity)
