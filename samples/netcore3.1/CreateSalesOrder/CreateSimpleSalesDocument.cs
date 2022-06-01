@@ -78,8 +78,9 @@ namespace CreateSalesOrder
                             .GetField<string>("SALESDOCUMENT_EX")
 
                     )
-
-                    .Bind(result => _rfcContext.CommitAndWait().Map(_ => result))
+                    .CommitAndWait(_rfcContext)
+                    //alternative to:
+                    //.Bind(result => _rfcContext.CommitAndWait().Map(_ => result))
                     .MatchAsync(
                         LeftAsync:async l=>
                         {
