@@ -2,10 +2,9 @@ using System;
 using Dbosoft.YaNco;
 using Dbosoft.YaNco.TypeMapping;
 using Microsoft.Extensions.DependencyInjection;
-using WebApi;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.Extensions.Configuration
+namespace YaNco.Hosting
 {
     public static class YaNcoServiceCollectionExtensions
     {

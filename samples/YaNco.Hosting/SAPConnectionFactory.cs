@@ -6,7 +6,7 @@ using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using ConnectionBuilder = Dbosoft.YaNco.ConnectionBuilder;
 
-namespace WebApi
+namespace YaNco.Hosting
 {
     public class SAPConnectionFactory
     {

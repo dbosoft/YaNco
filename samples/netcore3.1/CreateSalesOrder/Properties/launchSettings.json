@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "CreateSalesOrder": {
+      "commandName": "Project",
+      "commandLineArgs": "T-BIKE01 T-FC0100",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

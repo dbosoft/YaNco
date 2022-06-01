@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace WebApi
+namespace YaNco.Hosting
 {
     public static class RfcLibraryHelper
     {
@@ -15,7 +15,7 @@ namespace WebApi
             var executeableDir = AppDomain.CurrentDomain.BaseDirectory;
             var pathVariableName = "PATH";
 
-            if(!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 pathVariableName = "LD_LIBRARY_PATH";
 
             var currentPathVariable = Environment.GetEnvironmentVariable(pathVariableName);

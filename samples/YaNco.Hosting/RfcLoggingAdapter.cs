@@ -6,14 +6,14 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ILogger = Dbosoft.YaNco.ILogger;
 
-namespace WebApi
+namespace YaNco.Hosting
 {
     public class RfcLoggingAdapter : ILogger
     {
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
 
         public RfcLoggingAdapter(ILoggerFactory loggerFactory, IConfiguration configuration)
-        {            
+        {
             _logger = loggerFactory.CreateLogger("saprfc");
 
         }
