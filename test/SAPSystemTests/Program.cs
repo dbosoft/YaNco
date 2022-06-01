@@ -74,10 +74,10 @@ namespace SAPSystemTests
                 {
                     c.WithLogger(new SimpleConsoleLogger());
                 });
-            
-            //var rfcServer = await RfcServer.Create(settings, new RfcRuntime())
-            //    .Bind(s => s.Start()).ToEither();
-            
+
+            var rfcServer = await RfcServer.Create(settings, new RfcRuntime())
+                .Bind(s => s.Start()).ToEither();
+
             //Console.WriteLine("Server started");
             //Console.ReadLine();
 
