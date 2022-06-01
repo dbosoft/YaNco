@@ -72,7 +72,7 @@ namespace CreateSalesOrder
                                 .SetField("REQ_DATE", DateTime.Now)
                                 .SetField("REQ_QTY", Quantity)
                             )
-                            .SetTable("SALES_SCHEDULES_INX", Enumerable.Range(0, 1), (s, _) => s
+                            .SetTable("SALES_SCHEDULES_INX", OneLine, (s, _) => s
                                 .SetField("REQ_DATE", "X")
                                 .SetField("REQ_QTY", "X")
                             ),
