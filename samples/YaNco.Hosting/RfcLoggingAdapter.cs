@@ -4,9 +4,8 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using ILogger = Dbosoft.YaNco.ILogger;
 
-namespace YaNco.Hosting
+namespace Dbosoft.YaNco.Hosting
 {
     public class RfcLoggingAdapter : ILogger
     {

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dbosoft.YaNco;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
-using ConnectionBuilder = Dbosoft.YaNco.ConnectionBuilder;
 
-namespace YaNco.Hosting
+namespace Dbosoft.YaNco.Hosting
 {
     public class SAPConnectionFactory
     {

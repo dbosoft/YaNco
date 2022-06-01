@@ -1,5 +1,6 @@
 using System;
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.Hosting;
 using Dbosoft.YaNco.TypeMapping;
 using Microsoft.Extensions.DependencyInjection;
 

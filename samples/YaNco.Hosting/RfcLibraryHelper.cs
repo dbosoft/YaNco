@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace YaNco.Hosting
+namespace Dbosoft.YaNco.Hosting
 {
     public static class RfcLibraryHelper
     {
