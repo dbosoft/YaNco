@@ -18,29 +18,29 @@ namespace Dbosoft.YaNco
             return self.Bind(s => s.GetField<T>(name));
         }
 
-        public static Either<RfcErrorInfo, TDataContainer> SetStructure<TDataContainer, TResult>(this Either<RfcErrorInfo, TDataContainer> self, string structureName, Func<Either<RfcErrorInfo, IStructure>, TResult> map)
+        public static Either<RfcErrorInfo, TDataContainer> SetStructure<TDataContainer, TResult>(this Either<RfcErrorInfo, TDataContainer> self, string structureName, Func<Either<RfcErrorInfo, IStructure>, Either<RfcErrorInfo, TResult>> map)
             where TDataContainer : IDataContainer
         {
              return self.Bind(dc =>
-                dc.GetStructure(structureName).Use(used => used.Apply(map).Apply(_=>used)).Map(_=>dc));
+                dc.GetStructure(structureName).Use(used => used.Apply(map)).Map(_=>dc));
         }
 
         public static Either<RfcErrorInfo, TDataContainer> SetTable<TDataContainer, TInput, TResult>(
             this Either<RfcErrorInfo, TDataContainer> self, string tableName,
             IEnumerable<TInput> inputList,
-            Func<Either<RfcErrorInfo, IStructure>, TInput, TResult> map)
+            Func<Either<RfcErrorInfo, IStructure>, TInput, Either<RfcErrorInfo, TResult>> map)
             where TDataContainer : IDataContainer
             => SetTable(self, tableName, () => inputList, map);
 
-        public static Either<RfcErrorInfo, TDataContainer> SetTable<TDataContainer, TInput, TResult>(this Either<RfcErrorInfo, TDataContainer> self, string tableName, Func<IEnumerable<TInput>> inputListFunc, Func<Either<RfcErrorInfo, IStructure>, TInput, TResult> map)
+        public static Either<RfcErrorInfo, TDataContainer> SetTable<TDataContainer, TInput, TResult>(this Either<RfcErrorInfo, TDataContainer> self, string tableName, Func<IEnumerable<TInput>> inputListFunc, Func<Either<RfcErrorInfo, IStructure>, TInput, Either<RfcErrorInfo, TResult>> map)
             where TDataContainer : IDataContainer
         {
             return self.Bind(dc => dc.GetTable(tableName).Use(used => used.Map(table => (dc, table, inputListFunc))
 
-                .Map(t => t.inputListFunc().Map(
+                .Bind(t => t.inputListFunc().Map(
                     input => t.table.AppendRow()
-                        .Apply(row => map(row, input).Apply(_ => row))
-                ).Traverse(l => l)).Apply(_ => used)).Map(_=>dc));
+                        .Apply(row => map(row, input).Bind(_ => row))
+                ).Traverse(l => l).Map(_=> dc))));
 
         }
 
