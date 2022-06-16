@@ -13,7 +13,8 @@ namespace Dbosoft.YaNco.Internal
         public static ConnectionHandle OpenConnection(IDictionary<string, string> connectionParams,
     out RfcErrorInfo errorInfo)
         {
-            var rfcOptions = connectionParams.Select(x => new Interopt.RfcConnectionParameter { Name = x.Key, Value = x.Value })
+            var rfcOptions = connectionParams.Select(x => 
+                    new Interopt.RfcConnectionParameter { Name = x.Key.ToUpperInvariant(), Value = x.Value })
                 .ToArray();
 
             var ptr = Interopt.RfcOpenConnection(rfcOptions, (uint)rfcOptions.Length, out errorInfo);
@@ -46,7 +47,7 @@ namespace Dbosoft.YaNco.Internal
         public static FunctionDescriptionHandle GetFunctionDescription(ConnectionHandle connectionHandle,
             string functionName, out RfcErrorInfo errorInfo)
         {
-            var ptr = Interopt.RfcGetFunctionDesc(connectionHandle.Ptr, functionName, out errorInfo);
+            var ptr = Interopt.RfcGetFunctionDesc(connectionHandle.Ptr, functionName.ToUpperInvariant(), out errorInfo);
             return ptr == IntPtr.Zero ? null : new FunctionDescriptionHandle(ptr);
         }
 
@@ -76,7 +77,7 @@ namespace Dbosoft.YaNco.Internal
         public static RfcRc GetTypeFieldDescription(TypeDescriptionHandle descriptionHandle, string name,
             out RfcFieldInfo parameterInfo, out RfcErrorInfo errorInfo)
         {
-            var rc = Interopt.RfcGetFieldDescByName(descriptionHandle.Ptr, name, out var parameterDescr, out errorInfo);
+            var rc = Interopt.RfcGetFieldDescByName(descriptionHandle.Ptr, name.ToUpperInvariant(), out var parameterDescr, out errorInfo);
             parameterInfo = new RfcFieldInfo(parameterDescr.Name, parameterDescr.Type, parameterDescr.NucLength, parameterDescr.UcLength, parameterDescr.Decimals);
             return rc;
         }
@@ -110,7 +111,7 @@ namespace Dbosoft.YaNco.Internal
         public static RfcRc GetFunctionParameterDescription(FunctionDescriptionHandle descriptionHandle,
             string name, out RfcParameterInfo parameterInfo, out RfcErrorInfo errorInfo)
         {
-            var rc = Interopt.RfcGetParameterDescByName(descriptionHandle.Ptr, name, out var parameterDescr, out errorInfo);
+            var rc = Interopt.RfcGetParameterDescByName(descriptionHandle.Ptr, name.ToUpperInvariant(), out var parameterDescr, out errorInfo);
             parameterInfo = new RfcParameterInfo(
                 parameterDescr.Name, parameterDescr.Type, parameterDescr.Direction, parameterDescr.NucLength, parameterDescr.UcLength, parameterDescr.Decimals, parameterDescr.DefaultValue, parameterDescr.ParameterText, parameterDescr.Optional == 'X');
             return rc;
@@ -143,7 +144,7 @@ namespace Dbosoft.YaNco.Internal
         public static RfcRc GetStructure(IDataContainerHandle dataContainer, string name,
             out StructureHandle structure, out RfcErrorInfo errorInfo)
         {
-            var rc = Interopt.RfcGetStructure(dataContainer.Ptr, name, out var structPtr, out errorInfo);
+            var rc = Interopt.RfcGetStructure(dataContainer.Ptr, name.ToUpperInvariant(), out var structPtr, out errorInfo);
             structure = structPtr == IntPtr.Zero ? null : new StructureHandle(structPtr);
             return rc;
 
@@ -152,7 +153,7 @@ namespace Dbosoft.YaNco.Internal
         public static RfcRc GetTable(IDataContainerHandle dataContainer, string name, out TableHandle table,
             out RfcErrorInfo errorInfo)
         {
-            var rc = Interopt.RfcGetTable(dataContainer.Ptr, name, out var tablePtr, out errorInfo);
+            var rc = Interopt.RfcGetTable(dataContainer.Ptr, name.ToUpperInvariant(), out var tablePtr, out errorInfo);
             table = tablePtr == IntPtr.Zero ? null : new TableHandle(tablePtr, false);
             return rc;
 
@@ -261,7 +262,7 @@ namespace Dbosoft.YaNco.Internal
         public static RfcRc SetString(IDataContainerHandle containerHandle, string name, string value, out
             RfcErrorInfo errorInfo)
         {
-            return Interopt.RfcSetString(containerHandle.Ptr, name, value, (uint)value.Length, out errorInfo);
+            return Interopt.RfcSetString(containerHandle.Ptr, name.ToUpperInvariant(), value, (uint)value.Length, out errorInfo);
 
         }
 
@@ -269,7 +270,7 @@ namespace Dbosoft.YaNco.Internal
             RfcErrorInfo errorInfo)
         {
             var buffer = new char[61];
-            var rc = Interopt.RfcGetString(containerHandle.Ptr, name, buffer, 61, out var stringLength, out errorInfo);
+            var rc = Interopt.RfcGetString(containerHandle.Ptr, name.ToUpperInvariant(), buffer, 61, out var stringLength, out errorInfo);
 
             if (rc != RfcRc.RFC_BUFFER_TOO_SMALL)
             {
@@ -286,35 +287,35 @@ namespace Dbosoft.YaNco.Internal
         public static RfcRc SetInt(IDataContainerHandle containerHandle, string name, int value, out
             RfcErrorInfo errorInfo)
         {
-            return Interopt.RfcSetInt(containerHandle.Ptr, name, value, out errorInfo);
+            return Interopt.RfcSetInt(containerHandle.Ptr, name.ToUpperInvariant(), value, out errorInfo);
 
         }
 
         public static RfcRc GetInt(IDataContainerHandle containerHandle, string name, out int value, out
             RfcErrorInfo errorInfo)
         {
-            return Interopt.RfcGetInt(containerHandle.Ptr, name, out value, out errorInfo);
+            return Interopt.RfcGetInt(containerHandle.Ptr, name.ToUpperInvariant(), out value, out errorInfo);
 
         }
 
         public static RfcRc SetLong(IDataContainerHandle containerHandle, string name, long value, out
             RfcErrorInfo errorInfo)
         {
-            return Interopt.RfcSetInt8(containerHandle.Ptr, name, value, out errorInfo);
+            return Interopt.RfcSetInt8(containerHandle.Ptr, name.ToUpperInvariant(), value, out errorInfo);
 
         }
 
         public static RfcRc GetLong(IDataContainerHandle containerHandle, string name, out long value, out
             RfcErrorInfo errorInfo)
         {
-            return Interopt.RfcGetInt8(containerHandle.Ptr, name, out value, out errorInfo);
+            return Interopt.RfcGetInt8(containerHandle.Ptr, name.ToUpperInvariant(), out value, out errorInfo);
 
         }
 
         public static RfcRc SetDateString(IDataContainerHandle containerHandle, string name, string value, out
             RfcErrorInfo errorInfo)
         {
-            return Interopt.RfcSetDate(containerHandle.Ptr, name, value.ToCharArray(0, 8), out errorInfo);
+            return Interopt.RfcSetDate(containerHandle.Ptr, name.ToUpperInvariant(), value.ToCharArray(0, 8), out errorInfo);
 
         }
 
@@ -322,7 +323,7 @@ namespace Dbosoft.YaNco.Internal
             RfcErrorInfo errorInfo)
         {
             var buffer = new char[8];
-            var rc = Interopt.RfcGetDate(containerHandle.Ptr, name, buffer, out errorInfo);
+            var rc = Interopt.RfcGetDate(containerHandle.Ptr, name.ToUpperInvariant(), buffer, out errorInfo);
             value = new string(buffer);
             return rc;
         }
@@ -330,7 +331,7 @@ namespace Dbosoft.YaNco.Internal
         public static RfcRc SetTimeString(IDataContainerHandle containerHandle, string name, string value, out
             RfcErrorInfo errorInfo)
         {
-            return Interopt.RfcSetTime(containerHandle.Ptr, name, value.ToCharArray(0, 6), out errorInfo);
+            return Interopt.RfcSetTime(containerHandle.Ptr, name.ToUpperInvariant(), value.ToCharArray(0, 6), out errorInfo);
 
         }
 
@@ -338,7 +339,7 @@ namespace Dbosoft.YaNco.Internal
             RfcErrorInfo errorInfo)
         {
             var buffer = new char[6];
-            var rc = Interopt.RfcGetTime(containerHandle.Ptr, name, buffer, out errorInfo);
+            var rc = Interopt.RfcGetTime(containerHandle.Ptr, name.ToUpperInvariant(), buffer, out errorInfo);
             value = new string(buffer);
             return rc;
         }
@@ -346,7 +347,7 @@ namespace Dbosoft.YaNco.Internal
         public static RfcRc SetBytes(IDataContainerHandle containerHandle, string name, byte[] buffer, uint bufferLength, out
             RfcErrorInfo errorInfo)
         {
-            return Interopt.RfcSetBytes(containerHandle.Ptr, name, buffer, bufferLength, out errorInfo);
+            return Interopt.RfcSetBytes(containerHandle.Ptr, name.ToUpperInvariant(), buffer, bufferLength, out errorInfo);
 
         }
 
@@ -354,7 +355,7 @@ namespace Dbosoft.YaNco.Internal
             RfcErrorInfo errorInfo)
         {
             var tempBuffer = new byte[255];
-            var rc = Interopt.RfcGetXString(containerHandle.Ptr, name, tempBuffer, 255, out var bufferLength, out errorInfo);
+            var rc = Interopt.RfcGetXString(containerHandle.Ptr, name.ToUpperInvariant(), tempBuffer, 255, out var bufferLength, out errorInfo);
 
             if (rc != RfcRc.RFC_BUFFER_TOO_SMALL)
             {
@@ -365,7 +366,7 @@ namespace Dbosoft.YaNco.Internal
             }
 
             tempBuffer = new byte[bufferLength];
-            rc = Interopt.RfcGetXString(containerHandle.Ptr, name, tempBuffer, bufferLength, out _, out errorInfo);
+            rc = Interopt.RfcGetXString(containerHandle.Ptr, name.ToUpperInvariant(), tempBuffer, bufferLength, out _, out errorInfo);
             buffer = new byte[bufferLength];
             tempBuffer.CopyTo(buffer, 0);
 
