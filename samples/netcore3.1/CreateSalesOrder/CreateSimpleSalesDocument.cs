@@ -38,6 +38,12 @@ namespace CreateSalesOrder
 
 
             }
+
+            public int Invoke(InvocationContext context)
+            {
+                throw new NotImplementedException();
+            }
+
             public Task<int> InvokeAsync(InvocationContext context)
             {
                 return _rfcContext.CallFunction("BAPI_SALESDOCU_CREATEFROMDATA1",
