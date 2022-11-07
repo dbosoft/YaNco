@@ -10,9 +10,9 @@ namespace Dbosoft.YaNco.TypeMapping
         {
             return Prelude.Try(() =>
                 {
-                    if (!(abapValue is AbapTableValue table))
+                    if (!(abapValue is AbapTableValues table))
                         throw new InvalidCastException(
-                            $"cannot convert type of {abapValue.GetType()} to {nameof(AbapTableValue)}");
+                            $"cannot convert type of {abapValue.GetType()} to {nameof(AbapTableValues)}");
 
                     return table.Values;
                 }

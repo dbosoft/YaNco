@@ -2,11 +2,11 @@
 
 namespace Dbosoft.YaNco.TypeMapping
 {
-    public class AbapTableValue : AbapValue
+    public class AbapTableValues : AbapValue
     {
         public readonly IEnumerable<IDictionary<string, AbapValue>> Values;
 
-        public AbapTableValue(RfcFieldInfo fieldInfo, IEnumerable<IDictionary<string, AbapValue>> values) :
+        public AbapTableValues(RfcFieldInfo fieldInfo, IEnumerable<IDictionary<string, AbapValue>> values) :
             base(fieldInfo)
         {
             Values = values;

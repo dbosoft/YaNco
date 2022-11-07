@@ -16,9 +16,9 @@ namespace Dbosoft.YaNco.TypeMapping
             {
                 typeof(DateTimeValueConverter),
                 typeof(ByteValueConverter),
-                typeof(DefaultFromAbapValueConverter<>),
                 typeof(DictionaryFromAbapStructureValueConverter),
                 typeof(ListFromAbapTableValueConverter),
+                typeof(DefaultFromAbapValueConverter<>),
             });
 
             toRfcConverters = (toRfcConverters ?? new Type[0]).Append(new[]

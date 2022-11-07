@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Dbosoft.YaNco.TypeMapping
 {
-    public class AbapStructureValue : AbapValue
+    public class AbapStructureValues : AbapValue
     {
         public readonly IDictionary<string, AbapValue> Values;
 
-        public AbapStructureValue(RfcFieldInfo fieldInfo, IDictionary<string, AbapValue> values) :
+        public AbapStructureValues(RfcFieldInfo fieldInfo, IDictionary<string, AbapValue> values) :
             base(fieldInfo)
         {
             Values = values;
