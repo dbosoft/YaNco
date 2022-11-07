@@ -11,6 +11,8 @@ using Dbosoft.YaNco.TypeMapping;
 using KellermanSoftware.CompareNetObjects;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SAPSystemTests
 {
@@ -67,6 +69,13 @@ namespace SAPSystemTests
             using (var context = new RfcContext(connectionBuilder.Build()))
             {
                 await context.PingAsync();
+
+                await context.GetConnection().Bind(c => c.GetAttributes())
+                    .IfRight(attributes =>
+                    { 
+                        Console.WriteLine("connection attributes:");
+                        Console.WriteLine(JsonConvert.SerializeObject(attributes));
+                    });
 
                 await RunIntegrationTests(context);
 

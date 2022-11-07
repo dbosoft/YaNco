@@ -168,6 +168,10 @@ namespace Dbosoft.YaNco
         public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback) =>
             _stateAgent.Tell(new AllowStartOfProgramsMessage(callback)).ToAsync().Map(r => Unit.Default);
 
+        public EitherAsync<RfcErrorInfo, ConnectionAttributes> GetAttributes()
+        {
+            return RfcRuntime.GetConnectionAttributes(_connectionHandle).ToAsync();
+        }
 
         private class AgentMessage
         {
