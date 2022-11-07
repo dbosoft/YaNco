@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
@@ -97,6 +98,7 @@ namespace SAPSystemTests
 
             await RunIntegrationTest01(context);
             await RunIntegrationTest02(context);
+            await RunIntegrationTest03(context);
 
             Console.WriteLine("*** END OF Integration Tests ***");
         }
@@ -132,7 +134,7 @@ namespace SAPSystemTests
                 UNIT = "ABC"
             };
 
-            var outputData = await context.CallFunction("ZYANCO_IT_1",
+            var outputData = await context.CallFunction("ZYANCO_it_1",
                 Input: f => f.SetStructure("IS_IN",
                     s => s
                     .SetField("FIELD_ACCP", inputData.ACCP)
@@ -375,6 +377,36 @@ namespace SAPSystemTests
         }
 
 
+        private static async Task RunIntegrationTest03(IRfcContext context)
+        {
+            Console.WriteLine("Integration Tests 03 (read deep structure, convert to json)");
+            var expected =
+                "{\"CHAR01\":\"A\",\"CHAR03\":\"ABC\",\"STRUCT\":{\"CHAR01\":\"A\",\"CHAR03\":\"ABC\"},\"TAB\":[{\"CHAR01\":\"A\",\"CHAR03\":\"ABC\"}]}";
+
+            await (from output in context.CallFunction("ZYANCO_IT_4",
+                Input: f => f,
+                Output: f => f.MapStructure("ES_DEEP", s =>
+                    s.ToDictionary())
+                
+                )
+                from connection in context.GetConnection()
+                select (Values: output, Connection: connection))
+                .Match(
+                r =>
+                {
+                    var jsonOptions = new JsonSerializerOptions();
+                    jsonOptions.Converters.Add(new AbapValueJsonConverter(r.Connection.RfcRuntime.FieldMapper));
+                    var json = JsonSerializer.Serialize(r.Values, jsonOptions);
+                    Console.WriteLine(json == expected ? "Test succeed" : "Test failed");
+                },
+                    l =>
+                    {
+                        Console.WriteLine(l.Message);
+                    });
+        }
+
+
+
         private static async Task<long> RunPerformanceTest01(IRfcContext context, int rows = 0)
         {
             var watch = Stopwatch.StartNew();
@@ -498,4 +530,5 @@ namespace SAPSystemTests
 
 
     }
+
 }
