@@ -19,6 +19,8 @@ namespace Dbosoft.YaNco
         EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback);
         EitherAsync<RfcErrorInfo, Unit> Cancel();
 
+        EitherAsync<RfcErrorInfo, ConnectionAttributes> GetAttributes();
+
         bool Disposed { get; }
         IRfcRuntime RfcRuntime { get;  }
 

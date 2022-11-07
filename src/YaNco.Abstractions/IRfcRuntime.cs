@@ -29,6 +29,7 @@ namespace Dbosoft.YaNco
         Either<RfcErrorInfo, Unit> Invoke(IConnectionHandle connectionHandle, IFunctionHandle functionHandle);
         Either<RfcErrorInfo, Unit> CancelConnection(IConnectionHandle connectionHandle);
         Either<RfcErrorInfo, bool> IsConnectionHandleValid(IConnectionHandle connectionHandle);
+        Either<RfcErrorInfo, ConnectionAttributes> GetConnectionAttributes(IConnectionHandle connectionHandle);
 
         Either<RfcErrorInfo, Unit> MoveToNextTableRow(ITableHandle tableHandle);
         Either<RfcErrorInfo, Unit> MoveToFirstTableRow(ITableHandle tableHandle);

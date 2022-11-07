@@ -207,6 +207,13 @@ namespace Dbosoft.YaNco
             return ResultOrError(isValid, rc, errorInfo);
         }
 
+        public Either<RfcErrorInfo, ConnectionAttributes> GetConnectionAttributes(IConnectionHandle connectionHandle)
+        {
+            Logger.IfSome(l => l.LogTrace("reading connection attributes", new { connectionHandle }));
+            var rc = Api.GetConnectionAttributes(connectionHandle as ConnectionHandle, out var attributes, out var errorInfo);
+            return ResultOrError(attributes, rc, errorInfo);
+        }
+
         public Either<RfcErrorInfo, IStructureHandle> GetStructure(IDataContainerHandle dataContainer, string name)
         {
             Logger.IfSome(l => l.LogTrace("creating structure by data container handle and name", new { dataContainer, name }));

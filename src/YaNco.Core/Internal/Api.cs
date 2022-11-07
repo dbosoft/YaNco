@@ -35,6 +35,12 @@ namespace Dbosoft.YaNco.Internal
             return rc;
         }
 
+        public static RfcRc GetConnectionAttributes(ConnectionHandle connectionHandle, out ConnectionAttributes attributes, out RfcErrorInfo errorInfo)
+        {
+            var rc = Interopt.RfcGetConnectionAttributes(connectionHandle.Ptr, out var rfcAttributes, out errorInfo);
+            attributes = rfcAttributes.ToConnectionAttributes();
+            return rc;
+        }
 
         public static FunctionDescriptionHandle GetFunctionDescription(FunctionHandle functionHandle,
             out RfcErrorInfo errorInfo)
