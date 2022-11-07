@@ -80,6 +80,16 @@ namespace Dbosoft.YaNco.TypeMapping
                     case RfcType.XSTRING:
                         return context.RfcRuntime.GetBytes(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapByteValue(context.FieldInfo, v));
+                    case RfcType.STRUCTURE:
+                        return context.RfcRuntime.GetStructure(context.Handle, context.FieldInfo.Name)
+                            .Map(handle => (IStructure)new Structure(handle, context.RfcRuntime))
+                            .Bind(s => s.ToDictionary())
+                            .Map(d => (AbapValue)new AbapStructureValues(context.FieldInfo, d));
+                    case RfcType.TABLE:
+                        return context.RfcRuntime.GetTable(context.Handle, context.FieldInfo.Name)
+                            .Map(handle => (ITable)new Table(handle, context.RfcRuntime))
+                            .MapStructure(d => d.ToDictionary())
+                            .Map(tr => (AbapValue)new AbapTableValues(context.FieldInfo, tr));
 
                     default:
                         throw new NotSupportedException(

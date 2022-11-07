@@ -16,6 +16,8 @@ namespace Dbosoft.YaNco.TypeMapping
             {
                 typeof(DateTimeValueConverter),
                 typeof(ByteValueConverter),
+                typeof(DictionaryFromAbapStructureValueConverter),
+                typeof(ListFromAbapTableValueConverter),
                 typeof(DefaultFromAbapValueConverter<>),
             });
 
