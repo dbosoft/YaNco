@@ -1,36 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dbosoft.YaNco;
 using Dbosoft.YaNco.TypeMapping;
 
-public class RfcMappingConfigurer
+namespace Dbosoft.YaNco
 {
-    private Func<IEnumerable<Type>, IEnumerable<Type>,IFieldMapper>
-        _mappingFactory = RfcRuntime.CreateDefaultFieldMapper;
-
-    private readonly List<Type> _fromRfcMappingTypes = new List<Type>();
-    private readonly List<Type> _toRfcMappingTypes = new List<Type>();
-
-    public RfcMappingConfigurer UseFactory(Func<IEnumerable<Type>, IEnumerable<Type>, IFieldMapper> factory)
+    public class RfcMappingConfigurer
     {
-        _mappingFactory = factory;
-        return this;
-    }
+        private Func<IEnumerable<Type>, IEnumerable<Type>,IFieldMapper>
+            _mappingFactory = RfcRuntime.CreateDefaultFieldMapper;
 
-    public RfcMappingConfigurer AddToRfcMapper(Type mapper)
-    {
-        _toRfcMappingTypes.Add(mapper);
-        return this;
-    }
+        private readonly List<Type> _fromRfcMappingTypes = new List<Type>();
+        private readonly List<Type> _toRfcMappingTypes = new List<Type>();
 
-    public RfcMappingConfigurer AddFromRfcMapper(Type mapper)
-    {
-        _fromRfcMappingTypes.Add(mapper);
-        return this;
-    }
+        public RfcMappingConfigurer UseFactory(Func<IEnumerable<Type>, IEnumerable<Type>, IFieldMapper> factory)
+        {
+            _mappingFactory = factory;
+            return this;
+        }
 
-    internal IFieldMapper Create()
-    {
-        return _mappingFactory(_fromRfcMappingTypes, _toRfcMappingTypes);
+        public RfcMappingConfigurer AddToRfcMapper(Type mapper)
+        {
+            _toRfcMappingTypes.Add(mapper);
+            return this;
+        }
+
+        public RfcMappingConfigurer AddFromRfcMapper(Type mapper)
+        {
+            _fromRfcMappingTypes.Add(mapper);
+            return this;
+        }
+
+        internal IFieldMapper Create()
+        {
+            return _mappingFactory(_fromRfcMappingTypes, _toRfcMappingTypes);
+        }
     }
 }
