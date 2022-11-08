@@ -11,7 +11,7 @@ This package contains abstraction definitions.
 
   <ItemGroup>
     <PackageReference Include="Dbosoft.Functional" Version="2.0.1" />
-    <PackageReference Include="GitVersion.MsBuild" Version="5.10.3">
+    <PackageReference Include="GitVersion.MsBuild" Version="5.11.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
