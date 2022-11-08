@@ -63,9 +63,20 @@ namespace SAPSystemTests
 
 
             var connectionBuilder = new ConnectionBuilder(settings)
+                .WithFunctionHandler("ZYANCO_SERVER_FUNCTION_1",
+                    cf => cf
+                        .Input(i =>
+                            i.GetField<string>("SEND"))
+                        .Process(Console.WriteLine)
+                        .Reply((_, f) => f
+                            .SetField("RECEIVE", "Hello from YaNco")))
                 .WithStartProgramCallback(callback)
                 .ConfigureRuntime(c =>
                     c.WithLogger(new SimpleConsoleLogger()));
+
+
+            var rfcServer = await RfcServer.Create(settings, new RfcRuntime())
+                .Bind(s => s.Start()).ToEither();
 
             var connectionFunc = connectionBuilder.Build();
 
@@ -79,6 +90,9 @@ namespace SAPSystemTests
                         Console.WriteLine("connection attributes:");
                         Console.WriteLine(JsonConvert.SerializeObject(attributes));
                     });
+
+                // call server function
+                await context.CallFunctionOneWay("ZYANCO_IT_3", f => f).ToEither();
 
                 await RunIntegrationTests(context);
             }

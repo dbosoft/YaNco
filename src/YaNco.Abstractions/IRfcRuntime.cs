@@ -67,6 +67,11 @@ namespace Dbosoft.YaNco
 
         RfcRuntimeOptions Options { get; }
         bool IsFunctionHandlerRegistered(string sysId, string functionName);
+
+        Either<RfcErrorInfo, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams);
+        Either<RfcErrorInfo, Unit> LaunchServer(IRfcServerHandle rfcServerHandle);
+        Either<RfcErrorInfo, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout);
+
     }
 
 

@@ -13,21 +13,32 @@ namespace Dbosoft.YaNco.Internal
         public static extern RfcRc RfcGetVersion(out uint majorVersion, out uint minorVersion, out uint patchLevel);
 
 
-        [DllImport(SapNwRfcName)]
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern IntPtr RfcOpenConnection(RfcConnectionParameter[] connectionParams, uint paramCount, out RfcErrorInfo errorInfo);
 
-        [DllImport(SapNwRfcName)]
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcCloseConnection(IntPtr rfcHandle, out RfcErrorInfo errorInfo);
 
-        [DllImport(SapNwRfcName)]
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcIsConnectionHandleValid(IntPtr rfcHandle, out int isValid, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcGetConnectionAttributes(IntPtr rfcHandle, out RfcAttributes attributes, out RfcErrorInfo errorInfo);
 
-        [DllImport(SapNwRfcName)]
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcCancel(IntPtr rfcHandle, out RfcErrorInfo errorInfo);
 
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern IntPtr RfcCreateServer(RfcConnectionParameter[] connectionParams, uint paramCount, out RfcErrorInfo errorInfo);
+
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcDestroyServer(IntPtr rfcHandle, out RfcErrorInfo errorInfo);
+
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcLaunchServer(IntPtr rfcHandle, out RfcErrorInfo errorInfo);
+
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcShutdownServer(IntPtr rfcHandle, uint timeout, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern IntPtr RfcGetFunctionDesc(IntPtr rfcHandle, string funcName, out RfcErrorInfo errorInfo);

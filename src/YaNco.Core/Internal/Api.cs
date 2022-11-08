@@ -174,6 +174,26 @@ namespace Dbosoft.YaNco.Internal
             return Interopt.RfcCancel(connectionHandle.Ptr, out errorInfo);
         }
 
+        public static RfcRc LaunchServer(RfcServerHandle serverHandle, out RfcErrorInfo errorInfo)
+        {
+            return Interopt.RfcLaunchServer(serverHandle.Ptr, out errorInfo);
+        }
+
+        public static RfcRc ShutdownServer(RfcServerHandle serverHandle, int timeout, out RfcErrorInfo errorInfo)
+        {
+            return Interopt.RfcShutdownServer(serverHandle.Ptr, (uint)timeout, out errorInfo);
+        }
+
+        public static RfcServerHandle CreateServer(IDictionary<string, string> connectionParams,
+            out RfcErrorInfo errorInfo)
+        {
+            var rfcOptions = connectionParams.Select(x => new Interopt.RfcConnectionParameter { Name = x.Key, Value = x.Value })
+                .ToArray();
+
+            var ptr = Interopt.RfcCreateServer(rfcOptions, (uint)rfcOptions.Length, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new RfcServerHandle(ptr);
+        }
+
         public static RfcRc GetStructure(IDataContainerHandle dataContainer, string name,
             out StructureHandle structure, out RfcErrorInfo errorInfo)
         {
