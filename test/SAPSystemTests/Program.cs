@@ -67,21 +67,31 @@ namespace SAPSystemTests
                 .ConfigureRuntime(c =>
                     c.WithLogger(new SimpleConsoleLogger()));
 
-            using (var context = new RfcContext(connectionBuilder.Build()))
+            var connectionFunc = connectionBuilder.Build();
+
+            using (var context = new RfcContext(connectionFunc))
             {
                 await context.PingAsync();
 
                 await context.GetConnection().Bind(c => c.GetAttributes())
                     .IfRight(attributes =>
-                    { 
+                    {
                         Console.WriteLine("connection attributes:");
                         Console.WriteLine(JsonConvert.SerializeObject(attributes));
                     });
 
                 await RunIntegrationTests(context);
+            }
 
+
+            using (var context = new RfcContext(connectionFunc))
+            {
                 long totalTest1 = 0;
                 long totalTest2 = 0;
+
+                //second call back test (should still be called)
+                await RunCallbackTest(context);
+
 
                 for (var run = 0; run < repeats; run++)
                 {

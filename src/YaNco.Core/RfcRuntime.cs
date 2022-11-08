@@ -32,6 +32,12 @@ namespace Dbosoft.YaNco
 
         public RfcRuntimeOptions Options { get; }
 
+
+        public bool IsFunctionHandlerRegistered(string sysId, string functionName)
+        {
+            return Api.IsFunctionHandlerRegistered(sysId, functionName);
+        }
+
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcErrorInfo errorInfo, bool logAsError = false)
         {
             if (result == null || errorInfo.Code != RfcRc.RFC_OK)
@@ -197,15 +203,22 @@ namespace Dbosoft.YaNco
 
         }
 
-        public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunction function, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
+        public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
+            string functionName,
+            IFunction function, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
         {
             return GetFunctionDescription(function.Handle)
-                .Use(used => used.Bind(d => AddFunctionHandler(sysid, d, handler)));
+                .Use(used => used.Bind(d => AddFunctionHandler(sysid,
+                    functionName, d, handler)));
         }
 
-        public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunctionDescriptionHandle descriptionHandle, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
+        public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
+            string functionName,
+            IFunctionDescriptionHandle descriptionHandle, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
         {
-            Api.RegisterServerFunctionHandler(sysid, descriptionHandle as FunctionDescriptionHandle,
+            Api.RegisterServerFunctionHandler(sysid,
+                functionName, 
+                descriptionHandle as FunctionDescriptionHandle,
                 (rfcHandle, functionHandle) =>
                 {
                     var func = new Function(functionHandle, this);

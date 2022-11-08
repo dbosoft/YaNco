@@ -198,16 +198,29 @@ namespace Dbosoft.YaNco.Internal
             return ptr == IntPtr.Zero ? null : new TableHandle(ptr, true);
         }
 
-        public static RfcRc RegisterServerFunctionHandler(string sysId, FunctionDescriptionHandle functionDescription,
+        public static RfcRc RegisterServerFunctionHandler(string sysId, 
+            string functionName,
+            FunctionDescriptionHandle functionDescription,
             RfcFunctionDelegate functionHandler, out RfcErrorInfo errorInfo)
         {
+            var registration = new FunctionRegistration(sysId, functionName);
+
+            if (_registeredFunctionNames.Contains(registration))
+            {
+                errorInfo = RfcErrorInfo.Ok();
+                return RfcRc.RFC_OK;
+            }
+            _registeredFunctionNames = _registeredFunctionNames.Add(registration);
+
             var rc = Interopt.RfcInstallServerFunction(sysId, functionDescription.Ptr, RFC_Function_Handler,
                 out errorInfo);
             if (rc != RfcRc.RFC_OK)
             {
+                _registeredFunctionNames = _registeredFunctionNames.Remove(registration);
                 return rc;
             }
 
+           
             RegisteredFunctions.AddOrUpdate(functionDescription.Ptr, functionHandler, (c, v) => v);
             return rc;
         }
@@ -234,7 +247,9 @@ namespace Dbosoft.YaNco.Internal
                     .Build()
                     .Match(funcDescriptionHandle =>
                     {
-                        RegisterServerFunctionHandler(attributes.SystemId, funcDescriptionHandle as FunctionDescriptionHandle,
+                        RegisterServerFunctionHandler(attributes.SystemId,
+                            "RFC_START_PROGRAM",
+                            funcDescriptionHandle as FunctionDescriptionHandle,
                             (_, funcHandle) =>
                             {
                                 var functionHandle = funcHandle as FunctionHandle;
@@ -264,6 +279,15 @@ namespace Dbosoft.YaNco.Internal
 
         private static readonly ConcurrentDictionary<IntPtr, RfcFunctionDelegate> RegisteredFunctions
             = new ConcurrentDictionary<IntPtr, RfcFunctionDelegate>();
+
+        private static LanguageExt.HashSet<FunctionRegistration> _registeredFunctionNames;
+
+        public static bool IsFunctionHandlerRegistered(string sysId, string functionName)
+        {
+            var registration = new FunctionRegistration(sysId, functionName);
+
+            return _registeredFunctionNames.Contains(registration);
+        }
 
         private static RfcRc RFC_Function_Handler(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo)
         {
@@ -454,5 +478,37 @@ namespace Dbosoft.YaNco.Internal
             return rc;
         }
 
+
+
+        private struct FunctionRegistration: IEquatable<FunctionRegistration>
+        {
+            public readonly string SysId;
+            public readonly string Name;
+
+            public FunctionRegistration(string sysId, string name)
+            {
+                SysId = sysId;
+                Name = name;
+            }
+
+            public bool Equals(FunctionRegistration other)
+            {
+                return SysId == other.SysId && Name == other.Name;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is FunctionRegistration other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (SysId.GetHashCode() * 397) ^ Name.GetHashCode();
+                }
+            }
+        }
     }
+
 }
