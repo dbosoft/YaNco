@@ -270,7 +270,7 @@ namespace Dbosoft.YaNco
 
         }
 
-        [Obsolete("Use method AllowStartOfPrograms of ConnectionBuilder. This method will be removed in next major release.")]
+        [Obsolete("Use method WithStartProgramCallback of ConnectionBuilder. This method will be removed in next major release.")]
         public Either<RfcErrorInfo, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle,
             StartProgramDelegate callback)
         {
