@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using LanguageExt;
 
 namespace Dbosoft.YaNco
 {
-    public class ServerBuilder
+    /// <summary>
+    /// This class is used to configure a SAP RFC server
+    /// </summary>
+    public class ServerBuilder : RfcBuilderBase<ServerBuilder>
     {
         private readonly IDictionary<string, string> _serverParam;
         [CanBeNull] private IDictionary<string, string> _clientParam;
-        private Action<RfcRuntimeConfigurer> _configureRuntime = (c) => { };
         private Action<RfcServerClientConfigurer> _configureServerClient = (c) => { };
 
         private Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo, IRfcServer>>
@@ -17,25 +20,32 @@ namespace Dbosoft.YaNco
 
         private readonly string _systemId;
         private Func<EitherAsync<RfcErrorInfo, IConnection>> _connectionFactory;
+        private IRfcServer _buildServer = null;
 
-
-        readonly List<(string, Action<IFunctionBuilder>, Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>>)> _functionHandlers = new List<(string, Action<IFunctionBuilder>, Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>>)>();
-
+        /// <summary>
+        /// Creates a new <see cref="ServerBuilder"/> with the connection parameters supplied
+        /// </summary>
+        /// <param name="serverParam"></param>
+        /// <exception cref="ArgumentException"></exception>
         public ServerBuilder(IDictionary<string, string> serverParam)
         {
+            serverParam = serverParam.ToDictionary(kv => kv.Key.ToUpperInvariant(), kv => kv.Value);
+
             if (!serverParam.ContainsKey("SYSID"))
                 throw new ArgumentException("server configuration has to contain parameter SYSID", nameof(serverParam));
 
             _systemId = serverParam["SYSID"];
             _serverParam = serverParam;
+            Self = this;
         }
 
-        public ServerBuilder ConfigureRuntime(Action<RfcRuntimeConfigurer> configure)
-        {
-            _configureRuntime = configure;
-            return this;
-        }
-
+        /// <summary>
+        /// Use a alternative factory method to create the <see cref="IRfcServer"/>. 
+        /// </summary>
+        /// <param name="factory">factory method</param>
+        /// <returns>current instance for chaining.</returns
+        /// <remarks>The default implementation call <see cref="RfcServer.Create"/>.
+        /// </remarks>
         public ServerBuilder UseFactory(
             Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo, IRfcServer>> factory)
         {
@@ -43,20 +53,12 @@ namespace Dbosoft.YaNco
             return this;
         }
 
-        public ServerBuilder WithFunctionHandler(string functionName,
-            Action<IFunctionBuilder> configureBuilder,
-            Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>> calledFunc)
-        {
-            _functionHandlers.Add((functionName, configureBuilder, calledFunc));
-            return this;
-        }
-
-        public ServerBuilder WithClientConnection(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionFactory)
-        {
-            _connectionFactory = connectionFactory;
-            return this;
-        }
-
+        /// <summary>
+        /// Configures the client connection of the <see cref="IRfcServer"/>
+        /// </summary>
+        /// <param name="connectionParams">connection parameters</param>
+        /// <param name="configure">action to configure connection</param>
+        /// <returns>current instance for chaining.</returns>
         public ServerBuilder WithClientConnection(IDictionary<string, string> connectionParams, Action<RfcServerClientConfigurer> configure)
         {
             _clientParam = connectionParams;
@@ -64,12 +66,31 @@ namespace Dbosoft.YaNco
             return this;
         }
 
+        /// <summary>
+        /// Adds a existing client connection factory as client connection of <see cref="IRfcServer"/>
+        /// </summary>
+        /// <param name="connectionFactory">function of connection factory</param>
+        /// <returns>current instance for chaining.</returns>
+        /// <remarks>This method signature should only be used in special cases.
+        /// The created function may have a different <see cref="IRfcRuntime"/> or other settings that
+        /// are not configured automatically on <see cref="IRfcServer"/>.
+        /// Consider using the configured client connection with <see cref="WithClientConnection(IDictionary{string,string},Action{Dbosoft.YaNco.RfcServerClientConfigurer})"/>
+        /// </remarks>
+        public ServerBuilder WithClientConnection(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionFactory)
+        {
+            _connectionFactory = connectionFactory;
+            return this;
+        }
+
+
 
         public EitherAsync<RfcErrorInfo, IRfcServer> Build()
         {
-            var runtimeConfigurer = new RfcRuntimeConfigurer();
-            _configureRuntime(runtimeConfigurer);
-            var runtime = runtimeConfigurer.Create();
+            if (_buildServer != null)
+                return Prelude.RightAsync<RfcErrorInfo, IRfcServer>(_buildServer);
+
+
+            var runtime = CreateRfcRuntime();
 
             //build connection from client build if necessary
             if (_connectionFactory == null && _clientParam!= null)
@@ -90,14 +111,19 @@ namespace Dbosoft.YaNco
                         s.AddConnectionFactory(_connectionFactory);
                     return s;
                 })
-                .Bind(RegisterFunctionHandlers);
+                .Bind(RegisterFunctionHandlers)
+                .Map(server =>
+                {
+                    _buildServer = server;
+                    return server;
+                });
 
         }
 
 
         private EitherAsync<RfcErrorInfo, IRfcServer> RegisterFunctionHandlers(IRfcServer server)
         {
-            return _functionHandlers.Map(reg =>
+            return FunctionHandlers.Map(reg =>
             {
                 var (functionName, configureBuilder, callBackFunction) = reg;
 
@@ -117,37 +143,6 @@ namespace Dbosoft.YaNco
 
             }).Traverse(l => l).Map(eu => server);
 
-        }
-
-    }
-
-    public class RfcServerClientConfigurer
-    {
-        private readonly ConnectionBuilder _builder;
-
-        public RfcServerClientConfigurer(ConnectionBuilder builder)
-        {
-            _builder = builder;
-            
-        }
-
-        /// <summary>
-        /// This method registers a function handler from a SAP function name. 
-        /// </summary>
-        /// <param name="functionName">Name of function</param>
-        /// <param name="calledFunc">function handler</param>
-        /// <returns>current instance for chaining</returns>
-        /// <remarks>
-        /// The metadata of the function is retrieved from the backend. Therefore the function
-        /// must exists on the SAP backend system.
-        /// Function handlers are registered process wide (in the SAP NW RFC Library).and mapped to backend system id. 
-        /// Multiple registrations of same function and same backend id will therefore have no effect.
-        /// </remarks>
-        public RfcServerClientConfigurer WithFunctionHandler(string functionName,
-            Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>> calledFunc)
-        {
-            _builder.WithFunctionHandler(functionName, calledFunc);
-            return this;
         }
 
     }
