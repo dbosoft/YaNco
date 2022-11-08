@@ -7,10 +7,14 @@ namespace Dbosoft.YaNco
     public class ConnectionBuilder
     {
         private readonly IDictionary<string, string> _connectionParam;
-        private StartProgramDelegate _startProgramDelegate;
-        private Action<RfcRuntimeConfigurer> _configureRuntime = (c) => {};
-        private Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo,IConnection>> 
+        private Action<RfcRuntimeConfigurer> _configureRuntime = (c) => { };
+
+        private Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo, IConnection>>
             _connectionFactory = Connection.Create;
+
+        readonly List<(string, Action<IFunctionBuilder>,
+            Func<CalledFunction, Either<RfcErrorInfo, Unit>>)> _functionHandlers
+            = new List<(string, Action<IFunctionBuilder>, Func<CalledFunction, Either<RfcErrorInfo, Unit>>)>();
 
         public ConnectionBuilder(IDictionary<string, string> connectionParam)
         {
@@ -25,7 +29,27 @@ namespace Dbosoft.YaNco
 
         public ConnectionBuilder WithStartProgramCallback(StartProgramDelegate startProgramDelegate)
         {
-            _startProgramDelegate = startProgramDelegate;
+            return WithFunctionHandler("RFC_START_PROGRAM", builder => builder
+                    .AddChar("COMMAND", RfcDirection.Import, 512),
+                cf => cf
+                    .Input(f => f.GetField<string>("COMMAND"))
+                    .Process(cmd => startProgramDelegate(cmd))
+                    .NoReply()
+            );
+        }
+
+        public ConnectionBuilder WithFunctionHandler(string functionName,
+            Func<CalledFunction, Either<RfcErrorInfo, Unit>> calledFunc)
+        {
+            _functionHandlers.Add((functionName, null, calledFunc));
+            return this;
+        }
+
+        public ConnectionBuilder WithFunctionHandler(string functionName,
+            Action<IFunctionBuilder> configureBuilder,
+            Func<CalledFunction, Either<RfcErrorInfo, Unit>> calledFunc)
+        {
+            _functionHandlers.Add((functionName, configureBuilder, calledFunc));
             return this;
         }
 
@@ -41,14 +65,39 @@ namespace Dbosoft.YaNco
             var runtimeConfigurer = new RfcRuntimeConfigurer();
             _configureRuntime(runtimeConfigurer);
             var runtime = runtimeConfigurer.Create();
-            
-            if(_startProgramDelegate == null)
-                return () => _connectionFactory(_connectionParam, runtime);
 
+            return () => _connectionFactory(_connectionParam, runtime)
+                .Bind(RegisterFunctionHandlers);
 
-            return () => (from c in _connectionFactory(_connectionParam, runtime)
-                from _ in c.AllowStartOfPrograms(_startProgramDelegate)
-                select c);
+        }
+
+        private EitherAsync<RfcErrorInfo, IConnection> RegisterFunctionHandlers(IConnection connection)
+        {
+            return connection.GetAttributes().Bind(attributes =>
+            {
+                return _functionHandlers.Map(reg =>
+                {
+                    var (functionName, configureBuilder, callBackFunction) = reg;
+
+                    if (configureBuilder != null)
+                    {
+                        var builder = new FunctionBuilder(connection.RfcRuntime, functionName);
+                        configureBuilder(builder);
+                        return builder.Build().ToAsync().Bind(descr =>
+                        {
+                            return connection.RfcRuntime.AddFunctionHandler(attributes.SystemId, descr,
+                                f => callBackFunction(new CalledFunction(f))).ToAsync();
+                        });
+
+                    }
+
+                    return connection.CreateFunction(functionName).Bind(func =>
+                    {
+                        return connection.RfcRuntime.AddFunctionHandler(attributes.SystemId, func,
+                            f => callBackFunction(new CalledFunction(f))).ToAsync();
+                    });
+                }).Traverse(l => l).Map(eu => connection);
+            });
         }
     }
 }

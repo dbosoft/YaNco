@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.Functional;
@@ -57,14 +58,6 @@ namespace Dbosoft.YaNco
                                     return (handle, result);
 
                                 }
-                            }
-
-                            case AllowStartOfProgramsMessage allowStartOfProgramsMessage:
-                            {
-                                var result = rfcRuntime.AllowStartOfPrograms(handle,
-                                    allowStartOfProgramsMessage.Callback).Map(u => (object)u);
-                                return (handle, result) ;
-
                             }
 
                             case DisposeMessage disposeMessage:
@@ -165,8 +158,12 @@ namespace Dbosoft.YaNco
         public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken) 
             => _stateAgent.Tell(new InvokeFunctionMessage(function, cancellationToken)).ToAsync().Map(_ => Unit.Default);
 
-        public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback) =>
-            _stateAgent.Tell(new AllowStartOfProgramsMessage(callback)).ToAsync().Map(r => Unit.Default);
+        [Obsolete("Use method WithStartProgramCallback of ConnectionBuilder instead. This method will be removed in next major release.")]
+        [ExcludeFromCodeCoverage]
+        public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
+        {
+            return RfcRuntime.AllowStartOfPrograms(_connectionHandle, callback).ToAsync();
+        }
 
         public EitherAsync<RfcErrorInfo, ConnectionAttributes> GetAttributes()
         {
@@ -200,15 +197,6 @@ namespace Dbosoft.YaNco
             }
         }
 
-        private class AllowStartOfProgramsMessage : AgentMessage
-        {
-            public readonly StartProgramDelegate Callback;
-
-            public AllowStartOfProgramsMessage(StartProgramDelegate callback)
-            {
-                Callback = callback;
-            }
-        }
 
         private class DisposeMessage : AgentMessage
         {

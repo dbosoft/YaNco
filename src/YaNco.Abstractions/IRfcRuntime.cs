@@ -8,6 +8,7 @@ namespace Dbosoft.YaNco
 {
     public interface IRfcRuntime
     {
+        [Obsolete("Use method AllowStartOfPrograms of ConnectionBuilder. This method will be removed in next major release.")]
         Either<RfcErrorInfo, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle, StartProgramDelegate callback);
         Either<RfcErrorInfo, IStructureHandle> AppendTableRow(ITableHandle tableHandle);
         Either<RfcErrorInfo, IFunctionHandle> CreateFunction(IFunctionDescriptionHandle descriptionHandle);
@@ -16,8 +17,13 @@ namespace Dbosoft.YaNco
         Either<RfcErrorInfo, IFunctionDescriptionHandle> GetFunctionDescription(IFunctionHandle functionHandle);
         Either<RfcErrorInfo, string> GetFunctionName(IFunctionDescriptionHandle descriptionHandle);
         Either<RfcErrorInfo, int> GetFunctionParameterCount(IFunctionDescriptionHandle descriptionHandle);
+        Either<RfcErrorInfo, IFunctionDescriptionHandle> CreateFunctionDescription(string functionName);
+        Either<RfcErrorInfo, IFunctionDescriptionHandle> AddFunctionParameter(IFunctionDescriptionHandle descriptionHandle, RfcParameterDescription parameterDescription);
         Either<RfcErrorInfo, RfcParameterInfo> GetFunctionParameterDescription(IFunctionDescriptionHandle descriptionHandle, int index);
         Either<RfcErrorInfo, RfcParameterInfo> GetFunctionParameterDescription(IFunctionDescriptionHandle descriptionHandle, string name);
+        Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunction function, Func<IFunction, Either<RfcErrorInfo, Unit>> handler);
+        Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunctionDescriptionHandle descriptionHandle,
+            Func<IFunction, Either<RfcErrorInfo, Unit>> handler);
         Either<RfcErrorInfo, IStructureHandle> GetStructure(IDataContainerHandle dataContainer, string name);
         Either<RfcErrorInfo, ITableHandle> GetTable(IDataContainerHandle dataContainer, string name);
         Either<RfcErrorInfo, ITableHandle> CloneTable(ITableHandle tableHandle);

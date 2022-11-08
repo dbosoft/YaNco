@@ -18,6 +18,9 @@ namespace SAPSystemTests
 {
     class Program
     {
+
+        private static string CallbackCommand = null;
+
         static async Task Main(string[] args)
         {
             var configurationBuilder =
@@ -53,13 +56,11 @@ namespace SAPSystemTests
 
             StartProgramDelegate callback = command =>
             {
-                var programParts = command.Split(' ');
-                var arguments = command.Replace(programParts[0], "");
-                var p = Process.Start(AppDomain.CurrentDomain.BaseDirectory + @"\" + programParts[0] + ".exe",
-                    arguments.TrimStart());
+                CallbackCommand = command;
 
                 return RfcErrorInfo.Ok();
             };
+
 
             var connectionBuilder = new ConnectionBuilder(settings)
                 .WithStartProgramCallback(callback)
@@ -108,6 +109,7 @@ namespace SAPSystemTests
             await RunIntegrationTest01(context);
             await RunIntegrationTest02(context);
             await RunIntegrationTest03(context);
+            await RunCallbackTest(context);
 
             Console.WriteLine("*** END OF Integration Tests ***");
         }
@@ -414,7 +416,19 @@ namespace SAPSystemTests
                     });
         }
 
+        private static async Task RunCallbackTest(IRfcContext context)
+        {
+            Console.WriteLine("Integration Tests 04 (callback function test)");
+            var commandString = RandomString(40);
+            await context.CallFunctionOneWay("ZYANCO_IT_2", f => f.SetField("COMMAND", commandString)).ToEither();
+            if (CallbackCommand == commandString)
+                Console.WriteLine("Test succeed");
+            else
+            {
+                Console.WriteLine("Callback Test failed, command received: " + CallbackCommand);
 
+            }
+        }
 
         private static async Task<long> RunPerformanceTest01(IRfcContext context, int rows = 0)
         {

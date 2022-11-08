@@ -136,24 +136,5 @@ namespace YaNco.Core.Tests
             rfcRuntimeMock.VerifyAll();
         }
 
-
-        [Fact]
-        public async Task AllowStartOfPrograms_is_cancelled()
-        {
-            var rfcRuntimeMock = new Mock<IRfcRuntime>()
-                .SetupOpenConnection(out var connHandle);
-
-            StartProgramDelegate callback = (c) => RfcErrorInfo.Ok();
-
-            rfcRuntimeMock.Setup(r => r
-                    .AllowStartOfPrograms(connHandle.Object,callback))
-                    .Returns(Unit.Default);
-
-            var conn = await rfcRuntimeMock.CreateConnection()
-                .Map(c => c.AllowStartOfPrograms(callback));
-
-            rfcRuntimeMock.VerifyAll();
-
-        }
     }
 }

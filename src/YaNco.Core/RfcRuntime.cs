@@ -90,6 +90,19 @@ namespace Dbosoft.YaNco
             IConnectionHandle handle = Api.OpenConnection(connectionParams, out var errorInfo);
             return ResultOrError(handle, errorInfo, true);
         }
+        public Either<RfcErrorInfo, IFunctionDescriptionHandle> CreateFunctionDescription(string functionName)
+        {
+            Logger.IfSome(l => l.LogTrace("creating function description without connection", functionName));
+            IFunctionDescriptionHandle handle = Api.CreateFunctionDescription(functionName, out var errorInfo);
+            return ResultOrError(handle, errorInfo);
+        }
+
+        public Either<RfcErrorInfo, IFunctionDescriptionHandle> AddFunctionParameter(IFunctionDescriptionHandle descriptionHandle, RfcParameterDescription parameterDescription)
+        {
+            Logger.IfSome(l => l.LogTrace("adding parameter to function description", new { handle = descriptionHandle, parameter = parameterDescription }));
+            var rc = Api.AddFunctionParameter(descriptionHandle as FunctionDescriptionHandle, parameterDescription, out var errorInfo);
+            return ResultOrError(descriptionHandle, rc, errorInfo);
+        }
 
         public Either<RfcErrorInfo, IFunctionDescriptionHandle> GetFunctionDescription(IConnectionHandle connectionHandle,
             string functionName)
@@ -184,6 +197,25 @@ namespace Dbosoft.YaNco
 
         }
 
+        public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunction function, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
+        {
+            return GetFunctionDescription(function.Handle)
+                .Use(used => used.Bind(d => AddFunctionHandler(sysid, d, handler)));
+        }
+
+        public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, IFunctionDescriptionHandle descriptionHandle, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
+        {
+            Api.RegisterServerFunctionHandler(sysid, descriptionHandle as FunctionDescriptionHandle,
+                (rfcHandle, functionHandle) =>
+                {
+                    var func = new Function(functionHandle, this);
+                    return handler(func);
+                },
+                out var errorInfo);
+
+            return ResultOrError(Unit.Default, errorInfo);
+        }
+
         public Either<RfcErrorInfo, Unit> Invoke(IConnectionHandle connectionHandle, IFunctionHandle functionHandle)
         {
             Logger.IfSome(l => l.LogTrace("Invoking function", new { connectionHandle, functionHandle }));
@@ -238,6 +270,7 @@ namespace Dbosoft.YaNco
 
         }
 
+        [Obsolete("Use method AllowStartOfPrograms of ConnectionBuilder. This method will be removed in next major release.")]
         public Either<RfcErrorInfo, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle,
             StartProgramDelegate callback)
         {

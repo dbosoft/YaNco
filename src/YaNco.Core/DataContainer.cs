@@ -47,7 +47,12 @@ namespace Dbosoft.YaNco
         {
             return _rfcRuntime.GetTable(_handle, name).Map(handle => (ITable) new Table(handle, _rfcRuntime));
         }
-        
+
+        public Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription()
+        {
+            return _rfcRuntime.GetTypeDescription(_handle);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
