@@ -12,5 +12,6 @@ namespace Dbosoft.YaNco
         Either<RfcErrorInfo, byte[]> GetFieldBytes(string name);
         Either<RfcErrorInfo, IStructure> GetStructure(string name);
         Either<RfcErrorInfo, ITable> GetTable(string name);
+        Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription();
     }
 }

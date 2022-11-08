@@ -20,7 +20,7 @@ namespace SAPSystemTests
 
         public void LogTrace(string message, object data)
         {
-            //Console.WriteLine($"TRACE\t{message}{ObjectToString(data)}");
+           // Console.WriteLine($"TRACE\t{message}{ObjectToString(data)}");
         }
 
         public void LogError(string message, object data)
@@ -30,6 +30,9 @@ namespace SAPSystemTests
 
         public void LogDebug(string message, object data)
         {
+            if (data is RfcErrorInfo { Key: "RFC_TABLE_MOVE_EOF" })
+                return;
+
             Console.WriteLine($"DEBUG\t{message}{ObjectToString(data)}");
         }
 

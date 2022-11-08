@@ -2,7 +2,7 @@
   "profiles": {
     "SAPSystemTests": {
       "commandName": "Project",
-      "commandLineArgs": "/tests:repeats=100000 /tests:rows=0",
+      "commandLineArgs": "/tests:repeats=10 /tests:rows=100",
       "nativeDebugging": true
     }
   }

@@ -42,5 +42,4 @@
             Decimals = decimals;
         }
     }
-
 }
