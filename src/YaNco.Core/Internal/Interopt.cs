@@ -234,10 +234,10 @@ namespace Dbosoft.YaNco.Internal
             public IntPtr TypeDescHandle;
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30 + 1)]
-            public readonly string DefaultValue;
+            public string DefaultValue;
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 79 + 1)]
-            public readonly string ParameterText;
+            public string ParameterText;
             public char Optional;
 
             public IntPtr ExtendedDescription;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using LanguageExt;
 // ReSharper disable InconsistentNaming
 
@@ -25,7 +26,7 @@ namespace Dbosoft.YaNco
                 return new FunctionProcessed<Unit>(Unit.Default, function);
             });
         }
-
+        
         public static Either<RfcErrorInfo, Unit> Reply<TOutput>(this Either<RfcErrorInfo, FunctionProcessed<TOutput>> self, Func<TOutput, Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, IFunction>> replyFunc)
         {
             return self.Bind(p => p.Reply(replyFunc));
@@ -37,6 +38,24 @@ namespace Dbosoft.YaNco
         }
 
 
+        public static EitherAsync<RfcErrorInfo, IRfcServer> Start(this EitherAsync<RfcErrorInfo, IRfcServer> eitherServer)
+        {
+            return eitherServer.Bind(s => s.Start().Map(_ => s));
+        }
 
+        public static async Task<IRfcServer> StartOrException(this EitherAsync<RfcErrorInfo, IRfcServer> eitherServer)
+        {
+            var res = await eitherServer.Bind(s => s.Start()
+                    .Map(_ => s))
+                .MapLeft(l => l.Throw())
+                .ToEither();
+
+            return res.RightAsEnumerable().FirstOrDefault();
+        }
+
+        public static EitherAsync<RfcErrorInfo, IRfcServer> Stop(this EitherAsync<RfcErrorInfo, IRfcServer> eitherServer, int timeout = 0)
+        {
+            return eitherServer.Bind(s => s.Stop(timeout).Map(_ => s));
+        }
     }
 }

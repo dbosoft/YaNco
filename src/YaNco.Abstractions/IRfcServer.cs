@@ -9,5 +9,7 @@ namespace Dbosoft.YaNco
         IRfcRuntime RfcRuntime { get; }
         EitherAsync<RfcErrorInfo, Unit> Start();
         EitherAsync<RfcErrorInfo, Unit> Stop(int timeout = 0);
+        Unit AddConnectionFactory(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionFactory);
+        Func<EitherAsync<RfcErrorInfo, IConnection>> ClientConnection { get;  }
     }
 }

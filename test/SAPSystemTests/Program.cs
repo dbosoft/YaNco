@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -44,8 +43,7 @@ namespace SAPSystemTests
                 {"client", config["saprfc:client"]},
                 {"user", config["saprfc:username"]},
                 {"passwd", config["saprfc:password"]},
-                {"lang", "EN"}
-
+                {"lang", "EN"},
             };
 
             var rows = Convert.ToInt32(config["tests:rows"]);
@@ -74,10 +72,7 @@ namespace SAPSystemTests
                 .ConfigureRuntime(c =>
                     c.WithLogger(new SimpleConsoleLogger()));
 
-
-            var rfcServer = await RfcServer.Create(settings, new RfcRuntime())
-                .Bind(s => s.Start()).ToEither();
-
+            
             var connectionFunc = connectionBuilder.Build();
 
             using (var context = new RfcContext(connectionFunc))

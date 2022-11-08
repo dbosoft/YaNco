@@ -42,7 +42,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco.Core.Tests", "test\Ya
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreateSalesOrder", "samples\netcore3.1\CreateSalesOrder\CreateSalesOrder.csproj", "{6CFC3765-314B-45A4-B8B8-1728159E1B91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YaNco.Hosting", "samples\YaNco.Hosting\YaNco.Hosting.csproj", "{A07C8033-2F41-4406-88A9-286FABE0B615}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YaNco.Hosting", "samples\YaNco.Hosting\YaNco.Hosting.csproj", "{A07C8033-2F41-4406-88A9-286FABE0B615}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RfcServerTest", "test\RfcServerTest\RfcServerTest.csproj", "{95D62E71-C281-47F1-ADD3-BD362B12B48A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +100,10 @@ Global
 		{A07C8033-2F41-4406-88A9-286FABE0B615}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A07C8033-2F41-4406-88A9-286FABE0B615}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A07C8033-2F41-4406-88A9-286FABE0B615}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95D62E71-C281-47F1-ADD3-BD362B12B48A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95D62E71-C281-47F1-ADD3-BD362B12B48A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95D62E71-C281-47F1-ADD3-BD362B12B48A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95D62E71-C281-47F1-ADD3-BD362B12B48A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,6 +120,7 @@ Global
 		{11F3C75F-E6B7-4A7B-92C9-16CB36F054AA} = {EF91385F-FDE0-4CB5-9CED-DF2977ADA833}
 		{6CFC3765-314B-45A4-B8B8-1728159E1B91} = {BEE8F8E1-8859-4A61-B668-5467423911D7}
 		{A07C8033-2F41-4406-88A9-286FABE0B615} = {D81DD87D-D96B-4A06-B360-B71BED6E5199}
+		{95D62E71-C281-47F1-ADD3-BD362B12B48A} = {EF91385F-FDE0-4CB5-9CED-DF2977ADA833}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C3AB2171-471F-4842-A039-4CE0AC4FBB45}

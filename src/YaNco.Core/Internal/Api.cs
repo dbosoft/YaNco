@@ -121,11 +121,14 @@ namespace Dbosoft.YaNco.Internal
                 Name = parameterDescription.Name,
                 Type = parameterDescription.Type,
                 Direction = parameterDescription.Direction,
-                Optional = parameterDescription.Optional ? 'X' : ' ',
+                Optional = parameterDescription.Optional ? 'X' : '\0',
                 Decimals = parameterDescription.Decimals,
                 NucLength = parameterDescription.NucLength,
                 UcLength = parameterDescription.UcLength,
-                TypeDescHandle = parameterDescription.TypeDescriptionHandle
+                TypeDescHandle = parameterDescription.TypeDescriptionHandle,
+                ExtendedDescription = IntPtr.Zero,
+                ParameterText = parameterDescription.ParameterText ?? "",
+                DefaultValue = parameterDescription.DefaultValue
             };
 
             return Interopt.RfcAddParameter(descriptionHandle.Ptr, ref parameterDesc, out errorInfo);
@@ -500,20 +503,20 @@ namespace Dbosoft.YaNco.Internal
 
 
 
-        private struct FunctionRegistration: IEquatable<FunctionRegistration>
+        private readonly struct FunctionRegistration: IEquatable<FunctionRegistration>
         {
-            public readonly string SysId;
-            public readonly string Name;
+            private readonly string _sysId;
+            private readonly string _name;
 
             public FunctionRegistration(string sysId, string name)
             {
-                SysId = sysId;
-                Name = name;
+                _sysId = sysId;
+                _name = name;
             }
 
             public bool Equals(FunctionRegistration other)
             {
-                return SysId == other.SysId && Name == other.Name;
+                return _sysId == other._sysId && _name == other._name;
             }
 
             public override bool Equals(object obj)
@@ -525,7 +528,7 @@ namespace Dbosoft.YaNco.Internal
             {
                 unchecked
                 {
-                    return (SysId.GetHashCode() * 397) ^ Name.GetHashCode();
+                    return (_sysId.GetHashCode() * 397) ^ _name.GetHashCode();
                 }
             }
         }

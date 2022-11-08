@@ -6,10 +6,12 @@ namespace Dbosoft.YaNco
     public readonly struct CalledFunction
     {
         public readonly IFunction Function;
+        private readonly Func<IRfcContext> _rfcContextFunc;
 
-        internal CalledFunction(IFunction function)
+        internal CalledFunction(IFunction function, Func<IRfcContext> rfcContextFunc)
         {
             Function = function;
+            _rfcContextFunc = rfcContextFunc;
         }
 
         public Either<RfcErrorInfo, FunctionInput<TInput>> Input<TInput>(Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TInput>> inputFunc)
@@ -18,6 +20,13 @@ namespace Dbosoft.YaNco
             return inputFunc(Prelude.Right(function)).Map(input => new FunctionInput<TInput>(input, function));
         }
 
+        public T UseRfcContext<T>(Func<IRfcContext, T> mapFunc)
+        {
+            using (var rfcContext = _rfcContextFunc())
+            {
+                return mapFunc(rfcContext);
+            }
+        }
 
     }
 
