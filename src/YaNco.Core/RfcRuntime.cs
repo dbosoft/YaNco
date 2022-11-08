@@ -237,7 +237,7 @@ namespace Dbosoft.YaNco
 
         public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
             string functionName,
-            IFunction function, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
+            IFunction function, Func<IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)
         {
             return GetFunctionDescription(function.Handle)
                 .Use(used => used.Bind(d => AddFunctionHandler(sysid,
@@ -246,7 +246,7 @@ namespace Dbosoft.YaNco
 
         public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
             string functionName,
-            IFunctionDescriptionHandle descriptionHandle, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
+            IFunctionDescriptionHandle descriptionHandle, Func<IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)
         {
             Api.RegisterServerFunctionHandler(sysid,
                 functionName, 

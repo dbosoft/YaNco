@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace Dbosoft.YaNco
@@ -45,6 +46,13 @@ namespace Dbosoft.YaNco
         {
             return new FunctionProcessed<TOutput>(processFunc(Input), Function);
         }
+
+        public async Task<FunctionProcessed<TOutput>> ProcessAsync<TOutput>(Func<TInput, Task<TOutput>> processFunc)
+        {
+            return new FunctionProcessed<TOutput>(await processFunc(Input), Function);
+        }
+
+
 
         public void Deconstruct(out IFunction function, out TInput input)
         {

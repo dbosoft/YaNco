@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace Dbosoft.YaNco.Internal
@@ -339,7 +340,10 @@ namespace Dbosoft.YaNco.Internal
                     errorInfoLocal = l;
                     return l.Code;
 
-                });
+                })
+                .ConfigureAwait(true)
+                .GetAwaiter().GetResult();
+                
 
             errorInfo = errorInfoLocal;
             return rc;

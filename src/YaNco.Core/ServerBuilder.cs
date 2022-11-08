@@ -19,7 +19,7 @@ namespace Dbosoft.YaNco
         private Func<EitherAsync<RfcErrorInfo, IConnection>> _connectionFactory;
 
 
-        readonly List<(string, Action<IFunctionBuilder>, Func<CalledFunction, Either<RfcErrorInfo, Unit>>)> _functionHandlers = new List<(string, Action<IFunctionBuilder>, Func<CalledFunction, Either<RfcErrorInfo, Unit>>)>();
+        readonly List<(string, Action<IFunctionBuilder>, Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>>)> _functionHandlers = new List<(string, Action<IFunctionBuilder>, Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>>)>();
 
         public ServerBuilder(IDictionary<string, string> serverParam)
         {
@@ -45,7 +45,7 @@ namespace Dbosoft.YaNco
 
         public ServerBuilder WithFunctionHandler(string functionName,
             Action<IFunctionBuilder> configureBuilder,
-            Func<CalledFunction, Either<RfcErrorInfo, Unit>> calledFunc)
+            Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>> calledFunc)
         {
             _functionHandlers.Add((functionName, configureBuilder, calledFunc));
             return this;
@@ -144,7 +144,7 @@ namespace Dbosoft.YaNco
         /// Multiple registrations of same function and same backend id will therefore have no effect.
         /// </remarks>
         public RfcServerClientConfigurer WithFunctionHandler(string functionName,
-            Func<CalledFunction, Either<RfcErrorInfo, Unit>> calledFunc)
+            Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>> calledFunc)
         {
             _builder.WithFunctionHandler(functionName, calledFunc);
             return this;

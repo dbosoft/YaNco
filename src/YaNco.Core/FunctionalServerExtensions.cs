@@ -15,6 +15,14 @@ namespace Dbosoft.YaNco
             return input.Map(i => i.Process(processFunc));
         }
 
+        public static EitherAsync<RfcErrorInfo, FunctionProcessed<TOutput>> ProcessAsync<TInput, TOutput>(
+            this Either<RfcErrorInfo, FunctionInput<TInput>> input,
+            Func<TInput, Task<TOutput>> processFunc)
+        {
+            return input.ToAsync()
+                .MapAsync(i => i.ProcessAsync(processFunc));
+        }
+
         public static Either<RfcErrorInfo, FunctionProcessed<Unit>> Process<TInput>(
             this Either<RfcErrorInfo, FunctionInput<TInput>> input,
             Action<TInput> processAction)
@@ -26,15 +34,20 @@ namespace Dbosoft.YaNco
                 return new FunctionProcessed<Unit>(Unit.Default, function);
             });
         }
-        
-        public static Either<RfcErrorInfo, Unit> Reply<TOutput>(this Either<RfcErrorInfo, FunctionProcessed<TOutput>> self, Func<TOutput, Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, IFunction>> replyFunc)
+
+        public static EitherAsync<RfcErrorInfo, Unit> Reply<TOutput>(this EitherAsync<RfcErrorInfo, FunctionProcessed<TOutput>> self, Func<TOutput, Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, IFunction>> replyFunc)
         {
-            return self.Bind(p => p.Reply(replyFunc));
+            return self.Bind(p => p.Reply(replyFunc).ToAsync());
         }
 
-        public static Either<RfcErrorInfo, Unit> NoReply<TOutput>(this Either<RfcErrorInfo, FunctionProcessed<TOutput>> self)
+        public static EitherAsync<RfcErrorInfo, Unit> Reply<TOutput>(this Either<RfcErrorInfo, FunctionProcessed<TOutput>> self, Func<TOutput, Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, IFunction>> replyFunc)
         {
-            return self.Bind(p => p.Reply((o, f) => f));
+            return self.Bind(p => p.Reply(replyFunc)).ToAsync();
+        }
+
+        public static EitherAsync<RfcErrorInfo, Unit> NoReply<TOutput>(this Either<RfcErrorInfo, FunctionProcessed<TOutput>> self)
+        {
+            return self.Bind(p => p.Reply((o, f) => f)).ToAsync();
         }
 
 

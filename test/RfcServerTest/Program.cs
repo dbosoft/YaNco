@@ -52,7 +52,7 @@ var serverBuilderWithClientConnection = new ServerBuilder(serverSettings)
             .WithFunctionHandler("ZYANCO_SERVER_FUNCTION_1",
             cf => cf
                 .Input(i => i.GetField<string>("SEND"))
-                .Process(s =>
+                .ProcessAsync(s =>
                 {
                     Console.WriteLine($"Received message from backend: {s}");
                     cancellationTokenSource.Cancel();
@@ -66,8 +66,7 @@ var serverBuilderWithClientConnection = new ServerBuilder(serverSettings)
                                 Output: f => f.MapStructure("ADDRESS", s => s.GetField<string>("FULLNAME")))
                             select userName;
 
-                    }).Match(r => r, l => "John Doe")
-                        .GetAwaiter().GetResult();
+                    }).Match(r => r, l => "John Doe");
 
                 })
                 .Reply((username, f) => f
@@ -108,6 +107,7 @@ var serverBuilderWithoutClientConnection = new ServerBuilder(serverSettings)
             {
                 Console.WriteLine($"Received message from backend: {s}");
                 cancellationTokenSource.Cancel();
+                
             })
             .Reply((_, f) => f
                 .SetField("RECEIVE", "Hello from YaNco")));
