@@ -1,7 +1,9 @@
-﻿using Xunit.Sdk;
+﻿using System.Diagnostics.CodeAnalysis;
+using Xunit.Sdk;
 
 namespace YaNco.Core.Tests
 {
+    [ExcludeFromCodeCoverage]
     public class ObjectEqualException : AssertActualExpectedException
     {
         private readonly string message;

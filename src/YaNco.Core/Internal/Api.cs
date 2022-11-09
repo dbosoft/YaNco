@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace Dbosoft.YaNco.Internal
@@ -121,11 +122,14 @@ namespace Dbosoft.YaNco.Internal
                 Name = parameterDescription.Name,
                 Type = parameterDescription.Type,
                 Direction = parameterDescription.Direction,
-                Optional = parameterDescription.Optional ? 'X' : ' ',
+                Optional = parameterDescription.Optional ? 'X' : '\0',
                 Decimals = parameterDescription.Decimals,
                 NucLength = parameterDescription.NucLength,
                 UcLength = parameterDescription.UcLength,
-                TypeDescHandle = parameterDescription.TypeDescriptionHandle
+                TypeDescHandle = parameterDescription.TypeDescriptionHandle,
+                ExtendedDescription = IntPtr.Zero,
+                ParameterText = parameterDescription.ParameterText ?? "",
+                DefaultValue = parameterDescription.DefaultValue
             };
 
             return Interopt.RfcAddParameter(descriptionHandle.Ptr, ref parameterDesc, out errorInfo);
@@ -172,6 +176,26 @@ namespace Dbosoft.YaNco.Internal
             out RfcErrorInfo errorInfo)
         {
             return Interopt.RfcCancel(connectionHandle.Ptr, out errorInfo);
+        }
+
+        public static RfcRc LaunchServer(RfcServerHandle serverHandle, out RfcErrorInfo errorInfo)
+        {
+            return Interopt.RfcLaunchServer(serverHandle.Ptr, out errorInfo);
+        }
+
+        public static RfcRc ShutdownServer(RfcServerHandle serverHandle, int timeout, out RfcErrorInfo errorInfo)
+        {
+            return Interopt.RfcShutdownServer(serverHandle.Ptr, (uint)timeout, out errorInfo);
+        }
+
+        public static RfcServerHandle CreateServer(IDictionary<string, string> connectionParams,
+            out RfcErrorInfo errorInfo)
+        {
+            var rfcOptions = connectionParams.Select(x => new Interopt.RfcConnectionParameter { Name = x.Key, Value = x.Value })
+                .ToArray();
+
+            var ptr = Interopt.RfcCreateServer(rfcOptions, (uint)rfcOptions.Length, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new RfcServerHandle(ptr);
         }
 
         public static RfcRc GetStructure(IDataContainerHandle dataContainer, string name,
@@ -316,7 +340,10 @@ namespace Dbosoft.YaNco.Internal
                     errorInfoLocal = l;
                     return l.Code;
 
-                });
+                })
+                .ConfigureAwait(true)
+                .GetAwaiter().GetResult();
+                
 
             errorInfo = errorInfoLocal;
             return rc;
@@ -480,20 +507,20 @@ namespace Dbosoft.YaNco.Internal
 
 
 
-        private struct FunctionRegistration: IEquatable<FunctionRegistration>
+        private readonly struct FunctionRegistration: IEquatable<FunctionRegistration>
         {
-            public readonly string SysId;
-            public readonly string Name;
+            private readonly string _sysId;
+            private readonly string _name;
 
             public FunctionRegistration(string sysId, string name)
             {
-                SysId = sysId;
-                Name = name;
+                _sysId = sysId;
+                _name = name;
             }
 
             public bool Equals(FunctionRegistration other)
             {
-                return SysId == other.SysId && Name == other.Name;
+                return _sysId == other._sysId && _name == other._name;
             }
 
             public override bool Equals(object obj)
@@ -505,7 +532,7 @@ namespace Dbosoft.YaNco.Internal
             {
                 unchecked
                 {
-                    return (SysId.GetHashCode() * 397) ^ Name.GetHashCode();
+                    return (_sysId.GetHashCode() * 397) ^ _name.GetHashCode();
                 }
             }
         }

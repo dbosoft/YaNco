@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using WebApi;
@@ -6,6 +7,7 @@ using WebApi.Shared;
 
 namespace SAPWebAPI.Controllers
 {
+    [ExcludeFromCodeCoverage]
     [ApiController]
     [Route("api/{Controller}")]
     public class CompanyController : ControllerBase

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -7,6 +8,7 @@ using Newtonsoft.Json;
 
 namespace Dbosoft.YaNco.Hosting
 {
+    [ExcludeFromCodeCoverage]
     public class RfcLoggingAdapter : ILogger
     {
         private readonly Microsoft.Extensions.Logging.ILogger _logger;

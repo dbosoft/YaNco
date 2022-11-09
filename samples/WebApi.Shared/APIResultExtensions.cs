@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using LanguageExt;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi
 {
+    [ExcludeFromCodeCoverage]
     public static class ApiResultExtensions
     {
         public static Task<IActionResult> ToActionResult<T>(this EitherAsync<RfcErrorInfo, T> result)

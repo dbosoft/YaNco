@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Dbosoft.YaNco;
 using LanguageExt;
 
 namespace CreateSalesOrder
 {
+    [ExcludeFromCodeCoverage]
     internal static class TableReturnExtensions
     {
         /// <summary>

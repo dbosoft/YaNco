@@ -38,6 +38,38 @@ namespace Dbosoft.YaNco
             return Api.IsFunctionHandlerRegistered(sysId, functionName);
         }
 
+        public Either<RfcErrorInfo, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams)
+        {
+            if (connectionParams.Count == 0)
+                return new RfcErrorInfo(RfcRc.RFC_EXTERNAL_FAILURE,
+                    RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, RfcRc.RFC_EXTERNAL_FAILURE.ToString(),
+                    "Cannot open SAP connection with empty connection settings.",
+                    "", "", "", "", "", "", "");
+
+            var loggedParams = new Dictionary<string, string>(connectionParams);
+
+            Logger.IfSome(l => l.LogTrace("creating rfc server", loggedParams));
+            IRfcServerHandle handle = Api.CreateServer(connectionParams, out var errorInfo);
+            return ResultOrError(handle, errorInfo, true);
+
+        }
+
+        public Either<RfcErrorInfo, Unit> LaunchServer(IRfcServerHandle rfcServerHandle)
+        {
+            Logger.IfSome(l => l.LogTrace("starting rfc server", rfcServerHandle));
+            var rc = Api.LaunchServer(rfcServerHandle as RfcServerHandle, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
+
+        }
+
+        public Either<RfcErrorInfo, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout)
+        {
+            Logger.IfSome(l => l.LogTrace($"stopping rfc server with timeout of {timeout} seconds.", rfcServerHandle));
+            var rc = Api.ShutdownServer(rfcServerHandle as RfcServerHandle, timeout, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
+
+        }
+
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcErrorInfo errorInfo, bool logAsError = false)
         {
             if (result == null || errorInfo.Code != RfcRc.RFC_OK)
@@ -205,7 +237,7 @@ namespace Dbosoft.YaNco
 
         public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
             string functionName,
-            IFunction function, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
+            IFunction function, Func<IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)
         {
             return GetFunctionDescription(function.Handle)
                 .Use(used => used.Bind(d => AddFunctionHandler(sysid,
@@ -214,7 +246,7 @@ namespace Dbosoft.YaNco
 
         public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
             string functionName,
-            IFunctionDescriptionHandle descriptionHandle, Func<IFunction, Either<RfcErrorInfo, Unit>> handler)
+            IFunctionDescriptionHandle descriptionHandle, Func<IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)
         {
             Api.RegisterServerFunctionHandler(sysid,
                 functionName, 

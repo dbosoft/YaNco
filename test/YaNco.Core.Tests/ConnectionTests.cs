@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using LanguageExt;
@@ -8,6 +10,9 @@ using YaNco.Core.Tests.RfcMock;
 
 namespace YaNco.Core.Tests
 {
+    
+    [ExcludeFromCodeCoverage]
+
     public class ConnectionTests
     {
         [Fact]

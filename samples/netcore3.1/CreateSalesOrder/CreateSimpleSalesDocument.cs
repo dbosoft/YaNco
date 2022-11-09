@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace CreateSalesOrder
 {
+    [ExcludeFromCodeCoverage]
     public class CreateSimpleSalesDocument : RootCommand
     {
         public CreateSimpleSalesDocument()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Dbosoft.YaNco;
 using LanguageExt;
@@ -8,6 +9,7 @@ using Moq.Language.Flow;
 
 namespace YaNco.Core.Tests.RfcMock
 {
+    [ExcludeFromCodeCoverage]
     public static class RfcContextMockExtensions
     {
         public static Mock<IRfcContext> SetupFunction(this Mock<IRfcContext> self, string functionName, Action<Mock<IFunction>> functionBuilder)

@@ -22,10 +22,10 @@ namespace Dbosoft.YaNco
         Either<RfcErrorInfo, RfcParameterInfo> GetFunctionParameterDescription(IFunctionDescriptionHandle descriptionHandle, int index);
         Either<RfcErrorInfo, RfcParameterInfo> GetFunctionParameterDescription(IFunctionDescriptionHandle descriptionHandle, string name);
         Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
-            string functionName, IFunction function, Func<IFunction, Either<RfcErrorInfo, Unit>> handler);
+            string functionName, IFunction function, Func<IFunction, EitherAsync<RfcErrorInfo, Unit>> handler);
         Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, string functionName, 
             IFunctionDescriptionHandle descriptionHandle,
-            Func<IFunction, Either<RfcErrorInfo, Unit>> handler);
+            Func<IFunction, EitherAsync<RfcErrorInfo, Unit>> handler);
         Either<RfcErrorInfo, IStructureHandle> GetStructure(IDataContainerHandle dataContainer, string name);
         Either<RfcErrorInfo, ITableHandle> GetTable(IDataContainerHandle dataContainer, string name);
         Either<RfcErrorInfo, ITableHandle> CloneTable(ITableHandle tableHandle);
@@ -67,6 +67,11 @@ namespace Dbosoft.YaNco
 
         RfcRuntimeOptions Options { get; }
         bool IsFunctionHandlerRegistered(string sysId, string functionName);
+
+        Either<RfcErrorInfo, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams);
+        Either<RfcErrorInfo, Unit> LaunchServer(IRfcServerHandle rfcServerHandle);
+        Either<RfcErrorInfo, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout);
+
     }
 
 

@@ -2,11 +2,11 @@
 
 namespace Dbosoft.YaNco.Internal
 {
-    public class ConnectionHandle : IConnectionHandle
+    public class ConnectionHandle : RfcHandle, IConnectionHandle
     {
         internal IntPtr Ptr { get; private set; }
 
-        internal ConnectionHandle(IntPtr ptr)
+        internal ConnectionHandle(IntPtr ptr) : base(ptr)
         {
             Ptr = ptr;
         }
@@ -15,7 +15,6 @@ namespace Dbosoft.YaNco.Internal
         {
             if (Ptr == IntPtr.Zero) return;
 
-            Api.RemoveCallbackHandler(Ptr);
             Interopt.RfcCloseConnection(Ptr, out _);
             
             Ptr = IntPtr.Zero;

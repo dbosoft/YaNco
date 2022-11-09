@@ -2,11 +2,13 @@
 using System.CommandLine.Builder;
 using System.CommandLine.Hosting;
 using System.CommandLine.Parsing;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using YaNco.Hosting;
 
 namespace CreateSalesOrder
 {
+    [ExcludeFromCodeCoverage]
     internal class Program
     {
         // ReSharper disable once ArrangeTypeMemberModifiers
