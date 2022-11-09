@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
@@ -8,13 +9,45 @@ using Moq;
 
 namespace YaNco.Core.Tests.RfcMock
 {
+
+    [ExcludeFromCodeCoverage]
+    public static class ServerMockExtensions
+    {
+        public static async Task<IRfcServer> CreateServer(this Mock<IRfcRuntime> mock)
+        {
+            return await RfcServer.Create(new Dictionary<string, string>(),
+                    mock.Object)
+                .IfLeft(l => throw new Exception(l.Message));
+
+        }
+
+        public static Mock<IRfcRuntime> SetupCreateServer(this Mock<IRfcRuntime> mock, out Mock<IRfcServerHandle> handle)
+        {
+            handle = new Mock<IRfcServerHandle>();
+
+            mock.Setup(x =>
+                    x.CreateServer(new Dictionary<string, string>()))
+                .Returns(Prelude.Right(handle.Object));
+
+            return mock;
+        }
+
+    }
+
     public static class ConnectionMockExtensions
     {
         public static async Task<IConnection> CreateConnection(this Mock<IRfcRuntime> mock)
         {
-            return await Connection.Create(new Dictionary<string, string>(),
-                    mock.Object)
+            return await CreateConnectionFactory(mock)()
                 .IfLeft(l => throw new Exception(l.Message));
+
+        }
+
+        public static Func<EitherAsync<RfcErrorInfo, IConnection>>
+            CreateConnectionFactory(this Mock<IRfcRuntime> mock)
+        {
+            return () => Connection.Create(new Dictionary<string, string>(),
+                mock.Object);
 
         }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using WebApi;
@@ -8,6 +9,7 @@ namespace SAPWebAPI.Controllers
 {
     [ApiController]
     [Route("api/[Controller]")]
+    [ExcludeFromCodeCoverage]
     public class CompanyController : ControllerBase
     {
         private readonly IRfcContext _rfcContext;

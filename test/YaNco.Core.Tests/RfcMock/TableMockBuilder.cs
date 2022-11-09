@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Dbosoft.YaNco;
 using LanguageExt;
 using Moq;
 
 namespace YaNco.Core.Tests.RfcMock
 {
+    [ExcludeFromCodeCoverage]
     public class TableMockBuilder
     {
         public List<Mock<IStructure>> Structures { get; private set; } = new List<Mock<IStructure>>();

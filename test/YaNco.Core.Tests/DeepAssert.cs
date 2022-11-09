@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using KellermanSoftware.CompareNetObjects;
 
 namespace YaNco.Core.Tests
 {
+    [ExcludeFromCodeCoverage]
     public static class DeepAssert {
 
         public static void Equal<T> (T expected, T actual, params string[] propertiesToIgnore) {

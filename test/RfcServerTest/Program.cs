@@ -1,8 +1,10 @@
-﻿
-
+﻿using System.Diagnostics.CodeAnalysis;
 using Dbosoft.YaNco;
 using Microsoft.Extensions.Configuration;
 using RfcServerTest;
+
+[assembly: ExcludeFromCodeCoverage]
+
 
 var configurationBuilder =
     new ConfigurationBuilder();

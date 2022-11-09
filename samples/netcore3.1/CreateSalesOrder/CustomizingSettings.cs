@@ -1,8 +1,11 @@
-﻿namespace CreateSalesOrder
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CreateSalesOrder
 {
     /// <summary>
     /// Settings from configuration, should be used in Bind call to salesSettings.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     internal class CustomizingSettings
     {
         public string DocumentType { get; set; }

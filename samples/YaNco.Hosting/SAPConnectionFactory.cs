@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
 
 namespace Dbosoft.YaNco.Hosting
 {
+    [ExcludeFromCodeCoverage]
     public class SAPConnectionFactory
     {
         private readonly IConfiguration _configuration;

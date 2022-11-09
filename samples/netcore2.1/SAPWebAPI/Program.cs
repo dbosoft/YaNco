@@ -1,4 +1,5 @@
-﻿using Dbosoft.YaNco.Hosting;
+﻿using System.Diagnostics.CodeAnalysis;
+using Dbosoft.YaNco.Hosting;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using WebApi;
@@ -6,6 +7,7 @@ using YaNco.Hosting;
 
 namespace SAPWebAPI
 {
+    [ExcludeFromCodeCoverage]
     public class Program
     {
         public static void Main(string[] args)

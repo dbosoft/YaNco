@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using LanguageExt;
@@ -8,6 +9,7 @@ using WebApi.ApiModel;
 
 namespace WebApi.Shared
 {
+    [ExcludeFromCodeCoverage]
     public static class CompanyExtensions
     {
         public static EitherAsync<RfcErrorInfo, IEnumerable<CompanyModel>> GetCompanies(this IRfcContext rfcContext)

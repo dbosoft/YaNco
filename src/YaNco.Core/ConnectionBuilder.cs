@@ -123,7 +123,7 @@ namespace Dbosoft.YaNco
         }
     }
 
-    public class RfcBuilderBase<TBuilder>
+    public abstract class RfcBuilderBase<TBuilder>
     {
         private Action<RfcRuntimeConfigurer> _configureRuntime = (c) => { };
         protected TBuilder Self { get; set; }
