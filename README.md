@@ -45,6 +45,14 @@ You can therefore always use the newest version released on SAP Support Portal a
 
 The easiest way to get started is by installing [the available NuGet package](https://www.nuget.org/packages/Dbosoft.YaNco). Take a look at the [Using](#using) section learning how to configure and use YaNco. Go to the [Build](#build) section to find out how to build YaNco. 
 
+**Samples and articles**
+
+- [Creating a SAP DMS library with YaNco (Part 1)](https://dbosoft.eu/en-us/blog/creating-a-sap-dms-library-with-yanco-part-1)
+- [Creating a SAP DMS library with YaNco (Part 2)](https://dbosoft.eu/en-us/blog/creating-a-sap-dms-library-with-yanco-part-2)
+- [Sample app: Using YaNco in ASP.NET Core](https://github.com/dbosoft/YaNco/tree/main/samples/netcore3.1/SAPWebAPI)
+- [Sample app: Command line tool to create sales orders](https://github.com/dbosoft/YaNco/tree/main/samples/netcore3.1/CreateSalesOrder)
+- [SAPHub - How to build reliable and scaleable SAP integrated microservices with Hosuto and YaNco](https://github.com/dbosoft/SAPHub) 
+
 ## Using
 
 In order to call remote enabled ABAP function module (ABAP RFM), first a connection must be opened.
