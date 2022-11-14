@@ -220,8 +220,9 @@ foreach (var userName in userList)
 
 **ABAP Callbacks**
 
-ABAP callbacks allows the backend system to call functions on the client. There is build in support for the RFC_START_PROGRAM callback, that is used by SAP to request start of additional programs like saprfc and saphttp. 
-TO register a start program callback you use the method of the ConnectionBuilder: 
+ABAP callbacks allows the backend system to call functions on the client.  
+There is build in support for the RFC_START_PROGRAM callback, that is used by SAP to request start of additional programs like saprfc and saphttp. 
+To register a start program callback you use the method of the ConnectionBuilder: 
 
 ```csharp
 var connectionBuilder = new ConnectionBuilder(settings)
@@ -248,7 +249,7 @@ var connectionBuilder = new ConnectionBuilder(settings)
                 .SetField("RECEIVE", "Hello from YaNco")))
  ```
  
-In that example a function with the name ZYANCO_SERVER_FUNCTION_1 has to exists on the backend server, with two parameters (and CHAR field SEND and a CHAR field receive). 
+In this example a function with the name ZYANCO_SERVER_FUNCTION_1 has to exist on the backend server, with two parameters (and CHAR field SEND and a CHAR field RECEIVE). 
 
 The registered function handler consists of 3 chained steps: 
 - Input mapping  
