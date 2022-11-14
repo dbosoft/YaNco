@@ -222,7 +222,7 @@ foreach (var userName in userList)
 
 ABAP callbacks allows the backend system to call functions on the client.  
 There is build in support for the RFC_START_PROGRAM callback, that is used by SAP to request start of additional programs like saprfc and saphttp. 
-To register a start program callback you use the method of the ConnectionBuilder: 
+To register a start program callback you use the method `WithStartProgramCallback` of the `ConnectionBuilder`: 
 
 ```csharp
 var connectionBuilder = new ConnectionBuilder(settings)
