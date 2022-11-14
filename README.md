@@ -251,12 +251,12 @@ var connectionBuilder = new ConnectionBuilder(settings)
 In that example a function with the name ZYANCO_SERVER_FUNCTION_1 has to exists on the backend server, with two parameters (and CHAR field SEND and a CHAR field receive). 
 
 The registered function handler consists of 3 chained steps: 
-- Input mapping
-  extracting values of the function call like `CallFunction` and return it for further processing. Any error here will stop the chain. 
-- Processing
+- Input mapping  
+  Extraction of values from the incoming function call and return extracted value for further processing. Any error here will stop the chain. Mapping features are the   same as in `CallFunction` input mapping.
+- Processing  
   The extracted value will be passed as argument to the process function. In this example the input is just written to the console. 
   The process function can return a output value, that is passed to last step in chain. 
-- Reply mapping
+- Reply mapping  
   The reply step sets the values of the response (same as Output mapping in `CallFunction`). If you have no reply you can also call `NoReply` to end the chain.  
 
 
