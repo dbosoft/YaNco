@@ -253,12 +253,12 @@ In this example a function with the name ZYANCO_SERVER_FUNCTION_1 has to exist o
 
 The registered function handler consists of 3 chained steps: 
 - Input mapping  
-  Extraction of values from the incoming function call and return extracted value for further processing. Any error here will stop the chain. Mapping features are the   same as in `CallFunction` input mapping.
+  Extraction of values from the incoming function call and return extracted value for further processing. Any error here will stop the chain. Mapping features are the   same as in `CallFunction` output mapping.
 - Processing  
   The extracted value will be passed as argument to the process function. In this example the input is just written to the console. 
   The process function can return a output value, that is passed to last step in chain. 
 - Reply mapping  
-  The reply step sets the values of the response (same as Output mapping in `CallFunction`). If you have no reply you can also call `NoReply` to end the chain.  
+  The reply step sets the values of the response (same as Input mapping in `CallFunction`). If you have no reply you can also call `NoReply` to end the chain.  
 
 
 ## Build
