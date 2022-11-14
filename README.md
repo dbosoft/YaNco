@@ -218,6 +218,47 @@ foreach (var userName in userList)
 }
   ```
 
+**ABAP Callbacks**
+
+ABAP callbacks allows the backend system to call functions on the client. There is build in support for the RFC_START_PROGRAM callback, that is used by SAP to request start of additional programs like saprfc and saphttp. 
+TO register a start program callback you use the method of the ConnectionBuilder: 
+
+```csharp
+var connectionBuilder = new ConnectionBuilder(settings)
+    .WithStartProgramCallback(callback)
+    
+    StartProgramDelegate callback = command =>
+    {
+        // validate and check the start request and start processes if necessary
+        // return ok if everything works or a error
+        return RfcErrorInfo.Ok();
+    };
+  ```
+
+Since version 4.3-rc.1 (in prelease currently) you can register also other functions using following syntax:  
+
+```csharp
+var connectionBuilder = new ConnectionBuilder(settings)
+    .WithFunctionHandler("ZYANCO_SERVER_FUNCTION_1",
+        cf => cf
+            .Input(i =>
+                i.GetField<string>("SEND"))
+            .Process(Console.WriteLine)
+            .Reply((_, f) => f
+                .SetField("RECEIVE", "Hello from YaNco")))
+ ```
+ 
+In that example a function with the name ZYANCO_SERVER_FUNCTION_1 has to exists on the backend server, with two parameters (and CHAR field SEND and a CHAR field receive). 
+
+The registered function handler consists of 3 chained steps: 
+- Input mapping
+  extracting values of the function call like `CallFunction` and return it for further processing. Any error here will stop the chain. 
+- Processing
+  The extracted value will be passed as argument to the process function. In this example the input is just written to the console. 
+  The process function can return a output value, that is passed to last step in chain. 
+- Reply mapping
+  The reply step sets the values of the response (same as Output mapping in `CallFunction`). If you have no reply you can also call `NoReply` to end the chain.  
+
 
 ## Build
 
