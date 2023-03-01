@@ -244,6 +244,19 @@ namespace Dbosoft.YaNco
                     functionName, d, handler)));
         }
 
+        public Either<RfcErrorInfo, Unit> AddTransactionHandlers(string sysid, 
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onCheck,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onCommit,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onRollback,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onConfirm)
+        {
+            Api.RegisterTransactionFunctionHandlers(sysid,
+                  onCheck, onCommit, onRollback, onConfirm,
+                out var errorInfo);
+
+            return ResultOrError(Unit.Default, errorInfo);
+        }
+        
         public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
             string functionName,
             IFunctionDescriptionHandle descriptionHandle, Func<IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)

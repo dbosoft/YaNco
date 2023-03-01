@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Dbosoft.YaNco.Internal
 {
@@ -160,6 +161,14 @@ namespace Dbosoft.YaNco.Internal
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcInstallServerFunction(string sysId, IntPtr funcDescHandle, RfcServerFunction serverFunction, out RfcErrorInfo errorInfo);
 
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcInstallTransactionHandlers(string sysId,
+            TransactionEventCallback onCheckFunction, 
+            TransactionEventCallback onCommitFunction, 
+            TransactionEventCallback onRollbackFunction, 
+            TransactionEventCallback onConfirmFunction, 
+            out RfcErrorInfo errorInfo);
+        
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcGetStringByIndex(IntPtr dataHandle, uint index, char[] stringBuffer,
             uint bufferLength, out uint stringLength, out RfcErrorInfo errorInfo);
@@ -355,6 +364,10 @@ namespace Dbosoft.YaNco.Internal
         }
 
         public delegate RfcRc RfcServerFunction(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo);
+        
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        public delegate RfcRc TransactionEventCallback(IntPtr rfcHandle, string tid);
+        
 
     }
 }

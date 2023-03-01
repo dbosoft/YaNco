@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 using LanguageExt;
 
 namespace Dbosoft.YaNco.Internal
@@ -222,6 +222,57 @@ namespace Dbosoft.YaNco.Internal
             return ptr == IntPtr.Zero ? null : new TableHandle(ptr, true);
         }
 
+        public static RfcRc RegisterTransactionFunctionHandlers(string sysId,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onCheck,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onCommit,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onRollback,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onConfirm, 
+            out RfcErrorInfo errorInfo)
+        {
+            /*
+            if (_registeredTransactionCallbacks.Contains(sysId.ToUpperInvariant()))
+            {
+                errorInfo = new RfcErrorInfo(RfcRc.RFC_ILLEGAL_STATE, 
+                    RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "", 
+                    $"Transaction handles already registered for sysid {sysId}.", 
+                    "", "", "", "", "", "", ""):
+                return RfcRc.RFC_ILLEGAL_STATE;
+            }*/
+
+            RfcRc MapToRfc(Either<RfcErrorInfo, Unit> callback) => 
+                callback.Match(_ => RfcRc.RFC_OK, l => l.Code);
+            
+            var rc = Interopt.RfcInstallTransactionHandlers(null,
+                CheckFunction,
+                CommitFunction,
+                RollbackFunction,
+                ConfirmFunction
+                , out errorInfo);
+
+            return rc;
+            
+        }
+        
+        private static RfcRc CheckFunction(IntPtr rfcHandle, string tid)
+        {
+            return RfcRc.RFC_OK;
+        }
+        
+        private static RfcRc CommitFunction(IntPtr rfcHandle, string tid)
+        {
+            return RfcRc.RFC_OK;
+        }
+        
+        private static RfcRc RollbackFunction(IntPtr rfcHandle, string tid)
+        {
+            return RfcRc.RFC_OK;
+        }
+        
+        private static RfcRc ConfirmFunction(IntPtr rfcHandle, string tid)
+        {
+            return RfcRc.RFC_OK;
+        }
+        
         public static RfcRc RegisterServerFunctionHandler(string sysId, 
             string functionName,
             FunctionDescriptionHandle functionDescription,
@@ -305,12 +356,18 @@ namespace Dbosoft.YaNco.Internal
             = new ConcurrentDictionary<IntPtr, RfcFunctionDelegate>();
 
         private static LanguageExt.HashSet<FunctionRegistration> _registeredFunctionNames;
+        private static LanguageExt.HashSet<string> _registeredTransactionCallbacks;
 
         public static bool IsFunctionHandlerRegistered(string sysId, string functionName)
         {
             var registration = new FunctionRegistration(sysId, functionName);
 
             return _registeredFunctionNames.Contains(registration);
+        }
+        
+        public static bool AreTransactionalHandlersRegistered(string sysId)
+        { 
+            return _registeredTransactionCallbacks.Contains(sysId.ToUpperInvariant());
         }
 
         private static RfcRc RFC_Function_Handler(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo)
@@ -504,9 +561,7 @@ namespace Dbosoft.YaNco.Internal
 
             return rc;
         }
-
-
-
+        
         private readonly struct FunctionRegistration: IEquatable<FunctionRegistration>
         {
             private readonly string _sysId;

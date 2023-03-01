@@ -81,9 +81,7 @@ namespace Dbosoft.YaNco
             _connectionFactory = connectionFactory;
             return this;
         }
-
-
-
+        
         public EitherAsync<RfcErrorInfo, IRfcServer> Build()
         {
             if (_buildServer != null)

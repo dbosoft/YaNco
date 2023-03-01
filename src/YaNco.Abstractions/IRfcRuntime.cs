@@ -72,6 +72,11 @@ namespace Dbosoft.YaNco
         Either<RfcErrorInfo, Unit> LaunchServer(IRfcServerHandle rfcServerHandle);
         Either<RfcErrorInfo, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout);
 
+        Either<RfcErrorInfo, Unit> AddTransactionHandlers(string sysid,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onCheck,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onCommit,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onRollback,
+            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onConfirm);
     }
 
 
