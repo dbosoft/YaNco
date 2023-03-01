@@ -105,7 +105,7 @@ namespace Dbosoft.YaNco
                             return connection.RfcRuntime.AddFunctionHandler(attributes.SystemId,
                                 functionName,
                                 descr,
-                                f => callBackFunction(new CalledFunction(f, 
+                                (rfcHandle, f) => callBackFunction(new CalledFunction(connection.RfcRuntime, rfcHandle, f, 
                                     () => new RfcContext(Build())))).ToAsync();
                         });
 
@@ -116,7 +116,8 @@ namespace Dbosoft.YaNco
                         return connection.RfcRuntime.AddFunctionHandler(attributes.SystemId,
                             functionName,
                             func,
-                            f => callBackFunction(new CalledFunction(f, () => new RfcContext(Build())))).ToAsync();
+                            (rfcHandle, f) => callBackFunction(
+                                new CalledFunction(connection.RfcRuntime, rfcHandle, f, () => new RfcContext(Build())))).ToAsync();
                     });
                 }).Traverse(l => l).Map(eu => connection);
             });

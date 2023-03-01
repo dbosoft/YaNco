@@ -20,7 +20,7 @@ namespace Dbosoft.YaNco
 
         private readonly string _systemId;
         private Func<EitherAsync<RfcErrorInfo, IConnection>> _connectionFactory;
-        private IRfcServer _buildServer = null;
+        private IRfcServer _buildServer;
 
         /// <summary>
         /// Creates a new <see cref="ServerBuilder"/> with the connection parameters supplied
@@ -135,7 +135,8 @@ namespace Dbosoft.YaNco
                     return server.RfcRuntime.AddFunctionHandler(_systemId,
                         functionName,
                         descr,
-                        f => callBackFunction(new CalledFunction(f, () => new RfcServerContext(server)))).ToAsync();
+                        (rfcHandle, f) => callBackFunction(
+                            new CalledFunction(server.RfcRuntime, rfcHandle, f, () => new RfcServerContext(server)))).ToAsync();
                 });
 
 

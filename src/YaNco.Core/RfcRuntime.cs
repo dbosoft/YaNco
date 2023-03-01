@@ -70,6 +70,13 @@ namespace Dbosoft.YaNco
 
         }
 
+        public Either<RfcErrorInfo, ServerContextAttributes> GetServerContext(IRfcHandle rfcHandle)
+        {
+            Logger.IfSome(l => l.LogTrace("reading server context", new { rfcHandle }));
+            var rc = Api.GetServerContext(rfcHandle as RfcHandle, out var attributes, out var errorInfo);
+            return ResultOrError(attributes, rc, errorInfo);
+        }
+
         private Either<RfcErrorInfo, TResult> ResultOrError<TResult>(TResult result, RfcErrorInfo errorInfo, bool logAsError = false)
         {
             if (result == null || errorInfo.Code != RfcRc.RFC_OK)
@@ -167,6 +174,14 @@ namespace Dbosoft.YaNco
 
         }
 
+        public Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription(IConnectionHandle connectionHandle, string typeName)
+        {
+            Logger.IfSome(l => l.LogTrace("reading type description by type name", typeName));
+            ITypeDescriptionHandle handle = Api.GetTypeDescription(connectionHandle as ConnectionHandle, typeName, out var errorInfo);
+            return ResultOrError(handle, errorInfo);
+
+        }
+
         public Either<RfcErrorInfo, string> GetFunctionName(IFunctionDescriptionHandle descriptionHandle)
         {
             Logger.IfSome(l => l.LogTrace("reading function name by description handle", descriptionHandle));
@@ -237,7 +252,7 @@ namespace Dbosoft.YaNco
 
         public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
             string functionName,
-            IFunction function, Func<IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)
+            IFunction function, Func<IRfcHandle, IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)
         {
             return GetFunctionDescription(function.Handle)
                 .Use(used => used.Bind(d => AddFunctionHandler(sysid,
@@ -245,10 +260,10 @@ namespace Dbosoft.YaNco
         }
 
         public Either<RfcErrorInfo, Unit> AddTransactionHandlers(string sysid, 
-            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onCheck,
-            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onCommit,
-            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onRollback,
-            Func<IRfcHandle, string, Either<RfcErrorInfo, Unit>> onConfirm)
+            Func<IRfcHandle, string, RfcRc> onCheck,
+            Func<IRfcHandle, string, RfcRc> onCommit,
+            Func<IRfcHandle, string, RfcRc> onRollback,
+            Func<IRfcHandle, string, RfcRc> onConfirm)
         {
             Api.RegisterTransactionFunctionHandlers(sysid,
                   onCheck, onCommit, onRollback, onConfirm,
@@ -259,7 +274,7 @@ namespace Dbosoft.YaNco
         
         public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
             string functionName,
-            IFunctionDescriptionHandle descriptionHandle, Func<IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)
+            IFunctionDescriptionHandle descriptionHandle, Func<IRfcHandle, IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)
         {
             Api.RegisterServerFunctionHandler(sysid,
                 functionName, 
@@ -267,7 +282,7 @@ namespace Dbosoft.YaNco
                 (rfcHandle, functionHandle) =>
                 {
                     var func = new Function(functionHandle, this);
-                    return handler(func);
+                    return handler(rfcHandle, func);
                 },
                 out var errorInfo);
 
@@ -309,6 +324,22 @@ namespace Dbosoft.YaNco
             Logger.IfSome(l => l.LogTrace("creating structure by data container handle and name", new { dataContainer, name }));
             var rc = Api.GetStructure(dataContainer as Internal.IDataContainerHandle, name, out var result, out var errorInfo);
             return ResultOrError((IStructureHandle)result, rc, errorInfo);
+
+        }
+
+        public Either<RfcErrorInfo, IStructureHandle> CreateStructure(ITypeDescriptionHandle typeDescriptionHandle)
+        {
+            Logger.IfSome(l => l.LogTrace("creating structure by type description handle", new { typeDescriptionHandle }));
+            var handle = Api.CreateStructure(typeDescriptionHandle as TypeDescriptionHandle, out var errorInfo);
+            return ResultOrError((IStructureHandle) handle, errorInfo.Code, errorInfo);
+
+        }
+
+        public Either<RfcErrorInfo, Unit> SetStructure(IStructureHandle structureHandle, string content)
+        {
+            Logger.IfSome(l => l.LogTrace("setting structure by from string", new { content }));
+            var rc = Api.SetStructure(structureHandle as StructureHandle, content, out var errorInfo);
+            return ResultOrError(Unit.Default, rc, errorInfo);
 
         }
 

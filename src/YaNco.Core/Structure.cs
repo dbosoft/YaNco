@@ -8,9 +8,13 @@ namespace Dbosoft.YaNco
 {
     internal class Structure : TypeDescriptionDataContainer, IStructure
     {
-        public Structure(IDataContainerHandle handle, IRfcRuntime rfcRuntime) : base(handle, rfcRuntime)
+        private readonly IStructureHandle _handle;
+
+        public Structure(IStructureHandle handle, IRfcRuntime rfcRuntime) : base(handle, rfcRuntime)
         {
+            _handle = handle;
         }
+
 
         public Either<RfcErrorInfo, RfcFieldInfo[]> GetFieldInfos()
         {
@@ -53,6 +57,11 @@ namespace Dbosoft.YaNco
                             )
                         .Traverse(l => l))
                 .Map(_ => Unit.Default);
+        }
+
+        public Either<RfcErrorInfo, Unit> SetFromString(string content)
+        {
+            return RfcRuntime.SetStructure(_handle, content);
         }
     }
 }

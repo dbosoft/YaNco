@@ -196,6 +196,11 @@ namespace Dbosoft.YaNco
                 return ErrorResponse;
             }
 
+            public EitherAsync<RfcErrorInfo, IStructure> CreateStructure(string name)
+            {
+                return ErrorResponse;
+            }
+
             public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name)
             {
                 return ErrorResponse;

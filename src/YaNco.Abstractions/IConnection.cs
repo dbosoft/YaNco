@@ -13,6 +13,8 @@ namespace Dbosoft.YaNco
         EitherAsync<RfcErrorInfo, Unit> Commit(CancellationToken cancellationToken);
         EitherAsync<RfcErrorInfo, Unit> Rollback();
         EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken);
+
+        EitherAsync<RfcErrorInfo, IStructure> CreateStructure(string name);
         EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name);
         EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function);
         EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken);
