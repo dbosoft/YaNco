@@ -67,7 +67,7 @@ namespace YaNco.Core.Tests
             var rfcServer = await rfcRuntimeMock.CreateServer();
 
             var conn =
-                (await rfcServer.ClientConnection().ToEither())
+                (await rfcServer.OpenClientConnection().ToEither())
                 .RightAsEnumerable().FirstOrDefault();
 
             Assert.Same(rfcRuntimeMock.Object, conn.RfcRuntime);

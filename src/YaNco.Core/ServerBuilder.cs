@@ -14,6 +14,7 @@ namespace Dbosoft.YaNco
         private readonly IDictionary<string, string> _serverParam;
         [CanBeNull] private IDictionary<string, string> _clientParam;
         private Action<RfcServerClientConfigurer> _configureServerClient = (c) => { };
+        private readonly IFunctionRegistration _functionRegistration = new ScopedFunctionRegistration();
 
         private Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo, IRfcServer>>
             _serverFactory = RfcServer.Create;
@@ -21,6 +22,7 @@ namespace Dbosoft.YaNco
         private readonly string _systemId;
         private Func<EitherAsync<RfcErrorInfo, IConnection>> _connectionFactory;
         private IRfcServer _buildServer;
+        private ITransactionalRfcHandler _transactionalRfcHandler;
 
         /// <summary>
         /// Creates a new <see cref="ServerBuilder"/> with the connection parameters supplied
@@ -81,6 +83,17 @@ namespace Dbosoft.YaNco
             _connectionFactory = connectionFactory;
             return this;
         }
+
+        /// <summary>
+        /// Adds a transaction handler instance and enables transactional RFC for the server. 
+        /// </summary>
+        /// <param name="transactionalRfcHandler"></param>
+        /// <returns></returns>
+        public ServerBuilder WithTransactionalRfc(ITransactionalRfcHandler transactionalRfcHandler)
+        {
+            _transactionalRfcHandler = transactionalRfcHandler;
+            return this;
+        }
         
         public EitherAsync<RfcErrorInfo, IRfcServer> Build()
         {
@@ -94,6 +107,9 @@ namespace Dbosoft.YaNco
             if (_connectionFactory == null && _clientParam!= null)
             {
                 var clientBuilder = new ConnectionBuilder(_clientParam);
+
+                //take control of registration made by clients
+                clientBuilder.WithFunctionRegistration(_functionRegistration);
                 //take runtime of client
                 clientBuilder.ConfigureRuntime(cfg => cfg.UseFactory((l, m, o) => runtime));
 
@@ -109,9 +125,30 @@ namespace Dbosoft.YaNco
                         s.AddConnectionFactory(_connectionFactory);
                     return s;
                 })
+
+                // add transactional handler
+                .Bind(server =>
+                {
+                    if (_transactionalRfcHandler == null)
+                        return Prelude.RightAsync<RfcErrorInfo, IRfcServer>(server);
+
+                    return runtime.AddTransactionHandlers(_systemId,
+                        (handle, tid) => _transactionalRfcHandler.OnCheck(runtime, handle, tid),
+                        (handle, tid) => _transactionalRfcHandler.OnCommit(runtime, handle, tid),
+                        (handle, tid) => _transactionalRfcHandler.OnRollback(runtime, handle, tid),
+                        (handle, tid) => _transactionalRfcHandler.OnConfirm(runtime, handle, tid)
+                    ).Map(holder =>
+                    {
+                        server.AddReferences(new[] { holder });
+                        return server;
+                    }).ToAsync();
+                })
+
+                // add function handlers
                 .Bind(RegisterFunctionHandlers)
                 .Map(server =>
                 {
+                    server.AddReferences(new []{_functionRegistration});
                     _buildServer = server;
                     return server;
                 });
@@ -123,24 +160,31 @@ namespace Dbosoft.YaNco
         {
             return FunctionHandlers.Map(reg =>
             {
-                var (functionName, configureBuilder, callBackFunction) = reg;
-
-                if (server.RfcRuntime.IsFunctionHandlerRegistered(_systemId, functionName))
+                if (_functionRegistration.IsFunctionRegistered(_systemId, reg.Item1))
                     return Unit.Default;
+
+
+                var (functionName, configureBuilder, callBackFunction) = reg;
 
                 var builder = new FunctionBuilder(server.RfcRuntime, functionName);
                 configureBuilder(builder);
                 return builder.Build().ToAsync().Bind(descr =>
                 {
                     return server.RfcRuntime.AddFunctionHandler(_systemId,
-                        functionName,
                         descr,
                         (rfcHandle, f) => callBackFunction(
-                            new CalledFunction(server.RfcRuntime, rfcHandle, f, () => new RfcServerContext(server)))).ToAsync();
+                            new CalledFunction(server.RfcRuntime, rfcHandle, f, () => new RfcServerContext(server)))).ToAsync()
+                            .Map(holder =>
+                            {
+                                _functionRegistration.Add(reg.Item1, functionName, holder);
+                                return Unit.Default;
+                            })
+                        
+                        ;
                 });
 
 
-            }).Traverse(l => l).Map(eu => server);
+            }).Traverse(l => l).Map(eh => server);
 
         }
 

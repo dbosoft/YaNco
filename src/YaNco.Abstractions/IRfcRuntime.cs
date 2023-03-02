@@ -12,11 +12,10 @@ namespace Dbosoft.YaNco
         Option<ILogger> Logger { get; }
 
 
-        bool IsFunctionHandlerRegistered(string sysId, string functionName);
         Either<RfcErrorInfo, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams);
         Either<RfcErrorInfo, Unit> LaunchServer(IRfcServerHandle rfcServerHandle);
         Either<RfcErrorInfo, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout);
-        Either<RfcErrorInfo, ServerContextAttributes> GetServerContext(IRfcHandle rfcHandle);
+        Either<RfcErrorInfo, RfcServerAttributes> GetServerCallContext(IRfcHandle rfcHandle);
         Either<RfcErrorInfo, IConnectionHandle> OpenConnection(IDictionary<string, string> connectionParams);
         Either<RfcErrorInfo, IFunctionDescriptionHandle> CreateFunctionDescription(string functionName);
         Either<RfcErrorInfo, IFunctionDescriptionHandle> AddFunctionParameter(IFunctionDescriptionHandle descriptionHandle, RfcParameterDescription parameterDescription);
@@ -45,18 +44,16 @@ namespace Dbosoft.YaNco
         Either<RfcErrorInfo, RfcParameterInfo> GetFunctionParameterDescription(
             IFunctionDescriptionHandle descriptionHandle, string name);
 
-        Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
-            string functionName,
+        Either<RfcErrorInfo, IDisposable> AddFunctionHandler(string sysid, 
             IFunction function, Func<IRfcHandle, IFunction, EitherAsync<RfcErrorInfo, Unit>> handler);
 
-        Either<RfcErrorInfo, Unit> AddTransactionHandlers(string sysid, 
+        Either<RfcErrorInfo, IDisposable> AddTransactionHandlers(string sysid, 
             Func<IRfcHandle, string, RfcRc> onCheck,
             Func<IRfcHandle, string, RfcRc> onCommit,
             Func<IRfcHandle, string, RfcRc> onRollback,
             Func<IRfcHandle, string, RfcRc> onConfirm);
 
-        Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
-            string functionName,
+        Either<RfcErrorInfo, IDisposable> AddFunctionHandler(string sysid, 
             IFunctionDescriptionHandle descriptionHandle, Func<IRfcHandle, IFunction, EitherAsync<RfcErrorInfo, Unit>> handler);
 
         Either<RfcErrorInfo, Unit> Invoke(IConnectionHandle connectionHandle, IFunctionHandle functionHandle);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Dbosoft.YaNco.Internal
 {
@@ -339,9 +338,28 @@ namespace Dbosoft.YaNco.Internal
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 33)]
             public string SessionID;      // Contains a unique zero-terminated session ID, identifying the ABAP or external user session. Can be used in stateful servers to store session context in a hashmap.
 
-            public ServerContextAttributes ToAttributes()
+            public RfcServerAttributes ToAttributes()
             {
-                return new ServerContextAttributes(Tid);
+                YaNco.RfcCallType callType;
+                switch (Type)
+                {
+                    case RfcCallType.RFC_SYNCHRONOUS:
+                        callType = YaNco.RfcCallType.SYNCHRONOUS;
+                        break;
+                    case RfcCallType.RFC_TRANSACTIONAL:
+                        callType = YaNco.RfcCallType.TRANSACTIONAL;
+                        break;
+                    case RfcCallType.RFC_QUEUED:
+                        callType = YaNco.RfcCallType.QUEUED;
+                        break;
+                    case RfcCallType.RFC_BACKGROUND_UNIT:
+                        callType = YaNco.RfcCallType.BACKGROUND_UNIT;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                return new RfcServerAttributes(Tid, callType);
             }
         }
 

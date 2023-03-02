@@ -33,11 +33,6 @@ namespace Dbosoft.YaNco
         public RfcRuntimeOptions Options { get; }
 
 
-        public bool IsFunctionHandlerRegistered(string sysId, string functionName)
-        {
-            return Api.IsFunctionHandlerRegistered(sysId, functionName);
-        }
-
         public Either<RfcErrorInfo, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams)
         {
             if (connectionParams.Count == 0)
@@ -70,7 +65,7 @@ namespace Dbosoft.YaNco
 
         }
 
-        public Either<RfcErrorInfo, ServerContextAttributes> GetServerContext(IRfcHandle rfcHandle)
+        public Either<RfcErrorInfo, RfcServerAttributes> GetServerCallContext(IRfcHandle rfcHandle)
         {
             Logger.IfSome(l => l.LogTrace("reading server context", new { rfcHandle }));
             var rc = Api.GetServerContext(rfcHandle as RfcHandle, out var attributes, out var errorInfo);
@@ -250,34 +245,31 @@ namespace Dbosoft.YaNco
 
         }
 
-        public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
-            string functionName,
+        public Either<RfcErrorInfo, IDisposable> AddFunctionHandler(string sysid, 
             IFunction function, Func<IRfcHandle, IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)
         {
             return GetFunctionDescription(function.Handle)
                 .Use(used => used.Bind(d => AddFunctionHandler(sysid,
-                    functionName, d, handler)));
+                    d, handler)));
         }
 
-        public Either<RfcErrorInfo, Unit> AddTransactionHandlers(string sysid, 
+        public Either<RfcErrorInfo, IDisposable> AddTransactionHandlers(string sysid, 
             Func<IRfcHandle, string, RfcRc> onCheck,
             Func<IRfcHandle, string, RfcRc> onCommit,
             Func<IRfcHandle, string, RfcRc> onRollback,
             Func<IRfcHandle, string, RfcRc> onConfirm)
         {
-            Api.RegisterTransactionFunctionHandlers(sysid,
+            var holder = Api.RegisterTransactionFunctionHandlers(sysid,
                   onCheck, onCommit, onRollback, onConfirm,
                 out var errorInfo);
 
-            return ResultOrError(Unit.Default, errorInfo);
+            return ResultOrError(holder, errorInfo);
         }
         
-        public Either<RfcErrorInfo, Unit> AddFunctionHandler(string sysid, 
-            string functionName,
+        public Either<RfcErrorInfo, IDisposable> AddFunctionHandler(string sysid, 
             IFunctionDescriptionHandle descriptionHandle, Func<IRfcHandle, IFunction, EitherAsync<RfcErrorInfo, Unit>> handler)
         {
-            Api.RegisterServerFunctionHandler(sysid,
-                functionName, 
+            var holder = Api.RegisterServerFunctionHandler(sysid,
                 descriptionHandle as FunctionDescriptionHandle,
                 (rfcHandle, functionHandle) =>
                 {
@@ -286,7 +278,7 @@ namespace Dbosoft.YaNco
                 },
                 out var errorInfo);
 
-            return ResultOrError(Unit.Default, errorInfo);
+            return ResultOrError(holder, errorInfo);
         }
 
         public Either<RfcErrorInfo, Unit> Invoke(IConnectionHandle connectionHandle, IFunctionHandle functionHandle)

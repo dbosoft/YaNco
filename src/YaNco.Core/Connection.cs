@@ -13,6 +13,7 @@ namespace Dbosoft.YaNco
         private readonly IConnectionHandle _connectionHandle;
         public IRfcRuntime RfcRuntime { get; }
         private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
+
         public bool Disposed { get; private set; }
 
         public Connection(
@@ -73,6 +74,7 @@ namespace Dbosoft.YaNco
                             case DisposeMessage disposeMessage:
                             {
                                 handle.Dispose();
+
                                 return (null, Prelude.Left(disposeMessage.ErrorInfo));
                             }
                         }

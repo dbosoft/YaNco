@@ -2,19 +2,6 @@
 
 namespace Dbosoft.YaNco
 {
-
-    [PublicAPI]
-    public class ServerContextAttributes
-    {
-        public readonly string TransactionId;
-
-        public ServerContextAttributes(string transactionId)
-        {
-            TransactionId = transactionId;
-        }
-    }
-
-
     [PublicAPI]
     public class ConnectionAttributes
     {

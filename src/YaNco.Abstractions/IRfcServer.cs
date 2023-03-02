@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 
 namespace Dbosoft.YaNco
@@ -9,7 +10,16 @@ namespace Dbosoft.YaNco
         IRfcRuntime RfcRuntime { get; }
         EitherAsync<RfcErrorInfo, Unit> Start();
         EitherAsync<RfcErrorInfo, Unit> Stop(int timeout = 0);
+        EitherAsync<RfcErrorInfo, IConnection> OpenClientConnection();
+
         Unit AddConnectionFactory(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionFactory);
-        Func<EitherAsync<RfcErrorInfo, IConnection>> ClientConnection { get;  }
+
+        /// <summary>
+        /// Adds references to the server that should be disposed when the server is disposed.
+        /// </summary>
+        /// <param name="disposables"></param>
+        void AddReferences(IEnumerable<IDisposable> disposables);
+
+
     }
 }

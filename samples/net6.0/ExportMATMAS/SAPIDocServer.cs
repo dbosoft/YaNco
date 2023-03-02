@@ -1,13 +1,14 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Unicode;
 using Dbosoft.YaNco;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+// ReSharper disable StringLiteralTypo
 
 namespace ExportMATMAS;
 
+// ReSharper disable once InconsistentNaming
 public class SAPIDocServer : BackgroundService
 {
     private readonly IConfiguration _configuration;
@@ -19,9 +20,12 @@ public class SAPIDocServer : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+
+
         var serverSettings = new Dictionary<string, string>
         {
-            { "SYSID", "saprfc:sysid" },
+            
+            { "SYSID", _configuration["saprfc:sysid"] },
             { "PROGRAM_ID", _configuration["saprfc:program_id"] },
             { "GWHOST", _configuration["saprfc:ashost"] },
             { "GWSERV", "sapgw" + _configuration["saprfc:sysnr"] },
@@ -38,39 +42,18 @@ public class SAPIDocServer : BackgroundService
             { "passwd", _configuration["saprfc:passwd"] },
             { "lang", "EN" }
         };
-
+       
 
         var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
 
-        var rfcRuntime = new RfcRuntime(new SimpleConsoleLogger());
-        rfcRuntime.AddTransactionHandlers("ID8", onCheck: (handle, tid) =>
-            {
-                return RfcRc.RFC_OK;
-            }, onCommit: (handle, tid) =>
-            {
-                return RfcRc.RFC_OK;
-            },
-            onRollback: (handle, tid) =>
-            {
-                return RfcRc.RFC_OK;
-            },
-            onConfirm: (handle, tid) =>
-            {
-                return RfcRc.RFC_OK;
-            }
-
-        );
-
-        var serverBuilderWithClientConnection = new ServerBuilder(serverSettings)
-            .ConfigureRuntime(c =>
-                c.WithLogger(new SimpleConsoleLogger()))
+        using var rfcServer = await new ServerBuilder(serverSettings)
+            .WithTransactionalRfc(new EverythingIsOkTransactionalRfcHandler())
             .WithClientConnection(clientSettings,
                 c => c
-                    .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS",ProcessInboundIDoc));
-
-
-        var rfcServer = await serverBuilderWithClientConnection.Build()
+                    .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS", ProcessInboundIDoc))
+            .Build()
             .StartOrException();
+
 
         Console.WriteLine("MATMAS IDOC Server is ready");
 
@@ -93,6 +76,8 @@ public class SAPIDocServer : BackgroundService
     {
         return cf
             .Input(i =>
+
+                // extract IDoc data from incoming RFC call
                 from data in i.MapTable("IDOC_DATA_REC_40",
                     s => 
                         from iDocNo in s.GetField<string>("DOCNUM")
@@ -106,19 +91,21 @@ public class SAPIDocServer : BackgroundService
                 select data.ToSeq())
             .ProcessAsync(data =>
             {
-                cf.RfcRuntime.GetServerContext(cf.RfcHandle).Map(context =>
+                cf.RfcRuntime.GetServerCallContext(cf.RfcHandle).Map(context =>
                 {
-                    Console.WriteLine("current tid: " + context.TransactionId);
+                    Console.WriteLine("rfc call type: " + context.CallType);
+                    Console.WriteLine("called transactionId: " + context.TransactionId);
                     return context;
                 });
 
+                // open a client connection to read type definitions if not only cached
                 return cf.UseRfcContextAsync(context =>
                 {
                     return (from connection in context.GetConnection()
                         from materialMaster in ExtractMaterialMaster(connection, data)
                         select materialMaster).Match(
                         r => Console.WriteLine("Received Material:\n" + PrettyPrintMaterial(r)),
-                        l => Console.WriteLine("Error: " + l.Message)); ;
+                        l => Console.WriteLine("Error: " + l.Message));
                 });
 
 
@@ -131,21 +118,25 @@ public class SAPIDocServer : BackgroundService
         Seq<IDocDataRecord> data)
     {
         return
+
+            //extract some client data of material master
             from clientSegment in FindRequiredSegment("E1MARAM", data)
             from material in MapSegment(connection, clientSegment, s =>
                 from materialNo in s.GetField<string>("MATNR")
-                from unit in s.GetField<string>("MEINS")
+                from unit in s.GetField<string>("MEINS")  
                 select new
                 {
                     MaterialNo = materialNo, 
                     ClientData = new ClientData(unit)
                 })
 
+            //extract descriptions data of material master
             from descriptionData in MapSegments(connection, FindSegments("E1MAKTM", data), s =>
                 from language in s.GetField<string>("SPRAS_ISO")
                 from description in s.GetField<string>("MAKTX")
                 select new DescriptionData(language, description))
 
+            //extract some plant data of material master
             from plantData in MapSegments(connection, FindSegments("E1MARCM", data), s =>
                 from plant in s.GetField<string>("WERKS")
                 from purchasingGroup in s.GetField<string>("EKGRP")
@@ -161,7 +152,9 @@ public class SAPIDocServer : BackgroundService
     private static EitherAsync<RfcErrorInfo, T> MapSegment<T>(IConnection connection, 
         IDocDataRecord data, Func<IStructure,Either<RfcErrorInfo, T>> mapFunc)
     {
-        return connection.CreateStructure(Segment2Type[data.Segment]).Use(structure =>
+        //to convert the segment we create a temporary structure of the segment definition type
+        //and "move" the segment data into it. 
+        return connection.CreateStructure(_segment2Type[data.Segment]).Use(structure =>
         {
             return from _ in structure.Bind(s => s.SetFromString(data.Data).ToAsync())
                 from res in structure.Bind(s => mapFunc(s).ToAsync())
@@ -180,7 +173,7 @@ public class SAPIDocServer : BackgroundService
     private static EitherAsync<RfcErrorInfo, IDocDataRecord> FindRequiredSegment(
         string typeName, Seq<IDocDataRecord> records )
     {
-        var segmentName = Type2Segment[typeName];
+        var segmentName = _type2Segment[typeName];
         return records.Find(x => x.Segment == segmentName)
             .ToEither(RfcErrorInfo.Error($"Segment {segmentName} not found"))
             .ToAsync();
@@ -189,21 +182,21 @@ public class SAPIDocServer : BackgroundService
     private static Seq<IDocDataRecord> FindSegments(
         string typeName, Seq<IDocDataRecord> records)
     {
-        var segmentName = Type2Segment[typeName];
+        var segmentName = _type2Segment[typeName];
         return records.Filter(x => x.Segment == segmentName);
     }
 
     // for a known IDoc type you used fixed segment to type mapping
     // a more generic way would be looking up segment names from RFM IDOCTYPE_READ_COMPLETE
 
-    private static HashMap<string, string> Segment2Type = new(new[]
+    private static HashMap<string, string> _segment2Type = new(new[]
     {
         ("E2MARAM009", "E1MARAM"), // client data, MATMAS05
         ("E2MARCM008", "E1MARCM"), // plant data, MATMAS05
         ("E2MAKTM001", "E1MAKTM"), // descriptions, MATMAS05
     });
 
-    private static HashMap<string, string> Type2Segment = new(new[]
+    private static HashMap<string, string> _type2Segment = new(new[]
     {
         ("E1MARAM", "E2MARAM009" ),
         ("E1MARCM", "E2MARCM008"),
@@ -217,20 +210,12 @@ public class SAPIDocServer : BackgroundService
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
+        //json don't has to be valid, so disable text encoding for unicode chars
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         WriteIndented = true
     };
 }
 
-public record IDocDataRecord(string IDocNo, string Segment, int SegmentNo, int ParentNo, int Level, string Data);
 
-public record MaterialMasterRecord(string MaterialNo, ClientData ClientData, DescriptionData[] Descriptions, PlantData[] PlantData);
-
-
-public record ClientData(string Unit);
-
-public record DescriptionData(string Language, string Description);
-
-public record PlantData(string Plant, string PurchasingGroup);
-
-
+// ReSharper disable InconsistentNaming
+// ReSharper restore InconsistentNaming

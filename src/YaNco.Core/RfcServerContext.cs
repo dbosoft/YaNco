@@ -17,7 +17,7 @@ namespace Dbosoft.YaNco
         private EitherAsync<RfcErrorInfo, IRfcContext> GetContext()
         {
             if (_currentContext == null)
-                _currentContext = new RfcContext(_rfcServer.ClientConnection);
+                _currentContext = new RfcContext(_rfcServer.OpenClientConnection);
 
             return Prelude.RightAsync<RfcErrorInfo, IRfcContext>(_currentContext);
         }
