@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading.Tasks;
+using JetBrains.Annotations;
 using LanguageExt;
 
 namespace Dbosoft.YaNco.Internal
@@ -14,7 +13,7 @@ namespace Dbosoft.YaNco.Internal
     {
         
         public static ConnectionHandle OpenConnection(IDictionary<string, string> connectionParams,
-    out RfcErrorInfo errorInfo)
+                    out RfcErrorInfo errorInfo)
         {
             var rfcOptions = connectionParams.Select(x => 
                     new Interopt.RfcConnectionParameter { Name = x.Key.ToUpperInvariant(), Value = x.Value })
@@ -78,6 +77,15 @@ namespace Dbosoft.YaNco.Internal
             out RfcErrorInfo errorInfo)
         {
             var ptr = Interopt.RfcDescribeType(dataContainer.Ptr, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new TypeDescriptionHandle(ptr);
+
+        }
+
+        [CanBeNull]
+        public static TypeDescriptionHandle GetTypeDescription(ConnectionHandle connectionHandle, string typeName,
+            out RfcErrorInfo errorInfo)
+        {
+            var ptr = Interopt.RfcGetTypeDesc(connectionHandle.Ptr, typeName, out errorInfo);
             return ptr == IntPtr.Zero ? null : new TypeDescriptionHandle(ptr);
 
         }
@@ -198,6 +206,13 @@ namespace Dbosoft.YaNco.Internal
             return ptr == IntPtr.Zero ? null : new RfcServerHandle(ptr);
         }
 
+        public static RfcRc GetServerContext(RfcHandle rfcHandle, out RfcServerAttributes attributes, out RfcErrorInfo errorInfo)
+        {
+            var rc = Interopt.RfcGetServerContext(rfcHandle.Ptr, out var rfcAttributes, out errorInfo);
+            attributes = rfcAttributes.ToAttributes();
+            return rc;
+        }
+
         public static RfcRc GetStructure(IDataContainerHandle dataContainer, string name,
             out StructureHandle structure, out RfcErrorInfo errorInfo)
         {
@@ -205,6 +220,18 @@ namespace Dbosoft.YaNco.Internal
             structure = structPtr == IntPtr.Zero ? null : new StructureHandle(structPtr);
             return rc;
 
+        }
+
+        public static StructureHandle CreateStructure(TypeDescriptionHandle typeDescriptionHandle, out RfcErrorInfo errorInfo)
+        {
+            var ptr = Interopt.RfcCreateStructure(typeDescriptionHandle.Ptr, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new StructureHandle(ptr, true);
+        }
+
+        public static RfcRc SetStructure(StructureHandle structureHandle, string content, out RfcErrorInfo errorInfo)
+        {
+            return Interopt.RfcSetStructureFromCharBuffer(structureHandle.Ptr, content.ToCharArray(), (uint) content.Length,
+                out errorInfo);
         }
 
         public static RfcRc GetTable(IDataContainerHandle dataContainer, string name, out TableHandle table,
@@ -222,31 +249,34 @@ namespace Dbosoft.YaNco.Internal
             return ptr == IntPtr.Zero ? null : new TableHandle(ptr, true);
         }
 
-        public static RfcRc RegisterServerFunctionHandler(string sysId, 
-            string functionName,
+        public static IDisposable RegisterTransactionFunctionHandlers(string sysId,
+            Func<IRfcHandle, string, RfcRc> onCheck,
+            Func<IRfcHandle, string, RfcRc> onCommit,
+            Func<IRfcHandle, string, RfcRc> onRollback,
+            Func<IRfcHandle, string, RfcRc> onConfirm, 
+            out RfcErrorInfo errorInfo)
+        {
+
+            var holder = new TransactionEventHandlers(sysId, onCheck, onCommit, onRollback, onConfirm);
+
+
+            var rc = Interopt.RfcInstallTransactionHandlers(sysId,
+                holder.OnCheck, holder.OnCommit, holder.OnRollback, holder.OnConfirm,
+                out errorInfo);
+
+            return holder;
+            
+        }
+        
+        
+        public static IDisposable RegisterServerFunctionHandler(string sysId, 
             FunctionDescriptionHandle functionDescription,
             RfcFunctionDelegate functionHandler, out RfcErrorInfo errorInfo)
         {
-            var registration = new FunctionRegistration(sysId, functionName);
-
-            if (_registeredFunctionNames.Contains(registration))
-            {
-                errorInfo = RfcErrorInfo.Ok();
-                return RfcRc.RFC_OK;
-            }
-            _registeredFunctionNames = _registeredFunctionNames.Add(registration);
-
-            var rc = Interopt.RfcInstallServerFunction(sysId, functionDescription.Ptr, RFC_Function_Handler,
+            var holder = new FunctionHandler(sysId, functionDescription, functionHandler);
+            Interopt.RfcInstallServerFunction(sysId, functionDescription.Ptr, holder.ServerFunction,
                 out errorInfo);
-            if (rc != RfcRc.RFC_OK)
-            {
-                _registeredFunctionNames = _registeredFunctionNames.Remove(registration);
-                return rc;
-            }
-
-           
-            RegisteredFunctions.AddOrUpdate(functionDescription.Ptr, functionHandler, (c, v) => v);
-            return rc;
+            return holder;
         }
 
         private static readonly object AllowStartOfProgramsLock = new object();
@@ -271,8 +301,12 @@ namespace Dbosoft.YaNco.Internal
                     .Build()
                     .Match(funcDescriptionHandle =>
                     {
-                        RegisterServerFunctionHandler(attributes.SystemId,
-                            "RFC_START_PROGRAM",
+                        if(FunctionRegistration.Instance.IsFunctionRegistered(attributes.SystemId, 
+                               "RFC_START_PROGRAM"))
+                            FunctionRegistration.Instance.Remove(attributes.SystemId, "RFC_START_PROGRAM");
+
+
+                        FunctionRegistration.Instance.Add(attributes.SystemId, "RFC_START_PROGRAM", RegisterServerFunctionHandler(attributes.SystemId,
                             funcDescriptionHandle as FunctionDescriptionHandle,
                             (_, funcHandle) =>
                             {
@@ -293,7 +327,7 @@ namespace Dbosoft.YaNco.Internal
                                     return Unit.Default;
 
                                 return error;
-                            }, out errorInfoLocal);
+                            }, out errorInfoLocal));
                     }, l => errorInfoLocal = l);
 
                 errorInfo = errorInfoLocal;
@@ -301,54 +335,6 @@ namespace Dbosoft.YaNco.Internal
 
         }
 
-        private static readonly ConcurrentDictionary<IntPtr, RfcFunctionDelegate> RegisteredFunctions
-            = new ConcurrentDictionary<IntPtr, RfcFunctionDelegate>();
-
-        private static LanguageExt.HashSet<FunctionRegistration> _registeredFunctionNames;
-
-        public static bool IsFunctionHandlerRegistered(string sysId, string functionName)
-        {
-            var registration = new FunctionRegistration(sysId, functionName);
-
-            return _registeredFunctionNames.Contains(registration);
-        }
-
-        private static RfcRc RFC_Function_Handler(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo)
-        {
-            var descriptionHandle = Interopt.RfcDescribeFunction(funcHandle, out errorInfo);
-            if (descriptionHandle == IntPtr.Zero)
-                return errorInfo.Code;
-
-
-            if (!RegisteredFunctions.TryGetValue(descriptionHandle, out var functionDelegate))
-            {
-                Interopt.RfcGetFunctionName(descriptionHandle, out var funcName, out _);
-                if (string.IsNullOrWhiteSpace(funcName))
-                    funcName = "[unknown function]";
-
-                errorInfo = new RfcErrorInfo(RfcRc.RFC_INVALID_HANDLE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "",
-                    $"no function handler registered for function '{funcName}'", "", "", "", "", "", "", "");
-                return RfcRc.RFC_INVALID_HANDLE;
-
-            }
-
-            RfcErrorInfo errorInfoLocal = default;
-            var rc = functionDelegate(new RfcHandle(rfcHandle), new FunctionHandle(funcHandle)).Match(
-                Right: r => RfcRc.RFC_OK,
-                l =>
-                {
-                    errorInfoLocal = l;
-                    return l.Code;
-
-                })
-                .ConfigureAwait(true)
-                .GetAwaiter().GetResult();
-                
-
-            errorInfo = errorInfoLocal;
-            return rc;
-
-        }
 
         [Obsolete("Callback handlers are no longer bound to connection. This method will do nothing and will be removed in next major release.")]
         // ReSharper disable once UnusedParameter.Global
@@ -504,38 +490,6 @@ namespace Dbosoft.YaNco.Internal
 
             return rc;
         }
-
-
-
-        private readonly struct FunctionRegistration: IEquatable<FunctionRegistration>
-        {
-            private readonly string _sysId;
-            private readonly string _name;
-
-            public FunctionRegistration(string sysId, string name)
-            {
-                _sysId = sysId;
-                _name = name;
-            }
-
-            public bool Equals(FunctionRegistration other)
-            {
-                return _sysId == other._sysId && _name == other._name;
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is FunctionRegistration other && Equals(other);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (_sysId.GetHashCode() * 397) ^ _name.GetHashCode();
-                }
-            }
-        }
+        
     }
-
 }

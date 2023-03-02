@@ -101,7 +101,7 @@ var connectionBuilder = new ConnectionBuilder(connFunc)
 ```
 
 
-**Calling ABAP Function Modules**
+### Calling ABAP Function Modules 
 
 We provide a extension method on the RFCContext that supports a syntax similar to the ABAP call function command, except that it is using function callbacks to pass or retrieve data: 
 
@@ -218,6 +218,11 @@ foreach (var userName in userList)
 }
   ```
 
+<br/>  
+
+### Calling functions from SAP to .NET
+
+
 **ABAP Callbacks**
 
 ABAP callbacks allows the backend system to call functions on the client.  
@@ -236,7 +241,7 @@ var connectionBuilder = new ConnectionBuilder(settings)
     };
   ```
 
-Since version 4.3-rc.1 (in prelease currently) you can register also other functions using following syntax:  
+Since version 4.3-rc.1 you can register also other functions using following syntax:  
 
 ```csharp
 var connectionBuilder = new ConnectionBuilder(settings)
@@ -259,6 +264,110 @@ The registered function handler consists of 3 chained steps:
   The process function can return a output value, that is passed to last step in chain. 
 - Reply mapping  
   The reply step sets the values of the response (same as Input mapping in `CallFunction`). If you have no reply you can also call `NoReply` to end the chain.  
+  
+<br/>
+
+**RFC Servers**
+
+RFC servers can process RFC calls that have their origin in the SAP backend.  
+Instead of a opening a client connection a RFC server registers itself on the SAP system gateway. A pure RFC Server therefore needs no client connection at all.  
+
+However in practice also a client connection is used in most RFC Servers to obtain function and type metadata. 
+YaNco supports both server only RFC Servers and RFC Servers with client connections: 
+
+```csharp
+
+var serverSettings = new Dictionary<string, string>
+{
+    { "SYSID", _configuration["saprfc:sysid"] },  // required for servers
+    { "PROGRAM_ID", _configuration["saprfc:program_id"] },
+    { "GWHOST", _configuration["saprfc:ashost"] },
+    { "GWSERV", _configuration["saprfc:gateway"] },
+    { "REG_COUNT", "1" },  // number of servers
+
+};
+
+var serverBuilder = new ServerBuilder(serverSettings)
+    .WithFunctionHandler(
+        "ZYANCO_SERVER_FUNCTION_1",
+
+        //build function definition
+        b => b
+            .AddChar("SEND", RfcDirection.Import, 30)
+            .AddChar("RECEIVE", RfcDirection.Export, 30),
+        cf => cf
+            .Input(i =>
+                i.GetField<string>("SEND"))
+            .Process(s =>
+            {
+                Console.WriteLine($"Received message from backend: {s}");
+                cancellationTokenSource.Cancel();
+                
+            })
+            .Reply((_, f) => f
+                .SetField("RECEIVE", "Hello from YaNco")));
+ ```
+
+
+ or by lookup of function metadata from client connection: 
+
+
+ ```csharp
+var serverBuilder = new ServerBuilder(serverSettings)
+.WithClientConnection(clientSettings, c => c
+    .WithFunctionHandler("ZYANCO_SERVER_FUNCTION_1",
+        cf => cf
+            .Input(i =>
+                i.GetField<string>("SEND"))
+            .Process(Console.WriteLine)
+            .Reply((_, f) => f
+                .SetField("RECEIVE", "Hello from YaNco"))))
+ ```
+
+After configuring the RFC Server it can be started like this: 
+
+ ```csharp
+using var rfcServer = serverBuilder
+    .Build()
+    .StartOrException();
+ ```
+
+**Transactional RFC**  
+Transactional RFC (tRFC) is used in SAP Systems to synchronize transactions cross system boundaries. A tRFC call is identified by a unique transaction id that has is announced to the receiving side before the actual function call is send. 
+
+Assuming SAP is sending a tRFC call to your application following steps will happen during a tRFC call: 
+1. **Check tRFC**  
+  In that step you save the incoming tRFC and verify if it was not allready saved before  
+
+2. **Send tRFC call**  
+   The actual call will now be send. The recipient should process the data from the call but should not process it further.  
+
+3. **Commit or Rollback**  
+   In case of a commit data can now be processed further or it has to be rolled back. 
+
+4. **Confirm**  
+   Transaction is completed and can be removed or other cleanup operations can be executed. 
+      
+
+To handle these steps in a RFC Server you can register a transactional RFC handler that will be called for each of these steps: 
+
+ ```csharp
+var serverBuilder = new ServerBuilder(serverSettings)
+ .WithTransactionalRfc(new MyTransactionRfcHandler())
+
+ // MyTransactionRfcHandler has to implement interface 
+ // ITransactionalRfcHandler
+
+public interface ITransactionalRfcHandler
+{
+    RfcRc OnCheck(IRfcRuntime rfcRuntime, 
+            IRfcHandle rfcHandle, string transactionId);
+    
+    ...
+}
+ ```
+
+A sample implementation can be found in samples/net6.0/ExportMATMAS. This sample demonstrates how to receive IDocs with YaNco.  
 
 
 ## Build

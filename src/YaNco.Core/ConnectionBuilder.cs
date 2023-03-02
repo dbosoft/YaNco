@@ -11,6 +11,7 @@ namespace Dbosoft.YaNco
     public class ConnectionBuilder : RfcBuilderBase<ConnectionBuilder>
     {
         private readonly IDictionary<string, string> _connectionParam;
+        private IFunctionRegistration _functionRegistration = FunctionRegistration.Instance;
 
         private Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo, IConnection>>
             _connectionFactory = Connection.Create;
@@ -28,6 +29,19 @@ namespace Dbosoft.YaNco
             Self = this;
         }
 
+        /// <summary>
+        /// This method sets the function registration where functions created by the
+        /// connection are registered. The default function registration is a global static reference
+        /// holding function registration for entire process.
+        /// Use this method to register a own instance of function registration that could be disposed on demand.
+        /// </summary>
+        /// <param name="functionRegistration"></param>
+        /// <returns></returns>
+        public ConnectionBuilder WithFunctionRegistration(IFunctionRegistration functionRegistration)
+        {
+            _functionRegistration = functionRegistration;
+            return this;
+        }
 
         /// <summary>
         /// This method registers a function handler from a SAP function name. 
@@ -93,7 +107,7 @@ namespace Dbosoft.YaNco
                 {
                     var (functionName, configureBuilder, callBackFunction) = reg;
 
-                    if (connection.RfcRuntime.IsFunctionHandlerRegistered(attributes.SystemId, functionName))
+                    if(_functionRegistration.IsFunctionRegistered(attributes.SystemId, functionName))
                         return Unit.Default;
 
                     if (configureBuilder != null)
@@ -103,10 +117,14 @@ namespace Dbosoft.YaNco
                         return builder.Build().ToAsync().Bind(descr =>
                         {
                             return connection.RfcRuntime.AddFunctionHandler(attributes.SystemId,
-                                functionName,
                                 descr,
-                                f => callBackFunction(new CalledFunction(f, 
-                                    () => new RfcContext(Build())))).ToAsync();
+                                (rfcHandle, f) => callBackFunction(new CalledFunction(connection.RfcRuntime, rfcHandle, f, 
+                                    () => new RfcContext(Build())))).ToAsync()
+                                .Map(holder =>
+                                {
+                                    _functionRegistration.Add(attributes.SystemId, functionName, holder);
+                                    return Unit.Default;
+                                });
                         });
 
                     }
@@ -114,11 +132,16 @@ namespace Dbosoft.YaNco
                     return connection.CreateFunction(functionName).Bind(func =>
                     {
                         return connection.RfcRuntime.AddFunctionHandler(attributes.SystemId,
-                            functionName,
                             func,
-                            f => callBackFunction(new CalledFunction(f, () => new RfcContext(Build())))).ToAsync();
+                            (rfcHandle, f) => callBackFunction(
+                                new CalledFunction(connection.RfcRuntime, rfcHandle, f, () => new RfcContext(Build())))).ToAsync()
+                            .Map(holder =>
+                            {
+                                _functionRegistration.Add(attributes.SystemId, functionName, holder);
+                                return Unit.Default;
+                            });
                     });
-                }).Traverse(l => l).Map(eu => connection);
+                }).Traverse(l => l).Map(eu => connection );
             });
         }
     }

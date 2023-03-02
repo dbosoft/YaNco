@@ -74,6 +74,16 @@ namespace Dbosoft.YaNco
         {
             return new RfcErrorInfo(RfcRc.RFC_ILLEGAL_STATE, RfcErrorGroup.EXTERNAL_RUNTIME_FAILURE, "unexpected empty result", "", "", "", "", "", "", "", "");
         }
+        
+        public static RfcErrorInfo Error(string message, RfcRc rc = RfcRc.RFC_ILLEGAL_STATE)
+        {
+            return new RfcErrorInfo(rc, RfcErrorGroup.EXTERNAL_RUNTIME_FAILURE,"" , message, "", "", "", "", "", "", "");
+        }
+        
+        public static RfcErrorInfo Error(RfcRc rc = RfcRc.RFC_ILLEGAL_STATE)
+        {
+            return new RfcErrorInfo(rc, RfcErrorGroup.EXTERNAL_RUNTIME_FAILURE,"" , "", "", "", "", "", "", "", "");
+        }
 
         public RfcErrorInfo Throw()
         {

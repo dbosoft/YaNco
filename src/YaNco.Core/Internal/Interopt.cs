@@ -38,6 +38,10 @@ namespace Dbosoft.YaNco.Internal
         public static extern RfcRc RfcLaunchServer(IntPtr rfcHandle, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcGetServerContext(IntPtr rfcHandle, out RfcServerContext context, out RfcErrorInfo errorInfo);
+
+
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcShutdownServer(IntPtr rfcHandle, uint timeout, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
@@ -51,6 +55,9 @@ namespace Dbosoft.YaNco.Internal
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern IntPtr RfcDescribeType(IntPtr dataHandle, out RfcErrorInfo errorInfo);
+
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern IntPtr RfcGetTypeDesc(IntPtr rfcHandle, string typeName, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcGetFieldCount(IntPtr typeHandle, out uint count, out RfcErrorInfo errorInfo);
@@ -81,8 +88,18 @@ namespace Dbosoft.YaNco.Internal
         public static extern RfcRc RfcInvoke(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern IntPtr RfcCreateStructure(IntPtr descriptionHandle, out RfcErrorInfo errorInfo);
+
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcDestroyStructure(IntPtr structureHandle, out RfcErrorInfo errorInfo);
+
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcGetStructure(IntPtr dataHandle, string name, out IntPtr structHandle,
             out RfcErrorInfo errorInfo);
+
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcSetStructureFromCharBuffer(IntPtr structureHandle,
+            char[] charBuffer, uint bufferLength, out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcGetTable(IntPtr dataHandle, string name, out IntPtr tableHandle,
@@ -159,6 +176,14 @@ namespace Dbosoft.YaNco.Internal
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcInstallServerFunction(string sysId, IntPtr funcDescHandle, RfcServerFunction serverFunction, out RfcErrorInfo errorInfo);
+
+        [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+        public static extern RfcRc RfcInstallTransactionHandlers(string sysId,
+            TransactionEventCallback onCheckFunction,
+            TransactionEventCallback onCommitFunction,
+            TransactionEventCallback onRollbackFunction,
+            TransactionEventCallback onConfirmFunction,
+            out RfcErrorInfo errorInfo);
 
         [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
         public static extern RfcRc RfcGetStringByIndex(IntPtr dataHandle, uint index, char[] stringBuffer,
@@ -244,6 +269,98 @@ namespace Dbosoft.YaNco.Internal
 
 
 
+        }
+
+        internal enum RfcCallType
+        {
+            RFC_SYNCHRONOUS,                // It's a standard synchronous RFC call.
+            RFC_TRANSACTIONAL,              // This function call is part of a transactional LUW (tRFC).
+            RFC_QUEUED,                     // This function call is part of a queued LUW (qRFC).
+            RFC_BACKGROUND_UNIT             // This function call is part of a background LUW (bgRFC).
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        internal struct RfcUnitIdentifier
+        {
+            public char unitType;                    // 'T' for "transactional" behavior (unit is executed synchronously), 'Q' for "queued" behavior (unit is written into a queue and executed asynchronously)
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+            public string unitID;                    // The 32 digit unit ID of the background unit.
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        internal struct RfcUnitAttributes
+        {
+            public short KernelTrace;             // If != 0, the backend will write kernel traces, while executing this unit.
+            public short SatTrace;                // If != 0, the backend will write statistic records, while executing this unit.
+            public short UnitHistory;             // If != 0, the backend will keep a "history" for this unit.
+            public short Lock;                    // Used only for type Q: If != 0, the unit will be written to the queue, but not processed.
+                                                  // The unit can then be started manually in the ABAP debugger.
+            public short NoCommitCheck;           // default the backend will check during execution of a unit, whether one
+                                                  // of the unit's function modules triggers an explicit or implicit COMMIT WORK.
+                                                  // In this case the unit is aborted with an error, because the transactional
+                                                  // integrity of this unit cannot be guaranteed. By setting "noCommitCheck" to
+                                                  // true (!=0), this behavior can be suppressed, meaning the unit will be executed
+                                                  // anyway, even if one of its function modules "misbehaves" and triggers a COMMIT WORK.
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 12 + 1)]
+            public string User;        // Sender User (optional). Default is current operating system User.
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 3 + 1)]
+            public string Client;       // Sender Client ("Mandant") (optional). Default is "000".
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20 + 1)]
+            public string TCode;       // Sender Transaction Code (optional). Default is "".
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 40 + 1)]
+            public string Program;     // Sender Program (optional). Default is current executable name.
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 40 + 1)]
+            public string Hostname;    // Sender hostname. Used only when the external program is server. In the client case the nwrfclib fills this automatically.
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
+            public string SendingDate;       // Sending date in UTC (GMT-0). Used only when the external program is server. In the client case the nwrfclib fills this automatically.
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 6)]
+            public string SendingTime;       // Sending time in UTC (GMT-0). Used only when the external program is server. In the client case the nwrfclib fills this automatically.
+        }
+
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        internal struct RfcServerContext
+        {
+            public RfcCallType Type;  // Specifies the type of function call. Depending on the value of this field, some of the other fields of this struct may be filled.
+
+            //24 chars
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 24)]
+            public string Tid;         // If type is RFC_TRANSACTIONAL or RFC_QUEUED, this field is filled with the 24 digit TID of the tRFC/qRFC unit.
+
+            public RfcUnitIdentifier UnitIdentifier;    // If type is RFC_BACKGROUND_UNIT, this pointer is set to the unit identifier of the LUW. Note: the pointer is valid only during the execution context of your server function.
+            public RfcUnitAttributes UnitAttributes;    // If type is RFC_BACKGROUND_UNIT, this pointer is set to the unit attributes of the LUW. Note: the pointer is valid only during the execution context of your server function.
+            public uint IsStateful;       // Specifies whether the current server connection is processing stateful RFC requests (assigned permanently to one fixed ABAP user session).
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 33)]
+            public string SessionID;      // Contains a unique zero-terminated session ID, identifying the ABAP or external user session. Can be used in stateful servers to store session context in a hashmap.
+
+            public RfcServerAttributes ToAttributes()
+            {
+                YaNco.RfcCallType callType;
+                switch (Type)
+                {
+                    case RfcCallType.RFC_SYNCHRONOUS:
+                        callType = YaNco.RfcCallType.SYNCHRONOUS;
+                        break;
+                    case RfcCallType.RFC_TRANSACTIONAL:
+                        callType = YaNco.RfcCallType.TRANSACTIONAL;
+                        break;
+                    case RfcCallType.RFC_QUEUED:
+                        callType = YaNco.RfcCallType.QUEUED;
+                        break;
+                    case RfcCallType.RFC_BACKGROUND_UNIT:
+                        callType = YaNco.RfcCallType.BACKGROUND_UNIT;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                return new RfcServerAttributes(Tid, callType);
+            }
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -355,6 +472,10 @@ namespace Dbosoft.YaNco.Internal
         }
 
         public delegate RfcRc RfcServerFunction(IntPtr rfcHandle, IntPtr funcHandle, out RfcErrorInfo errorInfo);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        public delegate RfcRc TransactionEventCallback(IntPtr rfcHandle, string tid);
+
 
     }
 }

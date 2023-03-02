@@ -28,5 +28,12 @@ namespace Dbosoft.YaNco
         /// <param name="dictionary"></param>
         /// <returns></returns>
         Either<RfcErrorInfo, Unit> SetFromDictionary<T>(IDictionary<string, T> dictionary);
+
+        /// <summary>
+        /// Sets the structure fields from a string.
+        /// This method can only be applied to structures/tables if they contain char-like fields (CHAR, NUMC, DATE, TIME).
+        /// The result will be aligned exactly as on ABAP side, including padding bytes.
+        /// </summary>
+        Either<RfcErrorInfo, Unit> SetFromString(string content);
     }
 }

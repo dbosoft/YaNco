@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Dbosoft.Functional;
 using LanguageExt;
@@ -11,13 +12,16 @@ namespace Dbosoft.YaNco
         public IRfcRuntime RfcRuntime { get; }
         private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
         public bool Disposed { get; private set; }
-        public Func<EitherAsync<RfcErrorInfo, IConnection>> ClientConnection { get; private set; }
+
+        private Func<EitherAsync<RfcErrorInfo, IConnection>>
+            _clientConnectionFactory;
+        private Seq<IDisposable> _references;
 
 
         private RfcServer(IRfcServerHandle serverHandle, IRfcRuntime rfcRuntime)
         {
             RfcRuntime = rfcRuntime;
-            ClientConnection = () => new ConnectionPlaceholder(RfcRuntime);
+            _clientConnectionFactory = () => new ConnectionPlaceholder(RfcRuntime);
 
             _stateAgent = Agent.Start<IRfcServerHandle, AgentMessage, Either<RfcErrorInfo, object>>(
                 serverHandle, async (handle, msg) =>
@@ -34,7 +38,7 @@ namespace Dbosoft.YaNco
                             case LaunchServerMessage _:
                             {
                                 var result = 
-                                    (await ClientConnection().ToEither())
+                                    (await OpenClientConnection().ToEither())
                                     .Map( c =>
                                     {
                                         c.Dispose();
@@ -57,6 +61,13 @@ namespace Dbosoft.YaNco
                             case DisposeMessage disposeMessage:
                             {
                                 handle.Dispose();
+
+                                foreach (var disposable in _references)
+                                {
+                                    disposable.Dispose();
+                                }
+                                _references = Seq<IDisposable>.Empty;
+
                                 return (null, Prelude.Left(disposeMessage.ErrorInfo));
                             }
                         }
@@ -86,13 +97,13 @@ namespace Dbosoft.YaNco
 
         public Unit AddConnectionFactory(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionFactory)
         {
-            ClientConnection = connectionFactory;
+            _clientConnectionFactory = connectionFactory;
             return Unit.Default;
         }
 
         public EitherAsync<RfcErrorInfo,IConnection> OpenClientConnection()
         {
-            return ClientConnection();
+            return _clientConnectionFactory();
         }
 
 
@@ -146,10 +157,15 @@ namespace Dbosoft.YaNco
             }
         }
 
+        public void AddReferences(IEnumerable<IDisposable> disposables)
+        {
+            _references = _references.Concat(disposables);
+        }
 
         private class ConnectionPlaceholder : IConnection
         {
-            private static RfcErrorInfo ErrorResponse = new RfcErrorInfo(RfcRc.RFC_CLOSED,
+
+            private static readonly RfcErrorInfo ErrorResponse = new RfcErrorInfo(RfcRc.RFC_CLOSED,
                 RfcErrorGroup.COMMUNICATION_FAILURE, "",
                 "no client connection", 
                 "", "", "", "", "", "", "");
@@ -192,6 +208,11 @@ namespace Dbosoft.YaNco
             }
 
             public EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken)
+            {
+                return ErrorResponse;
+            }
+
+            public EitherAsync<RfcErrorInfo, IStructure> CreateStructure(string name)
             {
                 return ErrorResponse;
             }

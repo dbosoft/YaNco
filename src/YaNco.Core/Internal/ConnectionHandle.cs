@@ -4,7 +4,6 @@ namespace Dbosoft.YaNco.Internal
 {
     public class ConnectionHandle : RfcHandle, IConnectionHandle
     {
-        internal IntPtr Ptr { get; private set; }
 
         internal ConnectionHandle(IntPtr ptr) : base(ptr)
         {

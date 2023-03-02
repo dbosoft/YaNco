@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ExportMATMAS": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

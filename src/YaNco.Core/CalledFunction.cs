@@ -9,8 +9,10 @@ namespace Dbosoft.YaNco
         public readonly IFunction Function;
         private readonly Func<IRfcContext> _rfcContextFunc;
 
-        internal CalledFunction(IFunction function, Func<IRfcContext> rfcContextFunc)
+        internal CalledFunction(IRfcRuntime rfcRuntime, IRfcHandle rfcHandle, IFunction function, Func<IRfcContext> rfcContextFunc)
         {
+            RfcRuntime = rfcRuntime;
+            RfcHandle = rfcHandle;
             Function = function;
             _rfcContextFunc = rfcContextFunc;
         }
@@ -34,6 +36,17 @@ namespace Dbosoft.YaNco
                 return mapFunc(rfcContext);
             }
         }
+
+        public async Task<T> UseRfcContextAsync<T>(Func<IRfcContext, Task<T>> mapFunc)
+        {
+            using (var rfcContext = _rfcContextFunc())
+            {
+                return await mapFunc(rfcContext);
+            }
+        }
+
+        public readonly IRfcRuntime RfcRuntime;
+        public readonly IRfcHandle RfcHandle;
 
     }
 

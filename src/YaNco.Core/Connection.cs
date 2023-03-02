@@ -13,6 +13,7 @@ namespace Dbosoft.YaNco
         private readonly IConnectionHandle _connectionHandle;
         public IRfcRuntime RfcRuntime { get; }
         private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
+
         public bool Disposed { get; private set; }
 
         public Connection(
@@ -48,6 +49,15 @@ namespace Dbosoft.YaNco
 
                             }
 
+                            case CreateStructureMessage createStructureMessage:
+                            {
+                                var result = rfcRuntime.GetTypeDescription(handle, createStructureMessage.StructureName).Use(
+                                    used => used.Bind(rfcRuntime.CreateStructure)).Map(h => (object)new Structure(h, rfcRuntime));
+
+                                return (handle, result);
+
+                            }
+
                             case InvokeFunctionMessage invokeFunctionMessage:
                             {
                                 using (var callContext = new FunctionCallContext())
@@ -60,9 +70,11 @@ namespace Dbosoft.YaNco
                                 }
                             }
 
+
                             case DisposeMessage disposeMessage:
                             {
                                 handle.Dispose();
+
                                 return (null, Prelude.Left(disposeMessage.ErrorInfo));
                             }
                         }
@@ -145,7 +157,10 @@ namespace Dbosoft.YaNco
             if (token.IsCancellationRequested && !context.Exited)
                 await Cancel().ToEither().ConfigureAwait(false); 
         }
-    
+
+        public EitherAsync<RfcErrorInfo, IStructure> CreateStructure(string name) =>
+            _stateAgent.Tell(new CreateStructureMessage(name)).ToAsync().Map(r => (IStructure)r);
+
         public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name) =>
             _stateAgent.Tell(new CreateFunctionMessage(name)).ToAsync().Map(r => (IFunction) r);
 
@@ -172,6 +187,16 @@ namespace Dbosoft.YaNco
 
         private class AgentMessage
         {
+
+        }
+
+        private class CreateStructureMessage : AgentMessage
+        {
+            public readonly string StructureName;
+            public CreateStructureMessage(string structureName)
+            {
+                StructureName = structureName;
+            }
 
         }
 
