@@ -218,8 +218,10 @@ foreach (var userName in userList)
 }
   ```
 
-### Calling functions from SAP to .NET
 <br/>  
+
+### Calling functions from SAP to .NET
+
 
 **ABAP Callbacks**
 
@@ -263,7 +265,7 @@ The registered function handler consists of 3 chained steps:
 - Reply mapping  
   The reply step sets the values of the response (same as Input mapping in `CallFunction`). If you have no reply you can also call `NoReply` to end the chain.  
   
-<br/></br>
+<br/>
 
 **RFC Servers**
 
@@ -273,8 +275,18 @@ Instead of a opening a client connection a RFC server registers itself on the SA
 However in practice also a client connection is used in most RFC Servers to obtain function and type metadata. 
 YaNco supports both server only RFC Servers and RFC Servers with client connections: 
 
-
 ```csharp
+
+var serverSettings = new Dictionary<string, string>
+{
+    { "SYSID", _configuration["saprfc:sysid"] },  // required for servers
+    { "PROGRAM_ID", _configuration["saprfc:program_id"] },
+    { "GWHOST", _configuration["saprfc:ashost"] },
+    { "GWSERV", _configuration["saprfc:gateway"] },
+    { "REG_COUNT", "1" },  // number of servers
+
+};
+
 var serverBuilder = new ServerBuilder(serverSettings)
     .WithFunctionHandler(
         "ZYANCO_SERVER_FUNCTION_1",
