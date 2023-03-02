@@ -66,6 +66,7 @@ namespace Dbosoft.YaNco
         Either<RfcErrorInfo, ITableHandle> GetTable(IDataContainerHandle dataContainer, string name);
         Either<RfcErrorInfo, ITableHandle> CloneTable(ITableHandle tableHandle);
 
+        [Obsolete("Use method AllowStartOfPrograms of ConnectionBuilder. This method will be removed in next major release.")]
         Either<RfcErrorInfo, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle,
             StartProgramDelegate callback);
 

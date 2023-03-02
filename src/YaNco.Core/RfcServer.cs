@@ -178,6 +178,7 @@ namespace Dbosoft.YaNco
 
             public void Dispose()
             {
+                Disposed = true;
             }
 
             public EitherAsync<RfcErrorInfo, Unit> CommitAndWait()
