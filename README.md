@@ -51,6 +51,7 @@ The easiest way to get started is by installing [the available NuGet package](ht
 - [Creating a SAP DMS library with YaNco (Part 2)](https://dbosoft.eu/en-us/blog/creating-a-sap-dms-library-with-yanco-part-2)
 - [Sample app: Using YaNco in ASP.NET Core](https://github.com/dbosoft/YaNco/tree/main/samples/netcore3.1/SAPWebAPI)
 - [Sample app: Command line tool to create sales orders](https://github.com/dbosoft/YaNco/tree/main/samples/netcore3.1/CreateSalesOrder)
+- [Sample app: IDoc Receiver - Export Material Master](https://github.com/dbosoft/YaNco/tree/main/samples/net6.0/ExportMATMAS)
 - [SAPHub - How to build reliable and scaleable SAP integrated microservices with Hosuto and YaNco](https://github.com/dbosoft/SAPHub) 
 
 ## Using
@@ -367,7 +368,7 @@ public interface ITransactionalRfcHandler
 }
  ```
 
-A sample implementation can be found in samples/net6.0/ExportMATMAS. This sample demonstrates how to receive IDocs with YaNco.  
+A sample implementation can be found in [samples/net6.0/ExportMATMAS](https://github.com/dbosoft/YaNco/tree/main/samples/net6.0/ExportMATMAS). This sample demonstrates how to receive IDocs with YaNco.  
 
 
 ## Build
