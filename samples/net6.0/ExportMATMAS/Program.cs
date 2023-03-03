@@ -18,7 +18,6 @@ var host = Host.CreateDefaultBuilder()
     .ConfigureAppConfiguration(cfg =>
         cfg.AddEnvironmentVariables("saprfc"))
     .ConfigureServices(services => services
-        .AddYaNco()
         .AddHostedService<SAPIDocServer>())
     .Build();
 
