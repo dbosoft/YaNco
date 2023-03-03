@@ -1,5 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using Dbosoft.YaNco;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
@@ -8,11 +6,21 @@ using Microsoft.Extensions.Hosting;
 
 namespace ExportMATMAS;
 
-// ReSharper disable once InconsistentNaming
+// ReSharper disable InconsistentNaming
+public enum TransactionState
+{
+    Created,
+    Executed,
+    Committed,
+    RolledBack,
+
+}
+// ReSharper restore InconsistentNaming
+
 public class SAPIDocServer : BackgroundService
 {
     private readonly IConfiguration _configuration;
- 
+    private readonly TransactionManager<MaterialMasterRecord> _transactionManager = new ();
 
     public SAPIDocServer(IConfiguration configuration)
     {
@@ -46,8 +54,9 @@ public class SAPIDocServer : BackgroundService
 
         var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
 
+
         using var rfcServer = await new ServerBuilder(serverSettings)
-            .WithTransactionalRfc(new EverythingIsOkTransactionalRfcHandler())
+            .WithTransactionalRfc(new MaterialMasterTransactionalRfcHandler(_transactionManager))
             .WithClientConnection(clientSettings,
                 c => c
                     .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS", ProcessInboundIDoc))
@@ -72,14 +81,14 @@ public class SAPIDocServer : BackgroundService
     }
 
 
-    private static EitherAsync<RfcErrorInfo, Unit> ProcessInboundIDoc(CalledFunction cf)
+    private EitherAsync<RfcErrorInfo, Unit> ProcessInboundIDoc(CalledFunction cf)
     {
         return cf
             .Input(i =>
 
                 // extract IDoc data from incoming RFC call
                 from data in i.MapTable("IDOC_DATA_REC_40",
-                    s => 
+                    s =>
                         from iDocNo in s.GetField<string>("DOCNUM")
                         from segment in s.GetField<string>("SEGNAM")
                         from segmentNo in s.GetField<int>("SEGNUM")
@@ -87,30 +96,57 @@ public class SAPIDocServer : BackgroundService
                         from level in s.GetField<int>("HLEVEL")
                         from data in s.GetField<string>("SDATA")
                         select new IDocDataRecord(iDocNo, segment, segmentNo, parentNo, level, data)
-                        )
+                )
                 select data.ToSeq())
-            .ProcessAsync(data =>
+            .ProcessAsync(async data =>
             {
-                cf.RfcRuntime.GetServerCallContext(cf.RfcHandle).Map(context =>
-                {
-                    Console.WriteLine("rfc call type: " + context.CallType);
-                    Console.WriteLine("called transactionId: " + context.TransactionId);
-                    return context;
-                });
+                var state = cf.RfcRuntime.GetServerCallContext(cf.RfcHandle)
+                    .IfLeft(new RfcServerAttributes("", RfcCallType.SYNCHRONOUS));
 
-                // open a client connection to read type definitions if not only cached
-                return cf.UseRfcContextAsync(context =>
+                // check if this a tRFC or Queued RFC call
+                if (state.CallType != RfcCallType.QUEUED && state.CallType != RfcCallType.TRANSACTIONAL)
                 {
-                    return (from connection in context.GetConnection()
-                        from materialMaster in ExtractMaterialMaster(connection, data)
-                        select materialMaster).Match(
-                        r => Console.WriteLine("Received Material:\n" + PrettyPrintMaterial(r)),
-                        l => Console.WriteLine("Error: " + l.Message));
-                });
+                    Console.WriteLine($"Error: invalid call type {state.CallType}");
+                    return RfcErrorInfo.Error($"Invalid call type {state.CallType}", RfcRc.RFC_EXTERNAL_FAILURE);
+                }
+
+                // transaction id should be in state
+                if (string.IsNullOrWhiteSpace(state.TransactionId))
+                {
+                    Console.WriteLine($"Error: no transaction id");
+                    return RfcErrorInfo.Error("Missing transaction id", RfcRc.RFC_EXTERNAL_FAILURE);
+                }
+
+                // open a IRfcContext to call back to sender
+                return await cf.UseRfcContextAsync(context => (
+
+                    // get current transaction
+                    from ta in _transactionManager.GetTransaction(state.TransactionId)
+                        .ToEither(RfcErrorInfo.Error(RfcRc.RFC_EXTERNAL_FAILURE))
+                        .ToAsync()
+
+                    // open a client connection to sender for metadata lookup
+                    from connection in context.GetConnection()
+                    from materialMaster in ExtractMaterialMaster(connection, data)
+
+                    from unit in SetTransactionData(ta, materialMaster)
+                    select unit).ToEither());
 
 
             })
-            .NoReply();
+            .Reply(
+                // as we return a Either<RfcErrorInfo,Unit> in ProcessAsync we just have to map from Unit to IFunction 
+                // to send back any error occurred in ProcessAsync.
+                (result, reply)
+                    => reply.Bind(f => result.Map(_ => f)));
+    }
+
+    private static EitherAsync<RfcErrorInfo, Unit> SetTransactionData(
+        TransactionStateRecord<MaterialMasterRecord> ta, MaterialMasterRecord materialMaster)
+    {
+        ta.Data = materialMaster;
+        ta.State = TransactionState.Executed;
+        return Unit.Default;
     }
 
 
@@ -203,17 +239,7 @@ public class SAPIDocServer : BackgroundService
         ("E1MAKTM", "E2MAKTM001")
     });
 
-    private static string PrettyPrintMaterial(MaterialMasterRecord record)
-    {
-        return JsonSerializer.Serialize(record, JsonOptions);
-    }
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        //json don't has to be valid, so disable text encoding for unicode chars
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        WriteIndented = true
-    };
 }
 
 
