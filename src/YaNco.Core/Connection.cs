@@ -15,7 +15,7 @@ namespace Dbosoft.YaNco
     {
         private readonly IConnectionHandle _connectionHandle;
         public IRfcRuntime RfcRuntime { get; }
-        private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
+        private readonly IAgent<AgentMessage, Either<RfcError, object>> _stateAgent;
 
         public bool Disposed { get; private set; }
 
@@ -26,13 +26,13 @@ namespace Dbosoft.YaNco
             _connectionHandle = connectionHandle;
             RfcRuntime = rfcRuntime;
 
-            _stateAgent = Agent.Start<IConnectionHandle, AgentMessage, Either<RfcErrorInfo, object>>(
+            _stateAgent = Agent.Start<IConnectionHandle, AgentMessage, Either<RfcError, object>>(
                 connectionHandle, (handle, msg) =>
                 {
                     if (handle == null)
                         return (null,
                             new RfcErrorInfo(RfcRc.RFC_INVALID_HANDLE, RfcErrorGroup.EXTERNAL_RUNTIME_FAILURE,
-                                "", "Connection already destroyed", "", "E", "", "", "", "", ""));
+                                "", "Connection already destroyed", "", "E", "", "", "", "", "").ToRfcError());
 
                     if(!(msg is DisposeMessage))
                     {
@@ -85,12 +85,12 @@ namespace Dbosoft.YaNco
                     catch (Exception ex)
                     {
                         rfcRuntime.Logger.IfSome(l => l.LogException(ex));
-                        return (null, Prelude.Left(RfcErrorInfo.Error(ex.Message)));
+                        return (null, Prelude.Left(RfcError.Error(ex.Message)));
                     }
 
                     rfcRuntime.Logger.IfSome(l => l.LogError(
                         $"Invalid rfc connection message {msg.GetType()}"));
-                    return (null, Prelude.Left(RfcErrorInfo.Error($"Invalid rfc connection message {msg.GetType().Name}")));
+                    return (null, Prelude.Left(RfcError.Error($"Invalid rfc connection message {msg.GetType().Name}")));
 
                 });
         }
@@ -101,19 +101,19 @@ namespace Dbosoft.YaNco
         /// <param name="connectionParams">parameters of the connection</param>
         /// <param name="runtime">Runtime used to create the connection</param>
         /// <returns></returns>
-        public static EitherAsync<RfcErrorInfo,IConnection> Create(IDictionary<string, string> connectionParams, IRfcRuntime runtime)
+        public static EitherAsync<RfcError,IConnection> Create(IDictionary<string, string> connectionParams, IRfcRuntime runtime)
         {
             return runtime.OpenConnection(connectionParams).ToAsync().Map(handle => (IConnection) new Connection(handle, runtime));
         }
 
         /// <inheritdoc cref="CommitAndWait()"/>
-        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait()
+        public EitherAsync<RfcError, Unit> CommitAndWait()
         {
             return CommitAndWait(CancellationToken.None);
         }
 
         /// <inheritdoc cref="CommitAndWait(CancellationToken)"/>
-        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait(CancellationToken cancellationToken)
+        public EitherAsync<RfcError, Unit> CommitAndWait(CancellationToken cancellationToken)
         {
             return CreateFunction("BAPI_TRANSACTION_COMMIT")
                 .Bind(f => f.SetField("WAIT", "X").Map(_=>f).ToAsync())
@@ -124,13 +124,13 @@ namespace Dbosoft.YaNco
         }
 
         /// <inheritdoc cref="Commit()"/>
-        public EitherAsync<RfcErrorInfo, Unit> Commit()
+        public EitherAsync<RfcError, Unit> Commit()
         {
             return Commit(CancellationToken.None);
         }
 
         /// <inheritdoc cref="Commit(CancellationToken)"/>
-        public EitherAsync<RfcErrorInfo, Unit> Commit(CancellationToken cancellationToken)
+        public EitherAsync<RfcError, Unit> Commit(CancellationToken cancellationToken)
         {
             return CreateFunction("BAPI_TRANSACTION_COMMIT")
                 .Bind(f => InvokeFunction(f,cancellationToken).Map(u=>f))
@@ -140,13 +140,13 @@ namespace Dbosoft.YaNco
         }
 
         /// <inheritdoc cref="Rollback()"/>
-        public EitherAsync<RfcErrorInfo, Unit> Rollback()
+        public EitherAsync<RfcError, Unit> Rollback()
         {
             return Rollback(CancellationToken.None);
         }
 
         /// <inheritdoc cref="Rollback(CancellationToken)"/>
-        public EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken)
+        public EitherAsync<RfcError, Unit> Rollback(CancellationToken cancellationToken)
         {
             return CreateFunction("BAPI_TRANSACTION_ROLLBACK")
                 .Bind(f=> InvokeFunction(f, cancellationToken));
@@ -154,7 +154,7 @@ namespace Dbosoft.YaNco
         }
 
         /// <inheritdoc cref="Cancel()"/>
-        public EitherAsync<RfcErrorInfo, Unit> Cancel()
+        public EitherAsync<RfcError, Unit> Cancel()
         {
             var res = RfcRuntime.CancelConnection(_connectionHandle).ToAsync();
             Dispose();
@@ -179,33 +179,33 @@ namespace Dbosoft.YaNco
         }
 
         /// <inheritdoc cref="CreateStructure(string)"/>
-        public EitherAsync<RfcErrorInfo, IStructure> CreateStructure(string name) =>
+        public EitherAsync<RfcError, IStructure> CreateStructure(string name) =>
             _stateAgent.Tell(new CreateStructureMessage(name)).ToAsync().Map(r => (IStructure)r);
 
         /// <inheritdoc cref="CreateFunction(string)"/>
-        public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name) =>
+        public EitherAsync<RfcError, IFunction> CreateFunction(string name) =>
             _stateAgent.Tell(new CreateFunctionMessage(name)).ToAsync().Map(r => (IFunction) r);
 
         /// <inheritdoc cref="InvokeFunction(IFunction)"/>
-        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function)
+        public EitherAsync<RfcError, Unit> InvokeFunction(IFunction function)
         {
             return InvokeFunction(function,CancellationToken.None);
 
         }
 
         /// <inheritdoc cref="InvokeFunction(IFunction, CancellationToken)"/>
-        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken) 
+        public EitherAsync<RfcError, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken) 
             => _stateAgent.Tell(new InvokeFunctionMessage(function, cancellationToken)).ToAsync().Map(_ => Unit.Default);
 
         [Obsolete("Use method WithStartProgramCallback of ConnectionBuilder instead. This method will be removed in next major release.")]
         [ExcludeFromCodeCoverage]
-        public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
+        public EitherAsync<RfcError, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
         {
             return RfcRuntime.AllowStartOfPrograms(_connectionHandle, callback).ToAsync();
         }
 
         /// <inheritdoc cref="GetAttributes()"/>
-        public EitherAsync<RfcErrorInfo, ConnectionAttributes> GetAttributes()
+        public EitherAsync<RfcError, ConnectionAttributes> GetAttributes()
         {
             return RfcRuntime.GetConnectionAttributes(_connectionHandle).ToAsync();
         }
@@ -250,9 +250,9 @@ namespace Dbosoft.YaNco
 
         private class DisposeMessage : AgentMessage
         {
-            public readonly RfcErrorInfo ErrorInfo;
+            public readonly RfcError ErrorInfo;
 
-            public DisposeMessage(RfcErrorInfo errorInfo)
+            public DisposeMessage(RfcError errorInfo)
             {
                 ErrorInfo = errorInfo;
             }
@@ -264,7 +264,7 @@ namespace Dbosoft.YaNco
                 return;
             
             Disposed = true;
-            _stateAgent.Tell(new DisposeMessage(RfcErrorInfo.EmptyResult()));
+            _stateAgent.Tell(new DisposeMessage(RfcError.EmptyResult));
 
         }
 

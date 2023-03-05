@@ -7,10 +7,10 @@
     <Description>YaNco is a modern alternative to the SAP .NET Connector. 
 This package contains abstraction definitions. 
 </Description>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dbosoft.Functional" Version="2.0.1" />
     <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

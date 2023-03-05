@@ -8,6 +8,7 @@
 
     <DockerfileContext>..\..\..</DockerfileContext>
     <IsPackable>false</IsPackable>
+    <LangVersion>latest</LangVersion>
 
   </PropertyGroup>
 

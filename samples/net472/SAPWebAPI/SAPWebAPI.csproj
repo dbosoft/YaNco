@@ -4,6 +4,7 @@
     <TargetFramework>net472</TargetFramework>
     <UserSecretsId>577d8ea0-f844-4a6c-a833-a9b0aa7ceb79</UserSecretsId>
     <IsPackable>false</IsPackable>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

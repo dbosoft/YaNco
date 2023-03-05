@@ -43,7 +43,7 @@ namespace YaNco.Core.Tests.RfcMock
 
         }
 
-        public static Func<EitherAsync<RfcErrorInfo, IConnection>>
+        public static Func<EitherAsync<RfcError, IConnection>>
             CreateConnectionFactory(this Mock<IRfcRuntime> mock)
         {
             return () => Connection.Create(new Dictionary<string, string>(),

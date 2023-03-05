@@ -20,7 +20,7 @@ namespace Dbosoft.YaNco
             {
                 var handle = _rfcRuntime.Options.CloneTableForRowEnumerator 
                     ? _rfcRuntime.CloneTable(_handle) 
-                    : _handle.Apply(h => Prelude.Right(h).Bind<RfcErrorInfo>());
+                    : _handle.Apply(h => Prelude.Right(h).Bind<RfcError>());
 
                 return handle
                     .Map(clonedHandle => new TableRowEnumerator(_rfcRuntime, Prelude.Some(clonedHandle)))
@@ -30,7 +30,7 @@ namespace Dbosoft.YaNco
             }
         }
 
-        public Either<RfcErrorInfo, IStructure> AppendRow()
+        public Either<RfcError, IStructure> AppendRow()
         {
             return _rfcRuntime.AppendTableRow(_handle).Map(sh => (IStructure) new Structure(sh, _rfcRuntime));
         }

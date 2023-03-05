@@ -81,7 +81,7 @@ public class SAPIDocServer : BackgroundService
     }
 
 
-    private EitherAsync<RfcErrorInfo, Unit> ProcessInboundIDoc(CalledFunction cf)
+    private EitherAsync<RfcError, Unit> ProcessInboundIDoc(CalledFunction cf)
     {
         return cf
             .Input(i =>
@@ -107,14 +107,14 @@ public class SAPIDocServer : BackgroundService
                 if (state.CallType != RfcCallType.QUEUED && state.CallType != RfcCallType.TRANSACTIONAL)
                 {
                     Console.WriteLine($"Error: invalid call type {state.CallType}");
-                    return RfcErrorInfo.Error($"Invalid call type {state.CallType}", RfcRc.RFC_EXTERNAL_FAILURE);
+                    return RfcError.Error($"Invalid call type {state.CallType}", RfcRc.RFC_EXTERNAL_FAILURE);
                 }
 
                 // transaction id should be in state
                 if (string.IsNullOrWhiteSpace(state.TransactionId))
                 {
                     Console.WriteLine($"Error: no transaction id");
-                    return RfcErrorInfo.Error("Missing transaction id", RfcRc.RFC_EXTERNAL_FAILURE);
+                    return RfcError.Error("Missing transaction id", RfcRc.RFC_EXTERNAL_FAILURE);
                 }
 
                 // open a IRfcContext to call back to sender
@@ -122,7 +122,7 @@ public class SAPIDocServer : BackgroundService
 
                     // get current transaction
                     from ta in _transactionManager.GetTransaction(state.TransactionId)
-                        .ToEither(RfcErrorInfo.Error(RfcRc.RFC_EXTERNAL_FAILURE))
+                        .ToEither(RfcError.Error(RfcRc.RFC_EXTERNAL_FAILURE))
                         .ToAsync()
 
                     // open a client connection to sender for metadata lookup
@@ -135,13 +135,13 @@ public class SAPIDocServer : BackgroundService
 
             })
             .Reply(
-                // as we return a Either<RfcErrorInfo,Unit> in ProcessAsync we just have to map from Unit to IFunction 
+                // as we return a Either<RfcError,Unit> in ProcessAsync we just have to map from Unit to IFunction 
                 // to send back any error occurred in ProcessAsync.
                 (result, reply)
                     => reply.Bind(f => result.Map(_ => f)));
     }
 
-    private static EitherAsync<RfcErrorInfo, Unit> SetTransactionData(
+    private static EitherAsync<RfcError, Unit> SetTransactionData(
         TransactionStateRecord<MaterialMasterRecord> ta, MaterialMasterRecord materialMaster)
     {
         ta.Data = materialMaster;
@@ -150,7 +150,7 @@ public class SAPIDocServer : BackgroundService
     }
 
 
-    private static EitherAsync<RfcErrorInfo, MaterialMasterRecord> ExtractMaterialMaster(IConnection connection, 
+    private static EitherAsync<RfcError, MaterialMasterRecord> ExtractMaterialMaster(IConnection connection, 
         Seq<IDocDataRecord> data)
     {
         return
@@ -185,8 +185,8 @@ public class SAPIDocServer : BackgroundService
                 plantData.ToArray());
     }
 
-    private static EitherAsync<RfcErrorInfo, T> MapSegment<T>(IConnection connection, 
-        IDocDataRecord data, Func<IStructure,Either<RfcErrorInfo, T>> mapFunc)
+    private static EitherAsync<RfcError, T> MapSegment<T>(IConnection connection, 
+        IDocDataRecord data, Func<IStructure,Either<RfcError, T>> mapFunc)
     {
         //to convert the segment we create a temporary structure of the segment definition type
         //and "move" the segment data into it. 
@@ -199,19 +199,19 @@ public class SAPIDocServer : BackgroundService
 
     }
 
-    private static EitherAsync<RfcErrorInfo, Seq<T>> MapSegments<T>(IConnection connection,
-        Seq<IDocDataRecord> data, Func<IStructure, Either<RfcErrorInfo, T>> mapFunc)
+    private static EitherAsync<RfcError, Seq<T>> MapSegments<T>(IConnection connection,
+        Seq<IDocDataRecord> data, Func<IStructure, Either<RfcError, T>> mapFunc)
     {
         return data.Map(segment => MapSegment(connection, segment, mapFunc))
             .Traverse(l => l);
     }
 
-    private static EitherAsync<RfcErrorInfo, IDocDataRecord> FindRequiredSegment(
+    private static EitherAsync<RfcError, IDocDataRecord> FindRequiredSegment(
         string typeName, Seq<IDocDataRecord> records )
     {
         var segmentName = _type2Segment[typeName];
         return records.Find(x => x.Segment == segmentName)
-            .ToEither(RfcErrorInfo.Error($"Segment {segmentName} not found"))
+            .ToEither(RfcError.Error($"Segment {segmentName} not found"))
             .ToAsync();
     }
 

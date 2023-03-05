@@ -80,7 +80,7 @@ namespace Dbosoft.YaNco
             return AddParameter(new RfcParameterDescription(name, type, direction, 0, 0, 0, optional, null) { TypeDescriptionHandle = ptr });
         }
 
-        public Either<RfcErrorInfo, IFunctionDescriptionHandle> Build()
+        public Either<RfcError, IFunctionDescriptionHandle> Build()
         {
 
             return _runtime.CreateFunctionDescription(_functionName).Bind(functionHandle =>

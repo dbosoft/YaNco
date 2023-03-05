@@ -13,7 +13,7 @@ namespace Dbosoft.YaNco
             _rfcRuntime = rfcRuntime;
         }
 
-        protected override Either<RfcErrorInfo, RfcFieldInfo> GetFieldInfo(string name)
+        protected override Either<RfcError, RfcFieldInfo> GetFieldInfo(string name)
         {
             return _rfcRuntime.GetFunctionDescription(Handle).Use(used => used
                 .Bind(handle => _rfcRuntime.GetFunctionParameterDescription(handle, name)).Map(r => (RfcFieldInfo) r));

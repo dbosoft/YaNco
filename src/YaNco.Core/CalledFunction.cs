@@ -23,7 +23,7 @@ namespace Dbosoft.YaNco
         /// <typeparam name="TInput">Type of data extracted from function. Could be any type.</typeparam>
         /// <param name="inputFunc">Function to map from RFC function to the desired input type</param>
         /// <returns><see cref="FunctionInput{TInput}"/> wrapped in a <see cref="Either{L,R}"/> </returns>
-        public Either<RfcErrorInfo, FunctionInput<TInput>> Input<TInput>(Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TInput>> inputFunc)
+        public Either<RfcError, FunctionInput<TInput>> Input<TInput>(Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> inputFunc)
         {
             var function = Function;
             return inputFunc(Prelude.Right(function)).Map(input => new FunctionInput<TInput>(input, function));
@@ -105,7 +105,7 @@ namespace Dbosoft.YaNco
             _function = function;
         }
 
-        public Either<RfcErrorInfo, Unit> Reply(Func<TOutput, Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, IFunction>> replyFunc)
+        public Either<RfcError, Unit> Reply(Func<TOutput, Either<RfcError, IFunction>, Either<RfcError, IFunction>> replyFunc)
         {
             return replyFunc(_output, Prelude.Right(_function)).Map(_ => Unit.Default);
         }

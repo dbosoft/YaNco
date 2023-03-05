@@ -56,7 +56,7 @@ namespace SAPSystemTests
             {
                 CallbackCommand = command;
 
-                return RfcErrorInfo.Ok();
+                return RfcError.Ok;
             };
 
 
@@ -505,7 +505,7 @@ namespace SAPSystemTests
 
         }
 
-        private static Either<RfcErrorInfo, IFunction> SetRows(Either<RfcErrorInfo, IFunction> func, in int rows)
+        private static Either<RfcError, IFunction> SetRows(Either<RfcError, IFunction> func, in int rows)
         {
             return rows == 0 ? func : func.SetField("IV_UP_TO", rows);
         }

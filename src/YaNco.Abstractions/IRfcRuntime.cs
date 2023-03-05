@@ -12,92 +12,92 @@ namespace Dbosoft.YaNco
         Option<ILogger> Logger { get; }
 
 
-        Either<RfcErrorInfo, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams);
-        Either<RfcErrorInfo, Unit> LaunchServer(IRfcServerHandle rfcServerHandle);
-        Either<RfcErrorInfo, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout);
-        Either<RfcErrorInfo, RfcServerAttributes> GetServerCallContext(IRfcHandle rfcHandle);
-        Either<RfcErrorInfo, IConnectionHandle> OpenConnection(IDictionary<string, string> connectionParams);
-        Either<RfcErrorInfo, IFunctionDescriptionHandle> CreateFunctionDescription(string functionName);
-        Either<RfcErrorInfo, IFunctionDescriptionHandle> AddFunctionParameter(IFunctionDescriptionHandle descriptionHandle, RfcParameterDescription parameterDescription);
+        Either<RfcError, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams);
+        Either<RfcError, Unit> LaunchServer(IRfcServerHandle rfcServerHandle);
+        Either<RfcError, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout);
+        Either<RfcError, RfcServerAttributes> GetServerCallContext(IRfcHandle rfcHandle);
+        Either<RfcError, IConnectionHandle> OpenConnection(IDictionary<string, string> connectionParams);
+        Either<RfcError, IFunctionDescriptionHandle> CreateFunctionDescription(string functionName);
+        Either<RfcError, IFunctionDescriptionHandle> AddFunctionParameter(IFunctionDescriptionHandle descriptionHandle, RfcParameterDescription parameterDescription);
 
-        Either<RfcErrorInfo, IFunctionDescriptionHandle> GetFunctionDescription(IConnectionHandle connectionHandle,
+        Either<RfcError, IFunctionDescriptionHandle> GetFunctionDescription(IConnectionHandle connectionHandle,
             string functionName);
 
-        Either<RfcErrorInfo, IFunctionDescriptionHandle> GetFunctionDescription(IFunctionHandle functionHandle);
-        Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription(IDataContainerHandle dataContainer);
-        Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription(IConnectionHandle connectionHandle, string typeName);
-        Either<RfcErrorInfo, string> GetFunctionName(IFunctionDescriptionHandle descriptionHandle);
-        Either<RfcErrorInfo, int> GetTypeFieldCount(ITypeDescriptionHandle descriptionHandle);
+        Either<RfcError, IFunctionDescriptionHandle> GetFunctionDescription(IFunctionHandle functionHandle);
+        Either<RfcError, ITypeDescriptionHandle> GetTypeDescription(IDataContainerHandle dataContainer);
+        Either<RfcError, ITypeDescriptionHandle> GetTypeDescription(IConnectionHandle connectionHandle, string typeName);
+        Either<RfcError, string> GetFunctionName(IFunctionDescriptionHandle descriptionHandle);
+        Either<RfcError, int> GetTypeFieldCount(ITypeDescriptionHandle descriptionHandle);
 
-        Either<RfcErrorInfo, RfcFieldInfo> GetTypeFieldDescription(ITypeDescriptionHandle descriptionHandle,
+        Either<RfcError, RfcFieldInfo> GetTypeFieldDescription(ITypeDescriptionHandle descriptionHandle,
             int index);
 
-        Either<RfcErrorInfo, RfcFieldInfo> GetTypeFieldDescription(ITypeDescriptionHandle descriptionHandle,
+        Either<RfcError, RfcFieldInfo> GetTypeFieldDescription(ITypeDescriptionHandle descriptionHandle,
             string name);
 
-        Either<RfcErrorInfo, IFunctionHandle> CreateFunction(IFunctionDescriptionHandle descriptionHandle);
-        Either<RfcErrorInfo, int> GetFunctionParameterCount(IFunctionDescriptionHandle descriptionHandle);
+        Either<RfcError, IFunctionHandle> CreateFunction(IFunctionDescriptionHandle descriptionHandle);
+        Either<RfcError, int> GetFunctionParameterCount(IFunctionDescriptionHandle descriptionHandle);
 
-        Either<RfcErrorInfo, RfcParameterInfo> GetFunctionParameterDescription(
+        Either<RfcError, RfcParameterInfo> GetFunctionParameterDescription(
             IFunctionDescriptionHandle descriptionHandle, int index);
 
-        Either<RfcErrorInfo, RfcParameterInfo> GetFunctionParameterDescription(
+        Either<RfcError, RfcParameterInfo> GetFunctionParameterDescription(
             IFunctionDescriptionHandle descriptionHandle, string name);
 
-        Either<RfcErrorInfo, IDisposable> AddFunctionHandler(string sysid, 
-            IFunction function, Func<IRfcHandle, IFunction, EitherAsync<RfcErrorInfo, Unit>> handler);
+        Either<RfcError, IDisposable> AddFunctionHandler(string sysid, 
+            IFunction function, Func<IRfcHandle, IFunction, EitherAsync<RfcError, Unit>> handler);
 
-        Either<RfcErrorInfo, IDisposable> AddTransactionHandlers(string sysid, 
+        Either<RfcError, IDisposable> AddTransactionHandlers(string sysid, 
             Func<IRfcHandle, string, RfcRc> onCheck,
             Func<IRfcHandle, string, RfcRc> onCommit,
             Func<IRfcHandle, string, RfcRc> onRollback,
             Func<IRfcHandle, string, RfcRc> onConfirm);
 
-        Either<RfcErrorInfo, IDisposable> AddFunctionHandler(string sysid, 
-            IFunctionDescriptionHandle descriptionHandle, Func<IRfcHandle, IFunction, EitherAsync<RfcErrorInfo, Unit>> handler);
+        Either<RfcError, IDisposable> AddFunctionHandler(string sysid, 
+            IFunctionDescriptionHandle descriptionHandle, Func<IRfcHandle, IFunction, EitherAsync<RfcError, Unit>> handler);
 
-        Either<RfcErrorInfo, Unit> Invoke(IConnectionHandle connectionHandle, IFunctionHandle functionHandle);
-        Either<RfcErrorInfo, Unit> CancelConnection(IConnectionHandle connectionHandle);
-        Either<RfcErrorInfo, bool> IsConnectionHandleValid(IConnectionHandle connectionHandle);
-        Either<RfcErrorInfo, ConnectionAttributes> GetConnectionAttributes(IConnectionHandle connectionHandle);
-        Either<RfcErrorInfo, IStructureHandle> GetStructure(IDataContainerHandle dataContainer, string name);
-        Either<RfcErrorInfo, IStructureHandle> CreateStructure(ITypeDescriptionHandle typeDescriptionHandle);
-        Either<RfcErrorInfo, Unit> SetStructure(IStructureHandle structureHandle, string content);
-        Either<RfcErrorInfo, ITableHandle> GetTable(IDataContainerHandle dataContainer, string name);
-        Either<RfcErrorInfo, ITableHandle> CloneTable(ITableHandle tableHandle);
+        Either<RfcError, Unit> Invoke(IConnectionHandle connectionHandle, IFunctionHandle functionHandle);
+        Either<RfcError, Unit> CancelConnection(IConnectionHandle connectionHandle);
+        Either<RfcError, bool> IsConnectionHandleValid(IConnectionHandle connectionHandle);
+        Either<RfcError, ConnectionAttributes> GetConnectionAttributes(IConnectionHandle connectionHandle);
+        Either<RfcError, IStructureHandle> GetStructure(IDataContainerHandle dataContainer, string name);
+        Either<RfcError, IStructureHandle> CreateStructure(ITypeDescriptionHandle typeDescriptionHandle);
+        Either<RfcError, Unit> SetStructure(IStructureHandle structureHandle, string content);
+        Either<RfcError, ITableHandle> GetTable(IDataContainerHandle dataContainer, string name);
+        Either<RfcError, ITableHandle> CloneTable(ITableHandle tableHandle);
 
         [Obsolete("Use method AllowStartOfPrograms of ConnectionBuilder. This method will be removed in next major release.")]
-        Either<RfcErrorInfo, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle,
+        Either<RfcError, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle,
             StartProgramDelegate callback);
 
-        Either<RfcErrorInfo, int> GetTableRowCount(ITableHandle tableHandle);
-        Either<RfcErrorInfo, IStructureHandle> GetCurrentTableRow(ITableHandle tableHandle);
-        Either<RfcErrorInfo, IStructureHandle> AppendTableRow(ITableHandle tableHandle);
-        Either<RfcErrorInfo, Unit> MoveToNextTableRow(ITableHandle tableHandle);
-        Either<RfcErrorInfo, Unit> MoveToFirstTableRow(ITableHandle tableHandle);
+        Either<RfcError, int> GetTableRowCount(ITableHandle tableHandle);
+        Either<RfcError, IStructureHandle> GetCurrentTableRow(ITableHandle tableHandle);
+        Either<RfcError, IStructureHandle> AppendTableRow(ITableHandle tableHandle);
+        Either<RfcError, Unit> MoveToNextTableRow(ITableHandle tableHandle);
+        Either<RfcError, Unit> MoveToFirstTableRow(ITableHandle tableHandle);
 
-        Either<RfcErrorInfo, Unit> SetString(IDataContainerHandle containerHandle, string name,
+        Either<RfcError, Unit> SetString(IDataContainerHandle containerHandle, string name,
             string value);
 
-        Either<RfcErrorInfo, string> GetString(IDataContainerHandle containerHandle, string name);
+        Either<RfcError, string> GetString(IDataContainerHandle containerHandle, string name);
 
-        Either<RfcErrorInfo, Unit> SetDateString(IDataContainerHandle containerHandle, string name,
+        Either<RfcError, Unit> SetDateString(IDataContainerHandle containerHandle, string name,
             string value);
 
-        Either<RfcErrorInfo, string> GetDateString(IDataContainerHandle containerHandle, string name);
+        Either<RfcError, string> GetDateString(IDataContainerHandle containerHandle, string name);
 
-        Either<RfcErrorInfo, Unit> SetTimeString(IDataContainerHandle containerHandle, string name,
+        Either<RfcError, Unit> SetTimeString(IDataContainerHandle containerHandle, string name,
             string value);
 
-        Either<RfcErrorInfo, string> GetTimeString(IDataContainerHandle containerHandle, string name);
-        Either<RfcErrorInfo, Unit> SetFieldValue<T>(IDataContainerHandle handle, T value, Func<Either<RfcErrorInfo, RfcFieldInfo>> func);
-        Either<RfcErrorInfo, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcErrorInfo, RfcFieldInfo>> func);
-        Either<RfcErrorInfo, Unit> SetInt(IDataContainerHandle containerHandle, string name, int value);
-        Either<RfcErrorInfo, int> GetInt(IDataContainerHandle containerHandle, string name);
-        Either<RfcErrorInfo, Unit> SetLong(IDataContainerHandle containerHandle, string name, long value);
-        Either<RfcErrorInfo, long> GetLong(IDataContainerHandle containerHandle, string name);
-        Either<RfcErrorInfo, Unit> SetBytes(IDataContainerHandle containerHandle, string name, byte[] buffer, long bufferLength);
-        Either<RfcErrorInfo, byte[]> GetBytes(IDataContainerHandle containerHandle, string name);
+        Either<RfcError, string> GetTimeString(IDataContainerHandle containerHandle, string name);
+        Either<RfcError, Unit> SetFieldValue<T>(IDataContainerHandle handle, T value, Func<Either<RfcError, RfcFieldInfo>> func);
+        Either<RfcError, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcError, RfcFieldInfo>> func);
+        Either<RfcError, Unit> SetInt(IDataContainerHandle containerHandle, string name, int value);
+        Either<RfcError, int> GetInt(IDataContainerHandle containerHandle, string name);
+        Either<RfcError, Unit> SetLong(IDataContainerHandle containerHandle, string name, long value);
+        Either<RfcError, long> GetLong(IDataContainerHandle containerHandle, string name);
+        Either<RfcError, Unit> SetBytes(IDataContainerHandle containerHandle, string name, byte[] buffer, long bufferLength);
+        Either<RfcError, byte[]> GetBytes(IDataContainerHandle containerHandle, string name);
     }
 
 

@@ -26,7 +26,7 @@ namespace Dbosoft.YaNco.Hosting
             return config;
         }
 
-        public Func<EitherAsync<RfcErrorInfo, IConnection>> CreateConnectionFunc()
+        public Func<EitherAsync<RfcError, IConnection>> CreateConnectionFunc()
         {
             var builder = new ConnectionBuilder(CreateSettings())
                 .ConfigureRuntime(c =>

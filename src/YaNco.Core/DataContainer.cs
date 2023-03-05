@@ -15,40 +15,40 @@ namespace Dbosoft.YaNco
             _rfcRuntime = rfcRuntime;
         }
 
-        public Either<RfcErrorInfo, Unit> SetField<T>(string name, T value)
+        public Either<RfcError, Unit> SetField<T>(string name, T value)
         {
             return _rfcRuntime.SetFieldValue<T>(_handle, value, () => GetFieldInfo(name));
         }
 
-        protected abstract Either<RfcErrorInfo, RfcFieldInfo> GetFieldInfo(string name);
+        protected abstract Either<RfcError, RfcFieldInfo> GetFieldInfo(string name);
 
-        public Either<RfcErrorInfo, T> GetField<T>(string name)
+        public Either<RfcError, T> GetField<T>(string name)
         {
             return _rfcRuntime.GetFieldValue<T>(_handle,() => GetFieldInfo(name));
         }
 
-        public Either<RfcErrorInfo, Unit> SetFieldBytes(string name, byte[] buffer, long bufferLength)
+        public Either<RfcError, Unit> SetFieldBytes(string name, byte[] buffer, long bufferLength)
         {
             return _rfcRuntime.SetBytes(_handle, name, buffer, bufferLength);
         }
 
-        public Either<RfcErrorInfo, byte[]> GetFieldBytes(string name)
+        public Either<RfcError, byte[]> GetFieldBytes(string name)
         {
             return _rfcRuntime.GetBytes(_handle, name);
         }
 
 
-        public Either<RfcErrorInfo, IStructure> GetStructure(string name)
+        public Either<RfcError, IStructure> GetStructure(string name)
         {
             return _rfcRuntime.GetStructure(_handle, name).Map(handle => (IStructure) new Structure(handle, _rfcRuntime));
         }
 
-        public Either<RfcErrorInfo, ITable> GetTable(string name)
+        public Either<RfcError, ITable> GetTable(string name)
         {
             return _rfcRuntime.GetTable(_handle, name).Map(handle => (ITable) new Table(handle, _rfcRuntime));
         }
 
-        public Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription()
+        public Either<RfcError, ITypeDescriptionHandle> GetTypeDescription()
         {
             return _rfcRuntime.GetTypeDescription(_handle);
         }

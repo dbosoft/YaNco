@@ -38,7 +38,7 @@ namespace YaNco.Core.Tests
             rfcRuntimeMock.SetupFunction("A_FUNC", connHandle,
                 (r, h) =>
                 {
-                    r.Setup(x => x.GetFieldValue<string>(h, It.IsAny<Func<Either<RfcErrorInfo, RfcFieldInfo>>>()
+                    r.Setup(x => x.GetFieldValue<string>(h, It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()
                         ))
                         .Returns("VALUE");
                 });

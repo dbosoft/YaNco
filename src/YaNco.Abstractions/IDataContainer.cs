@@ -6,12 +6,12 @@ namespace Dbosoft.YaNco
 {
     public interface IDataContainer : IDisposable
     {
-        Either<RfcErrorInfo, Unit> SetField<T>(string name, T value);
-        Either<RfcErrorInfo, T> GetField<T>(string name);
-        Either<RfcErrorInfo, Unit> SetFieldBytes(string name, byte[] buffer, long bufferLength);
-        Either<RfcErrorInfo, byte[]> GetFieldBytes(string name);
-        Either<RfcErrorInfo, IStructure> GetStructure(string name);
-        Either<RfcErrorInfo, ITable> GetTable(string name);
-        Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription();
+        Either<RfcError, Unit> SetField<T>(string name, T value);
+        Either<RfcError, T> GetField<T>(string name);
+        Either<RfcError, Unit> SetFieldBytes(string name, byte[] buffer, long bufferLength);
+        Either<RfcError, byte[]> GetFieldBytes(string name);
+        Either<RfcError, IStructure> GetStructure(string name);
+        Either<RfcError, ITable> GetTable(string name);
+        Either<RfcError, ITypeDescriptionHandle> GetTypeDescription();
     }
 }

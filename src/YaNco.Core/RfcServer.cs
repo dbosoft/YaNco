@@ -9,10 +9,10 @@ namespace Dbosoft.YaNco
     public class RfcServer : IRfcServer
     {
         public IRfcRuntime RfcRuntime { get; }
-        private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
+        private readonly IAgent<AgentMessage, Either<RfcError, object>> _stateAgent;
         public bool Disposed { get; private set; }
 
-        private Func<EitherAsync<RfcErrorInfo, IConnection>>
+        private Func<EitherAsync<RfcError, IConnection>>
             _clientConnectionFactory;
         private Seq<IDisposable> _references;
 
@@ -22,13 +22,13 @@ namespace Dbosoft.YaNco
             RfcRuntime = rfcRuntime;
             _clientConnectionFactory = () => new ConnectionPlaceholder(RfcRuntime);
 
-            _stateAgent = Agent.Start<IRfcServerHandle, AgentMessage, Either<RfcErrorInfo, object>>(
+            _stateAgent = Agent.Start<IRfcServerHandle, AgentMessage, Either<RfcError, object>>(
                 serverHandle, async (handle, msg) =>
                 {
                     if (handle == null)
                         return (null,
                             new RfcErrorInfo(RfcRc.RFC_INVALID_HANDLE, RfcErrorGroup.EXTERNAL_RUNTIME_FAILURE,
-                                "", "Rfc Server already destroyed", "", "E", "", "", "", "", ""));
+                                "", "Rfc Server already destroyed", "", "E", "", "", "", "", "").ToRfcError());
 
                     try
                     {
@@ -85,26 +85,26 @@ namespace Dbosoft.YaNco
 
         }
 
-        public static EitherAsync<RfcErrorInfo, IRfcServer> Create(
+        public static EitherAsync<RfcError, IRfcServer> Create(
             IDictionary<string, string> connectionParams, IRfcRuntime runtime)
         {
             return runtime.CreateServer(connectionParams).ToAsync().Map(handle => (IRfcServer)new RfcServer(handle, runtime));
         }
 
 
-        public EitherAsync<RfcErrorInfo, Unit> Start() =>
+        public EitherAsync<RfcError, Unit> Start() =>
             _stateAgent.Tell(new LaunchServerMessage()).ToAsync().Map(_ => Unit.Default);
 
-        public EitherAsync<RfcErrorInfo, Unit> Stop(int timeout = 0)
+        public EitherAsync<RfcError, Unit> Stop(int timeout = 0)
             => _stateAgent.Tell(new ShutdownServerMessage(timeout)).ToAsync().Map(_ => Unit.Default);
 
-        public Unit AddConnectionFactory(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionFactory)
+        public Unit AddConnectionFactory(Func<EitherAsync<RfcError, IConnection>> connectionFactory)
         {
             _clientConnectionFactory = connectionFactory;
             return Unit.Default;
         }
 
-        public EitherAsync<RfcErrorInfo,IConnection> OpenClientConnection()
+        public EitherAsync<RfcError,IConnection> OpenClientConnection()
         {
             return _clientConnectionFactory();
         }
@@ -116,7 +116,7 @@ namespace Dbosoft.YaNco
                 return;
 
             Disposed = true;
-            _stateAgent.Tell(new DisposeMessage(RfcErrorInfo.EmptyResult()));
+            _stateAgent.Tell(new DisposeMessage(RfcErrorInfo.EmptyResult().ToRfcError()));
         }
 
         public void Dispose()
@@ -152,9 +152,9 @@ namespace Dbosoft.YaNco
 
         private class DisposeMessage : AgentMessage
         {
-            public readonly RfcErrorInfo ErrorInfo;
+            public readonly RfcError ErrorInfo;
 
-            public DisposeMessage(RfcErrorInfo errorInfo)
+            public DisposeMessage(RfcError errorInfo)
             {
                 ErrorInfo = errorInfo;
             }
@@ -168,10 +168,10 @@ namespace Dbosoft.YaNco
         private class ConnectionPlaceholder : IConnection
         {
 
-            private static readonly RfcErrorInfo ErrorResponse = new RfcErrorInfo(RfcRc.RFC_CLOSED,
+            private static readonly RfcError ErrorResponse = new RfcErrorInfo(RfcRc.RFC_CLOSED,
                 RfcErrorGroup.COMMUNICATION_FAILURE, "",
                 "no client connection", 
-                "", "", "", "", "", "", "");
+                "", "", "", "", "", "", "").ToRfcError();
 
             public ConnectionPlaceholder(IRfcRuntime runtime)
             {
@@ -184,68 +184,68 @@ namespace Dbosoft.YaNco
                 Disposed = true;
             }
 
-            public EitherAsync<RfcErrorInfo, Unit> CommitAndWait()
+            public EitherAsync<RfcError, Unit> CommitAndWait()
             {
                 return ErrorResponse;
 
             }
 
-            public EitherAsync<RfcErrorInfo, Unit> CommitAndWait(CancellationToken cancellationToken)
+            public EitherAsync<RfcError, Unit> CommitAndWait(CancellationToken cancellationToken)
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, Unit> Commit()
+            public EitherAsync<RfcError, Unit> Commit()
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, Unit> Commit(CancellationToken cancellationToken)
+            public EitherAsync<RfcError, Unit> Commit(CancellationToken cancellationToken)
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, Unit> Rollback()
+            public EitherAsync<RfcError, Unit> Rollback()
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken)
+            public EitherAsync<RfcError, Unit> Rollback(CancellationToken cancellationToken)
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, IStructure> CreateStructure(string name)
+            public EitherAsync<RfcError, IStructure> CreateStructure(string name)
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name)
+            public EitherAsync<RfcError, IFunction> CreateFunction(string name)
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function)
+            public EitherAsync<RfcError, Unit> InvokeFunction(IFunction function)
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken)
+            public EitherAsync<RfcError, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken)
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
+            public EitherAsync<RfcError, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, Unit> Cancel()
+            public EitherAsync<RfcError, Unit> Cancel()
             {
                 return ErrorResponse;
             }
 
-            public EitherAsync<RfcErrorInfo, ConnectionAttributes> GetAttributes()
+            public EitherAsync<RfcError, ConnectionAttributes> GetAttributes()
             {
                 return ErrorResponse;
             }

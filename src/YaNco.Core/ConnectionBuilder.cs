@@ -13,11 +13,11 @@ namespace Dbosoft.YaNco
         private readonly IDictionary<string, string> _connectionParam;
         private IFunctionRegistration _functionRegistration = FunctionRegistration.Instance;
 
-        private Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo, IConnection>>
+        private Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcError, IConnection>>
             _connectionFactory = Connection.Create;
 
 
-        private Func<EitherAsync<RfcErrorInfo, IConnection>> _buildFunction;
+        private Func<EitherAsync<RfcError, IConnection>> _buildFunction;
 
         /// <summary>
         /// Creates a new connection builder. 
@@ -57,7 +57,7 @@ namespace Dbosoft.YaNco
         /// Multiple registrations of same function and same backend id will therefore have no effect.
         /// </remarks>
         public ConnectionBuilder WithFunctionHandler(string functionName,
-            Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>> calledFunc)
+            Func<CalledFunction, EitherAsync<RfcError, Unit>> calledFunc)
         {
             FunctionHandlers.Add((functionName, null, calledFunc));
             return this;
@@ -72,7 +72,7 @@ namespace Dbosoft.YaNco
         /// <remarks>The default implementation call <see cref="Connection.Create"/>.
         /// </remarks>
         public ConnectionBuilder UseFactory(
-            Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo, IConnection>> factory)
+            Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcError, IConnection>> factory)
         {
             _connectionFactory = factory;
             return this;
@@ -87,7 +87,7 @@ namespace Dbosoft.YaNco
         /// The result is a function that first calls the connection factory (defaults to <seealso cref="Connection.Create"/>
         /// and afterwards registers function handlers.
         /// </remarks>
-        public Func<EitherAsync<RfcErrorInfo, IConnection>> Build()
+        public Func<EitherAsync<RfcError, IConnection>> Build()
         {
             if(_buildFunction != null)
                 return _buildFunction;
@@ -99,7 +99,7 @@ namespace Dbosoft.YaNco
 
         }
 
-        private EitherAsync<RfcErrorInfo, IConnection> RegisterFunctionHandlers(IConnection connection)
+        private EitherAsync<RfcError, IConnection> RegisterFunctionHandlers(IConnection connection)
         {
             return connection.GetAttributes().Bind(attributes =>
             {
@@ -159,8 +159,8 @@ namespace Dbosoft.YaNco
         private IRfcRuntime _rfcRuntime;
 
         protected readonly List<(string, Action<IFunctionBuilder>,
-            Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>>)> FunctionHandlers
-            = new List<(string, Action<IFunctionBuilder>, Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>>)>();
+            Func<CalledFunction, EitherAsync<RfcError, Unit>>)> FunctionHandlers
+            = new List<(string, Action<IFunctionBuilder>, Func<CalledFunction, EitherAsync<RfcError, Unit>>)>();
 
 
         /// <summary>
@@ -208,13 +208,13 @@ namespace Dbosoft.YaNco
         /// <remarks>
         /// The metadata of the function is build in the <see cref="IFunctionBuilder"/>. This allows to register
         /// any kind of function. 
-        /// To register a known function use the signature with function name <seealso cref="WithFunctionHandler(string,System.Func{Dbosoft.YaNco.CalledFunction,LanguageExt.Either{Dbosoft.YaNco.RfcErrorInfo,LanguageExt.Unit}})"/>
+        /// To register a known function use the signature with function name <seealso cref="WithFunctionHandler(string,System.Func{Dbosoft.YaNco.CalledFunction,LanguageExt.Either{Dbosoft.YaNco.RfcError,LanguageExt.Unit}})"/>
         /// Function handlers are registered process wide (in the SAP NW RFC Library) and mapped to backend system id. 
         /// Multiple registrations of same function and same backend id will therefore have no effect.
         /// </remarks>
         public TBuilder WithFunctionHandler(string functionName,
             Action<IFunctionBuilder> configureBuilder,
-            Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>> calledFunc)
+            Func<CalledFunction, EitherAsync<RfcError, Unit>> calledFunc)
         {
             FunctionHandlers.Add((functionName, configureBuilder, calledFunc));
             return Self;

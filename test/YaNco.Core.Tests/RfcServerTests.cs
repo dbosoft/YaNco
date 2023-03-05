@@ -86,10 +86,6 @@ namespace YaNco.Core.Tests
             Assert.True((await conn.Rollback(CancellationToken.None).ToEither()).IsLeft);
             Assert.True((await conn.InvokeFunction(
                 new Mock<IFunction>().Object, CancellationToken.None).ToEither()).IsLeft);
-            Assert.True(
-#pragma warning disable CS0618
-                (await conn.AllowStartOfPrograms(_ => RfcErrorInfo.Ok()).ToEither()).IsLeft);
-#pragma warning restore CS0618
 
             conn.Dispose();
             Assert.True(conn.Disposed);

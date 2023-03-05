@@ -12,7 +12,7 @@ namespace WebApi.Shared
     [ExcludeFromCodeCoverage]
     public static class CompanyExtensions
     {
-        public static EitherAsync<RfcErrorInfo, IEnumerable<CompanyModel>> GetCompanies(this IRfcContext rfcContext)
+        public static EitherAsync<RfcError, IEnumerable<CompanyModel>> GetCompanies(this IRfcContext rfcContext)
         {
             return rfcContext.CallFunction("BAPI_COMPANYCODE_GETLIST",
                 Output: f => f

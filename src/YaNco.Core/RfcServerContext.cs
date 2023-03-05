@@ -14,15 +14,15 @@ namespace Dbosoft.YaNco
             _rfcServer = rfcServer;
         }
 
-        private EitherAsync<RfcErrorInfo, IRfcContext> GetContext()
+        private EitherAsync<RfcError, IRfcContext> GetContext()
         {
             if (_currentContext == null)
                 _currentContext = new RfcContext(_rfcServer.OpenClientConnection);
 
-            return Prelude.RightAsync<RfcErrorInfo, IRfcContext>(_currentContext);
+            return Prelude.RightAsync<RfcError, IRfcContext>(_currentContext);
         }
 
-        private Task<Either<RfcErrorInfo, IRfcContext>> GetContextAsync()
+        private Task<Either<RfcError, IRfcContext>> GetContextAsync()
         {
             return GetContext().ToEither();
         }
@@ -33,107 +33,107 @@ namespace Dbosoft.YaNco
             _currentContext = null;
         }
 
-        public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name)
+        public EitherAsync<RfcError, IFunction> CreateFunction(string name)
         {
             return GetContext().Bind(c => c.CreateFunction(name));
         }
 
-        public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name, CancellationToken cancellationToken)
+        public EitherAsync<RfcError, IFunction> CreateFunction(string name, CancellationToken cancellationToken)
         {
             return GetContext().Bind(c => c.CreateFunction(name, cancellationToken));
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function)
+        public EitherAsync<RfcError, Unit> InvokeFunction(IFunction function)
         {
             return GetContext().Bind(c => c.InvokeFunction(function));
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken)
+        public EitherAsync<RfcError, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken)
         {
             return GetContext().Bind(c => c.InvokeFunction(function, cancellationToken));
         }
 
-        public EitherAsync<RfcErrorInfo, IRfcContext> Ping()
+        public EitherAsync<RfcError, IRfcContext> Ping()
         {
             return GetContext().Bind(c => c.Ping());
         }
 
-        public EitherAsync<RfcErrorInfo, IRfcContext> Ping(CancellationToken cancellationToken)
+        public EitherAsync<RfcError, IRfcContext> Ping(CancellationToken cancellationToken)
         {
             return GetContext().Bind(c => c.Ping(cancellationToken));
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> Commit()
+        public EitherAsync<RfcError, Unit> Commit()
         {
             return GetContext().Bind(c => c.Commit());
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> Commit(CancellationToken cancellationToken)
+        public EitherAsync<RfcError, Unit> Commit(CancellationToken cancellationToken)
         {
             return GetContext().Bind(c => c.Commit(cancellationToken));
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait()
+        public EitherAsync<RfcError, Unit> CommitAndWait()
         {
             return GetContext().Bind(c => c.CommitAndWait());
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> CommitAndWait(CancellationToken cancellationToken)
+        public EitherAsync<RfcError, Unit> CommitAndWait(CancellationToken cancellationToken)
         {
             return GetContext().Bind(c => c.CommitAndWait(cancellationToken));
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> Rollback()
+        public EitherAsync<RfcError, Unit> Rollback()
         {
             return GetContext().Bind(c => c.Rollback());
         }
 
-        public EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken)
+        public EitherAsync<RfcError, Unit> Rollback(CancellationToken cancellationToken)
         {
             return GetContext().Bind(c => c.Rollback(cancellationToken));
         }
 
-        public Task<Either<RfcErrorInfo, IRfcContext>> PingAsync()
+        public Task<Either<RfcError, IRfcContext>> PingAsync()
         {
             return GetContextAsync().BindAsync(c => c.PingAsync());
         }
 
-        public Task<Either<RfcErrorInfo, IRfcContext>> PingAsync(CancellationToken cancellationToken)
+        public Task<Either<RfcError, IRfcContext>> PingAsync(CancellationToken cancellationToken)
         {
             return GetContextAsync().BindAsync(c => c.PingAsync(cancellationToken));
         }
 
-        public Task<Either<RfcErrorInfo, Unit>> CommitAsync()
+        public Task<Either<RfcError, Unit>> CommitAsync()
         {
             return GetContextAsync().BindAsync(c => c.CommitAsync());
         }
 
-        public Task<Either<RfcErrorInfo, Unit>> CommitAsync(CancellationToken cancellationToken)
+        public Task<Either<RfcError, Unit>> CommitAsync(CancellationToken cancellationToken)
         {
             return GetContextAsync().BindAsync(c => c.CommitAsync(cancellationToken));
         }
 
-        public Task<Either<RfcErrorInfo, Unit>> CommitAndWaitAsync()
+        public Task<Either<RfcError, Unit>> CommitAndWaitAsync()
         {
             return GetContextAsync().BindAsync(c => c.CommitAndWaitAsync());
         }
 
-        public Task<Either<RfcErrorInfo, Unit>> CommitAndWaitAsync(CancellationToken cancellationToken)
+        public Task<Either<RfcError, Unit>> CommitAndWaitAsync(CancellationToken cancellationToken)
         {
             return GetContextAsync().BindAsync(c => c.CommitAndWaitAsync(cancellationToken));
         }
 
-        public Task<Either<RfcErrorInfo, Unit>> RollbackAsync()
+        public Task<Either<RfcError, Unit>> RollbackAsync()
         {
             return GetContextAsync().BindAsync(c => c.RollbackAsync());
         }
 
-        public Task<Either<RfcErrorInfo, Unit>> RollbackAsync(CancellationToken cancellationToken)
+        public Task<Either<RfcError, Unit>> RollbackAsync(CancellationToken cancellationToken)
         {
             return GetContextAsync().BindAsync(c => c.RollbackAsync(cancellationToken));
         }
 
-        public EitherAsync<RfcErrorInfo, IConnection> GetConnection()
+        public EitherAsync<RfcError, IConnection> GetConnection()
         {
             return GetContext().Bind(c => c.GetConnection());
         }

@@ -15,15 +15,15 @@ namespace YaNco.Core.Tests.RfcMock
         public static Mock<IRfcContext> SetupFunction(this Mock<IRfcContext> self, string functionName, Action<Mock<IFunction>> functionBuilder)
         {
             var function = new Mock<IFunction>();
-            function.SetReturnsDefault(Prelude.Right<RfcErrorInfo, Unit>(Unit.Default));
+            function.SetReturnsDefault(Prelude.Right<RfcError, Unit>(Unit.Default));
 
             functionBuilder(function);
 
             self.Setup(x => x.CreateFunction(functionName))
-                .Returns(Prelude.RightAsync<RfcErrorInfo, IFunction>(function.Object));
+                .Returns(Prelude.RightAsync<RfcError, IFunction>(function.Object));
 
             self.Setup(x => x.InvokeFunction(function.Object))
-                .Returns(Prelude.RightAsync<RfcErrorInfo, Unit>(Unit.Default));
+                .Returns(Prelude.RightAsync<RfcError, Unit>(Unit.Default));
 
             return self;
         }
@@ -31,12 +31,12 @@ namespace YaNco.Core.Tests.RfcMock
         public static Mock<TMock> SetupStructure<TMock>(this Mock<TMock> self, string structureName, Action<Mock<IStructure>> structureBuilder) where TMock: class, IDataContainer
         {
             var structure = new Mock<IStructure>();
-            structure.SetReturnsDefault(Prelude.Right<RfcErrorInfo, Unit>(Unit.Default));
+            structure.SetReturnsDefault(Prelude.Right<RfcError, Unit>(Unit.Default));
 
             structureBuilder(structure);
 
             self.Setup(x => x.GetStructure(structureName))
-                .Returns(Prelude.Right<RfcErrorInfo, IStructure>(structure.Object));
+                .Returns(Prelude.Right<RfcError, IStructure>(structure.Object));
 
             return self;
         }
@@ -70,14 +70,14 @@ namespace YaNco.Core.Tests.RfcMock
             var tableBuilder = new TableMockBuilder(new Mock<ITable>());
             buildTable(tableBuilder);
 
-            tableBuilder.Table.SetReturnsDefault(Prelude.Right<RfcErrorInfo, Unit>(Unit.Default));
+            tableBuilder.Table.SetReturnsDefault(Prelude.Right<RfcError, Unit>(Unit.Default));
             tableBuilder.Table.Setup(x => x.Rows).Returns( () =>
             {
                 return tableBuilder.Structures.Select(x => x.Object);
             });
             
             self.Setup(x => x.GetTable(tableName))
-                .Returns(Prelude.Right<RfcErrorInfo, ITable>(tableBuilder.Table.Object));
+                .Returns(Prelude.Right<RfcError, ITable>(tableBuilder.Table.Object));
 
             return self;
         }
@@ -135,9 +135,9 @@ namespace YaNco.Core.Tests.RfcMock
             return self;
         }
 
-        public static IReturnsResult<TMock> ReturnsUnit<TMock>(this ISetup<TMock, Either<RfcErrorInfo,Unit>> self) where TMock: class, IDataContainer
+        public static IReturnsResult<TMock> ReturnsUnit<TMock>(this ISetup<TMock, Either<RfcError,Unit>> self) where TMock: class, IDataContainer
         {
-            return self.Returns(Prelude.Right<RfcErrorInfo, Unit>(Unit.Default));
+            return self.Returns(Prelude.Right<RfcError, Unit>(Unit.Default));
         }
 
         public static Mock<TMock> SetupAllSetField<TMock>(this Mock<TMock> self) where TMock: class, IDataContainer
@@ -153,10 +153,10 @@ namespace YaNco.Core.Tests.RfcMock
             var returnStructure = new Mock<IStructure>();
 
             returnStructure.Setup(x => x.GetField<string>(It.IsAny<string>()))
-                .Returns(Prelude.Right<RfcErrorInfo, string>(""));
+                .Returns(Prelude.Right<RfcError, string>(""));
             
             self.Setup(x=>x.GetStructure("RETURN")) 
-                .Returns(Prelude.Right<RfcErrorInfo, IStructure>(returnStructure.Object));
+                .Returns(Prelude.Right<RfcError, IStructure>(returnStructure.Object));
 
             return self;
         }

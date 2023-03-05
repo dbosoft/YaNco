@@ -13,6 +13,6 @@ namespace Dbosoft.YaNco
         IFunctionBuilder AddStructure(string name, RfcDirection direction, IStructure structure, bool optional = true);
         IFunctionBuilder AddTable(string name, RfcDirection direction, ITable table, bool optional = true);
         IFunctionBuilder AddTable(string name, RfcDirection direction, ITypeDescriptionHandle typeHandle, bool optional = true);
-        Either<RfcErrorInfo, IFunctionDescriptionHandle> Build();
+        Either<RfcError, IFunctionDescriptionHandle> Build();
     }
 }

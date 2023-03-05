@@ -16,11 +16,11 @@ namespace Dbosoft.YaNco
         private Action<RfcServerClientConfigurer> _configureServerClient = (c) => { };
         private readonly IFunctionRegistration _functionRegistration = new ScopedFunctionRegistration();
 
-        private Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo, IRfcServer>>
+        private Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcError, IRfcServer>>
             _serverFactory = RfcServer.Create;
 
         private readonly string _systemId;
-        private Func<EitherAsync<RfcErrorInfo, IConnection>> _connectionFactory;
+        private Func<EitherAsync<RfcError, IConnection>> _connectionFactory;
         private IRfcServer _buildServer;
         private ITransactionalRfcHandler _transactionalRfcHandler;
 
@@ -49,7 +49,7 @@ namespace Dbosoft.YaNco
         /// <remarks>The default implementation call <see cref="RfcServer.Create"/>.
         /// </remarks>
         public ServerBuilder UseFactory(
-            Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcErrorInfo, IRfcServer>> factory)
+            Func<IDictionary<string, string>, IRfcRuntime, EitherAsync<RfcError, IRfcServer>> factory)
         {
             _serverFactory = factory;
             return this;
@@ -78,7 +78,7 @@ namespace Dbosoft.YaNco
         /// are not configured automatically on <see cref="IRfcServer"/>.
         /// Consider using the configured client connection with <see cref="WithClientConnection(IDictionary{string,string},Action{Dbosoft.YaNco.RfcServerClientConfigurer})"/>
         /// </remarks>
-        public ServerBuilder WithClientConnection(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionFactory)
+        public ServerBuilder WithClientConnection(Func<EitherAsync<RfcError, IConnection>> connectionFactory)
         {
             _connectionFactory = connectionFactory;
             return this;
@@ -95,10 +95,10 @@ namespace Dbosoft.YaNco
             return this;
         }
         
-        public EitherAsync<RfcErrorInfo, IRfcServer> Build()
+        public EitherAsync<RfcError, IRfcServer> Build()
         {
             if (_buildServer != null)
-                return Prelude.RightAsync<RfcErrorInfo, IRfcServer>(_buildServer);
+                return Prelude.RightAsync<RfcError, IRfcServer>(_buildServer);
 
 
             var runtime = CreateRfcRuntime();
@@ -130,7 +130,7 @@ namespace Dbosoft.YaNco
                 .Bind(server =>
                 {
                     if (_transactionalRfcHandler == null)
-                        return Prelude.RightAsync<RfcErrorInfo, IRfcServer>(server);
+                        return Prelude.RightAsync<RfcError, IRfcServer>(server);
 
                     return runtime.AddTransactionHandlers(_systemId,
                         (handle, tid) => _transactionalRfcHandler.OnCheck(runtime, handle, tid),
@@ -156,7 +156,7 @@ namespace Dbosoft.YaNco
         }
 
 
-        private EitherAsync<RfcErrorInfo, IRfcServer> RegisterFunctionHandlers(IRfcServer server)
+        private EitherAsync<RfcError, IRfcServer> RegisterFunctionHandlers(IRfcServer server)
         {
             return FunctionHandlers.Map(reg =>
             {

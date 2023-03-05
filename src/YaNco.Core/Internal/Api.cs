@@ -321,14 +321,14 @@ namespace Dbosoft.YaNco.Internal
                                     return Unit.Default;
 
                                 var command = new string(commandBuffer, 0, (int)commandLength);
-                                error = callback(command);
+                                error = callback(command).RfcErrorInfo;
 
                                 if (error.Code == RfcRc.RFC_OK)
                                     return Unit.Default;
 
                                 return error;
                             }, out errorInfoLocal));
-                    }, l => errorInfoLocal = l);
+                    }, l => errorInfoLocal = l.RfcErrorInfo);
 
                 errorInfo = errorInfoLocal;
             }

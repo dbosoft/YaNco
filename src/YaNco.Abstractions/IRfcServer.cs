@@ -8,11 +8,11 @@ namespace Dbosoft.YaNco
     {
         bool Disposed { get; }
         IRfcRuntime RfcRuntime { get; }
-        EitherAsync<RfcErrorInfo, Unit> Start();
-        EitherAsync<RfcErrorInfo, Unit> Stop(int timeout = 0);
-        EitherAsync<RfcErrorInfo, IConnection> OpenClientConnection();
+        EitherAsync<RfcError, Unit> Start();
+        EitherAsync<RfcError, Unit> Stop(int timeout = 0);
+        EitherAsync<RfcError, IConnection> OpenClientConnection();
 
-        Unit AddConnectionFactory(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionFactory);
+        Unit AddConnectionFactory(Func<EitherAsync<RfcError, IConnection>> connectionFactory);
 
         /// <summary>
         /// Adds references to the server that should be disposed when the server is disposed.

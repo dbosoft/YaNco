@@ -7,6 +7,7 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <UserSecretsId>8f47d6d0-50d5-4ad2-bbfb-10eb299f80af</UserSecretsId>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

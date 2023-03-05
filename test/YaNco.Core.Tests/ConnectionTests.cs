@@ -58,7 +58,7 @@ namespace YaNco.Core.Tests
                         .Returns(Prelude.Right(structureHandle.Object));
                     r.Setup(x =>
                             x.GetFieldValue<string>(structureHandle.Object,
-                                It.IsAny<Func<Either<RfcErrorInfo, RfcFieldInfo>>>()))
+                                It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()))
                         .Returns(Prelude.Right(""));
                 });
 
@@ -81,14 +81,14 @@ namespace YaNco.Core.Tests
                 {
                     var structureHandle = new Mock<IStructureHandle>();
                     r.Setup(x => x.SetFieldValue(h, "X",
-                            It.IsAny<Func<Either<RfcErrorInfo, RfcFieldInfo>>>()))
+                            It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()))
                         .Returns(Prelude.Right(Unit.Default));
 
                     r.Setup(x => x.GetStructure(h, "RETURN"))
                         .Returns(Prelude.Right(structureHandle.Object));
                     r.Setup(x =>
                             x.GetFieldValue<string>(structureHandle.Object,
-                                It.IsAny<Func<Either<RfcErrorInfo, RfcFieldInfo>>>()))
+                                It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()))
                         .Returns(Prelude.Right(""));
                 });
 

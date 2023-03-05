@@ -12,7 +12,7 @@ namespace Dbosoft.YaNco.TypeMapping
             _converterResolver = converterResolver;
         }
 
-        public Either<RfcErrorInfo, Unit> SetField<T>(T value, FieldMappingContext context)
+        public Either<RfcError, Unit> SetField<T>(T value, FieldMappingContext context)
         {
             return ToAbapValue(value, context.FieldInfo).Bind(abapValue =>
             {
@@ -47,7 +47,7 @@ namespace Dbosoft.YaNco.TypeMapping
 
         }
 
-        public Either<RfcErrorInfo, T> GetField<T>(FieldMappingContext context)
+        public Either<RfcError, T> GetField<T>(FieldMappingContext context)
         {
             return context.Apply(c =>
             {
@@ -98,7 +98,7 @@ namespace Dbosoft.YaNco.TypeMapping
             }).Bind(FromAbapValue<T>);
         }
 
-        public Either<RfcErrorInfo, T> FromAbapValue<T>(AbapValue abapValue)
+        public Either<RfcError, T> FromAbapValue<T>(AbapValue abapValue)
         {
             if (abapValue is T tv)
                 return tv;
@@ -116,12 +116,12 @@ namespace Dbosoft.YaNco.TypeMapping
             if (value == null)
                 return new RfcErrorInfo(RfcRc.RFC_CONVERSION_FAILURE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "",
                     $"Converting from abap type {abapValue.FieldInfo.Type} to type {typeof(T)} is not supported.",
-                    "", "E", "", "", "", "", "");
+                    "", "E", "", "", "", "", "").ToRfcError();
 
-            return Prelude.Right<RfcErrorInfo, T>(value);
+            return Prelude.Right<RfcError, T>(value);
         }
 
-        public Either<RfcErrorInfo, AbapValue> ToAbapValue<T>(T value, RfcFieldInfo fieldInfo)
+        public Either<RfcError, AbapValue> ToAbapValue<T>(T value, RfcFieldInfo fieldInfo)
         {
             AbapValue abapValue = null;
 
@@ -141,19 +141,19 @@ namespace Dbosoft.YaNco.TypeMapping
             if (abapValue == null)
                 return new RfcErrorInfo(RfcRc.RFC_CONVERSION_FAILURE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "",
                     $"Converting from type {typeof(T)} to abap type {fieldInfo.Type} is not supported.",
-                    "", "E", "", "", "", "", "");
+                    "", "E", "", "", "", "", "").ToRfcError();
 
             return abapValue;
         }
 
-        public Either<RfcErrorInfo, Unit> SetFieldValue<T>(IRfcRuntime rfcRuntime, IDataContainerHandle handle, T value, Func<Either<RfcErrorInfo, RfcFieldInfo>> func)
+        public Either<RfcError, Unit> SetFieldValue<T>(IRfcRuntime rfcRuntime, IDataContainerHandle handle, T value, Func<Either<RfcError, RfcFieldInfo>> func)
         {
             return func().Bind(fieldInfo => 
                 SetField(value, new FieldMappingContext(rfcRuntime, handle, fieldInfo)));
 
         }
 
-        public Either<RfcErrorInfo, T> GetFieldValue<T>(IRfcRuntime rfcRuntime, IDataContainerHandle handle, Func<Either<RfcErrorInfo, RfcFieldInfo>> func)
+        public Either<RfcError, T> GetFieldValue<T>(IRfcRuntime rfcRuntime, IDataContainerHandle handle, Func<Either<RfcError, RfcFieldInfo>> func)
         {
             return func().Bind(fieldInfo => 
                 GetField<T>(new FieldMappingContext(rfcRuntime, handle, fieldInfo)));

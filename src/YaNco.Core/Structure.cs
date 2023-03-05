@@ -16,7 +16,7 @@ namespace Dbosoft.YaNco
         }
 
 
-        public Either<RfcErrorInfo, RfcFieldInfo[]> GetFieldInfos()
+        public Either<RfcError, RfcFieldInfo[]> GetFieldInfos()
         {
             return RfcRuntime.GetTypeDescription(Handle).Use(used => used
                 .Bind( handle =>
@@ -30,13 +30,13 @@ namespace Dbosoft.YaNco
                 })).Map(r => r.ToArray());
         }
 
-        public Either<RfcErrorInfo, IDictionary<string, AbapValue>> ToDictionary()
+        public Either<RfcError, IDictionary<string, AbapValue>> ToDictionary()
         {
             return GetFieldInfos()
                 .Bind(fields =>
                     fields.Map(fieldInfo =>
                         from fieldValue in RfcRuntime.GetFieldValue<AbapValue>(Handle, () => fieldInfo)
-                        from fieldName in Prelude.Right(fieldInfo.Name).Bind<RfcErrorInfo>()
+                        from fieldName in Prelude.Right(fieldInfo.Name).Bind<RfcError>()
                         select (fieldName, fieldValue)
                     ).Traverse(l => l))
                 .Map(l => l.ToDictionary(
@@ -46,7 +46,7 @@ namespace Dbosoft.YaNco
 
         }
 
-        public Either<RfcErrorInfo, Unit> SetFromDictionary<T>(IDictionary<string, T> dictionary)
+        public Either<RfcError, Unit> SetFromDictionary<T>(IDictionary<string, T> dictionary)
         {
             return GetFieldInfos()
                 .Bind(fields =>
@@ -59,7 +59,7 @@ namespace Dbosoft.YaNco
                 .Map(_ => Unit.Default);
         }
 
-        public Either<RfcErrorInfo, Unit> SetFromString(string content)
+        public Either<RfcError, Unit> SetFromString(string content)
         {
             return RfcRuntime.SetStructure(_handle, content);
         }
