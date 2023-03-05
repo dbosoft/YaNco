@@ -55,10 +55,10 @@ namespace Dbosoft.YaNco
         /// <summary>
         /// This methods extracts the value of a RETURN structure (BAPIRET or BAPIRET2) and processes it's value as
         /// left value if return contains a non-successful result (abort or error). 
-        /// This method accepts a EitherAsync with any right value.
+        /// This method accepts a <see cref="Either{RfcErrorInfo,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
         /// </summary>
         /// <param name="self"></param>
-        /// <returns>A <see cref="EitherAsync{RfcErrorInfo,IFunction}"/> with the function as right value or the left value.</returns>
+        /// <returns>A <see cref="Either{RfcErrorInfo,IFunction}"/> with the function as right value or the left value.</returns>
         public static Either<RfcErrorInfo, IFunction> HandleReturn(this Either<RfcErrorInfo, IFunction> self)
         {
             return self.Bind(f => (
@@ -77,13 +77,25 @@ namespace Dbosoft.YaNco
 
         }
 
+
         /// <summary>
         /// This methods extracts the value of a RETURN table (BAPIRET or BAPIRET2) and processes it's value as
         /// left value if return contains a non-successful result (abort or error). 
-        /// This method accepts a EitherAsync with any right value.
+        /// This method accepts a <see cref="EitherAsync{RfcErrorInfo,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
+        /// </summary>
+        /// <returns>A <see cref="EitherAsync{RfcErrorInfo,IFunction}"/> with the function as right value or the left value.</returns>
+        public static EitherAsync<RfcErrorInfo, IFunction> HandleReturnTable(this EitherAsync<RfcErrorInfo, IFunction> self)
+        {
+            return self.ToEither().Map(f => f.HandleReturnTable()).ToAsync();
+        }
+
+        /// <summary>
+        /// This methods extracts the value of a RETURN table (BAPIRET or BAPIRET2) and processes it's value as
+        /// left value if return contains a non-successful result (abort or error). 
+        /// This method accepts a <see cref="Either{RfcErrorInfo,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
         /// </summary>
         /// <param name="self"></param>
-        /// <returns>A <see cref="EitherAsync{RfcErrorInfo,IFunction}"/> with the function as right value or the left value.</returns>
+        /// <returns>A <see cref="Either{RfcErrorInfo,IFunction}"/> with the function as right value or the left value.</returns>
         public static Either<RfcErrorInfo, IFunction> HandleReturnTable(this Either<RfcErrorInfo, IFunction> self)
         {
             return self.Bind(f => (
