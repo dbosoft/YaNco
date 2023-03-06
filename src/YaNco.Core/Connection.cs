@@ -8,6 +8,9 @@ using LanguageExt;
 
 namespace Dbosoft.YaNco
 {
+    /// <summary>
+    /// Default implementation of <see cref="IConnection"/>
+    /// </summary>
     public class Connection : IConnection
     {
         private readonly IConnectionHandle _connectionHandle;
@@ -88,16 +91,24 @@ namespace Dbosoft.YaNco
                 });
         }
 
+        /// <summary>
+        /// Creates a new connection from connection parameters
+        /// </summary>
+        /// <param name="connectionParams">parameters of the connection</param>
+        /// <param name="runtime">Runtime used to create the connection</param>
+        /// <returns></returns>
         public static EitherAsync<RfcErrorInfo,IConnection> Create(IDictionary<string, string> connectionParams, IRfcRuntime runtime)
         {
             return runtime.OpenConnection(connectionParams).ToAsync().Map(handle => (IConnection) new Connection(handle, runtime));
         }
 
+        /// <inheritdoc cref="CommitAndWait()"/>
         public EitherAsync<RfcErrorInfo, Unit> CommitAndWait()
         {
             return CommitAndWait(CancellationToken.None);
         }
 
+        /// <inheritdoc cref="CommitAndWait(CancellationToken)"/>
         public EitherAsync<RfcErrorInfo, Unit> CommitAndWait(CancellationToken cancellationToken)
         {
             return CreateFunction("BAPI_TRANSACTION_COMMIT")
@@ -108,11 +119,13 @@ namespace Dbosoft.YaNco
 
         }
 
+        /// <inheritdoc cref="Commit()"/>
         public EitherAsync<RfcErrorInfo, Unit> Commit()
         {
             return Commit(CancellationToken.None);
         }
 
+        /// <inheritdoc cref="Commit(CancellationToken)"/>
         public EitherAsync<RfcErrorInfo, Unit> Commit(CancellationToken cancellationToken)
         {
             return CreateFunction("BAPI_TRANSACTION_COMMIT")
@@ -122,11 +135,13 @@ namespace Dbosoft.YaNco
 
         }
 
+        /// <inheritdoc cref="Rollback()"/>
         public EitherAsync<RfcErrorInfo, Unit> Rollback()
         {
             return Rollback(CancellationToken.None);
         }
 
+        /// <inheritdoc cref="Rollback(CancellationToken)"/>
         public EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken)
         {
             return CreateFunction("BAPI_TRANSACTION_ROLLBACK")
@@ -134,6 +149,7 @@ namespace Dbosoft.YaNco
 
         }
 
+        /// <inheritdoc cref="Cancel()"/>
         public EitherAsync<RfcErrorInfo, Unit> Cancel()
         {
             var res = RfcRuntime.CancelConnection(_connectionHandle).ToAsync();
@@ -158,18 +174,22 @@ namespace Dbosoft.YaNco
                 await Cancel().ToEither().ConfigureAwait(false); 
         }
 
+        /// <inheritdoc cref="CreateStructure(string)"/>
         public EitherAsync<RfcErrorInfo, IStructure> CreateStructure(string name) =>
             _stateAgent.Tell(new CreateStructureMessage(name)).ToAsync().Map(r => (IStructure)r);
 
+        /// <inheritdoc cref="CreateFunction(string)"/>
         public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name) =>
             _stateAgent.Tell(new CreateFunctionMessage(name)).ToAsync().Map(r => (IFunction) r);
 
+        /// <inheritdoc cref="InvokeFunction(IFunction)"/>
         public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function)
         {
             return InvokeFunction(function,CancellationToken.None);
 
         }
 
+        /// <inheritdoc cref="InvokeFunction(IFunction, CancellationToken)"/>
         public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken) 
             => _stateAgent.Tell(new InvokeFunctionMessage(function, cancellationToken)).ToAsync().Map(_ => Unit.Default);
 
@@ -180,6 +200,7 @@ namespace Dbosoft.YaNco
             return RfcRuntime.AllowStartOfPrograms(_connectionHandle, callback).ToAsync();
         }
 
+        /// <inheritdoc cref="GetAttributes()"/>
         public EitherAsync<RfcErrorInfo, ConnectionAttributes> GetAttributes()
         {
             return RfcRuntime.GetConnectionAttributes(_connectionHandle).ToAsync();
