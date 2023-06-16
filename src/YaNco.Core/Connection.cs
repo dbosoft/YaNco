@@ -82,9 +82,13 @@ namespace Dbosoft.YaNco
                     catch (Exception ex)
                     {
                         rfcRuntime.Logger.IfSome(l => l.LogException(ex));
+                        return (null, Prelude.Left(RfcErrorInfo.Error(ex.Message)));
                     }
 
-                    throw new InvalidOperationException();
+                    rfcRuntime.Logger.IfSome(l => l.LogError(
+                        $"Invalid rfc connection message {msg.GetType()}"));
+                    return (null, Prelude.Left(RfcErrorInfo.Error($"Invalid rfc connection message {msg.GetType().Name}")));
+
                 });
         }
 

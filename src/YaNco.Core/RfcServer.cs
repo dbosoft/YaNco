@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Dbosoft.Functional;
 using LanguageExt;
@@ -75,9 +74,13 @@ namespace Dbosoft.YaNco
                     catch (Exception ex)
                     {
                         rfcRuntime.Logger.IfSome(l => l.LogException(ex));
+                        return (null, Prelude.Left(RfcErrorInfo.Error(ex.Message)));
                     }
 
-                    throw new InvalidOperationException();
+                    rfcRuntime.Logger.IfSome(l => l.LogError(
+                        $"Invalid rfc server message {msg.GetType()}"));
+                    return (null, Prelude.Left(RfcErrorInfo.Error($"Invalid rfc server message {msg.GetType().Name}")));
+
                 });
 
         }
