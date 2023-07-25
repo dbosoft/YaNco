@@ -5,7 +5,12 @@ using LanguageExt;
 
 namespace Dbosoft.YaNco
 {
-
+    /// <summary>
+    /// Default implementation of <see cref="IRfcContext"/>. The RFCContext can be used to invoke
+    /// SAP Remote Function Modules.  
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
     public class RfcContext : IRfcContext
     {
         private readonly Func<EitherAsync<RfcErrorInfo, IConnection>> _connectionBuilder;
@@ -16,7 +21,8 @@ namespace Dbosoft.YaNco
         {
             _connectionBuilder = connectionBuilder;
         }
-        
+
+        /// <inheritdoc />
         public EitherAsync<RfcErrorInfo, IConnection> GetConnection()
         {
 
@@ -44,7 +50,7 @@ namespace Dbosoft.YaNco
             return GetConnectionAsync().ToAsync();
         }
 
-
+        /// <inheritdoc />
         public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function)
         {
             return InvokeFunction(function, CancellationToken.None);
