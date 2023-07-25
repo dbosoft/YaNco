@@ -18,6 +18,19 @@ steps:
   inputs:
     packageType: 'sdk'
     version: '3.x'
+    performMultiLevelLookup: true
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '5.x'
+    performMultiLevelLookup: true   
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.x'
+    performMultiLevelLookup: true   
     
 - task: DotNetCoreCLI@2
   displayName: dotnet restore
