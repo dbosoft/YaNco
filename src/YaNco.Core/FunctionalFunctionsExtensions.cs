@@ -168,12 +168,22 @@ namespace Dbosoft.YaNco
         // ReSharper disable InconsistentNaming
 
         /// <summary>
-        /// CallFunction with input and output with RfcErrorInfo lifted input and output functions.
+        /// CallFunction with input and output and <see cref="RfcErrorInfo"/> lifted input and output functions.
         /// </summary>
+        /// <remarks>
+        /// The input parameter of this method is a function that maps from a <see cref="Either{RfcErrorInfo,IFunction}"/>
+        /// to any kind of type. The input type <typeparam name="TRInput"></typeparam> itself is not used any more
+        /// after calling the input mapping.
+        /// The output parameter of this method is also a function that maps from a <see cref="Either{RfcErrorInfo,IFunction}"/>
+        /// to any kind of type. The output type <typeparam name="TResult"></typeparam> is returned after processing the ABAP function.
+        ///
+        /// You should use the methods defined on <seealso cref="FunctionalDataContainerExtensions"/> within the mapping functions to map from .NET
+        /// types to SAP function fields and back from SAP function fields to .NET. 
+        /// </remarks>
         /// <typeparam name="TRInput"></typeparam>
         /// <typeparam name="TResult"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="functionName"></param>
+        /// <param name="context">current RFC context</param>
+        /// <param name="functionName">name of the function as defined in SAP backend</param>
         /// <param name="Input">Input function lifted in either monad.</param>
         /// <param name="Output">Output function lifted in either monad.</param>
         /// <param name="cancellationToken"></param>
@@ -199,6 +209,14 @@ namespace Dbosoft.YaNco
         /// <summary>
         /// CallFunction with RfcErrorInfo lifted output.
         /// </summary>
+        /// <remarks>
+        /// The output parameter of this method is a function that maps from a <see cref="Either{RfcErrorInfo,IFunction}"/>
+        /// to any kind of type. The output type <typeparam name="TResult"></typeparam> is returned after processing the ABAP function.
+        ///
+        /// You should use the methods defined on <seealso cref="FunctionalDataContainerExtensions"/> within the output mapping function to map
+        /// from SAP function fields to .NET. 
+        /// </remarks>
+
         /// <typeparam name="TResult"></typeparam>
         /// <param name="context">RFC context</param>
         /// <param name="functionName">ABAP function name</param>
@@ -237,8 +255,15 @@ namespace Dbosoft.YaNco
         }
 
         /// <summary>
-        /// CallFunction with RfcInfo lifted input and no output
+        /// CallFunction with RfcInfo lifted input and no output.
         /// </summary>
+        /// <remarks>
+        /// The input parameter of this method is a function that maps from a <see cref="Either{RfcErrorInfo,IFunction}"/>
+        /// to any kind of type. The input type <typeparam name="TRInput"></typeparam> itself is not used any more
+        /// after calling the input mapping.
+        /// You should use the methods defined on <seealso cref="FunctionalDataContainerExtensions"/> within the input mapping functions to map from .NET
+        /// types to SAP function fields. 
+        /// </remarks>
         /// <param name="context">RFC context</param>
         /// <param name="functionName">ABAP function name</param>
         /// <param name="Input">Input function lifted in either monad.</param>
