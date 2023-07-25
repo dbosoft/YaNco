@@ -146,10 +146,17 @@ namespace Dbosoft.YaNco
         }
     }
 
+    internal class RfcBuilderSync
+    {
+        public static object SyncObject = new object();
+
+    }
+
     public abstract class RfcBuilderBase<TBuilder>
     {
         private Action<RfcRuntimeConfigurer> _configureRuntime = (c) => { };
         protected TBuilder Self { get; set; }
+        private IRfcRuntime _rfcRuntime;
 
         protected readonly List<(string, Action<IFunctionBuilder>,
             Func<CalledFunction, EitherAsync<RfcErrorInfo, Unit>>)> FunctionHandlers
@@ -216,10 +223,15 @@ namespace Dbosoft.YaNco
 
         protected IRfcRuntime CreateRfcRuntime()
         {
-            var runtimeConfigurer = new RfcRuntimeConfigurer();
-            _configureRuntime(runtimeConfigurer);
-            return runtimeConfigurer.Create();
-            
+            if(_rfcRuntime!= null) return _rfcRuntime;
+
+            lock (RfcBuilderSync.SyncObject)
+            {
+                var runtimeConfigurer = new RfcRuntimeConfigurer();
+                _configureRuntime(runtimeConfigurer);
+                _rfcRuntime = runtimeConfigurer.Create();
+                return _rfcRuntime;
+            }
         }
     }
 }
