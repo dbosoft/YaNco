@@ -23,7 +23,7 @@ namespace YaNco.Core.Tests
             var comparisonResult = compareLogic.Compare (expected, actual);
 
             if (!comparisonResult.AreEqual) {
-                throw new ObjectEqualException (expected, actual, comparisonResult.DifferencesString);
+                throw new ObjectEqualException (comparisonResult.DifferencesString);
             }
         }
     }
