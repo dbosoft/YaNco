@@ -4,12 +4,12 @@ using Xunit.Sdk;
 namespace YaNco.Core.Tests
 {
     [ExcludeFromCodeCoverage]
-    public class ObjectEqualException : AssertActualExpectedException
+    public class ObjectEqualException : XunitException
     {
         private readonly string message;
 
-        public ObjectEqualException(object expected, object actual, string message)
-            : base(expected, actual, "Assert.Equal() Failure")
+        public ObjectEqualException(string message)
+            : base("Assert.Equal() Failure")
         {
             this.message = message;
         }
