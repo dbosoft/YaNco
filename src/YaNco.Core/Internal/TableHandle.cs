@@ -2,7 +2,7 @@
 
 namespace Dbosoft.YaNco.Internal
 {
-    public class TableHandle : ITableHandle
+    public class TableHandle : ITableHandle, IDataContainerHandle
     {
         private readonly bool _destroyable;
 
@@ -12,7 +12,7 @@ namespace Dbosoft.YaNco.Internal
             Ptr = ptr;
         }
 
-        internal IntPtr Ptr { get; private set; }
+        public IntPtr Ptr { get; private set; }
 
         public void Dispose()
         {
