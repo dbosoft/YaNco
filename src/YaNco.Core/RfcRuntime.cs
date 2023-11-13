@@ -169,6 +169,14 @@ namespace Dbosoft.YaNco
 
         }
 
+        public Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription(ITableHandle table)
+        {
+            Logger.IfSome(l => l.LogTrace("reading type description by table handle", table));
+            ITypeDescriptionHandle handle = Api.GetTypeDescription(table as TableHandle, out var errorInfo);
+            return ResultOrError(handle, errorInfo);
+
+        }
+
         public Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription(IConnectionHandle connectionHandle, string typeName)
         {
             Logger.IfSome(l => l.LogTrace("reading type description by type name", typeName));

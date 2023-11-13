@@ -81,6 +81,14 @@ namespace Dbosoft.YaNco.Internal
 
         }
 
+        public static TypeDescriptionHandle GetTypeDescription(TableHandle tableHandle,
+            out RfcErrorInfo errorInfo)
+        {
+            var ptr = Interopt.RfcDescribeType(tableHandle.Ptr, out errorInfo);
+            return ptr == IntPtr.Zero ? null : new TypeDescriptionHandle(ptr);
+
+        }
+
         [CanBeNull]
         public static TypeDescriptionHandle GetTypeDescription(ConnectionHandle connectionHandle, string typeName,
             out RfcErrorInfo errorInfo)

@@ -25,6 +25,7 @@ namespace Dbosoft.YaNco
 
         Either<RfcErrorInfo, IFunctionDescriptionHandle> GetFunctionDescription(IFunctionHandle functionHandle);
         Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription(IDataContainerHandle dataContainer);
+        Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription(ITableHandle tableHandle);
         Either<RfcErrorInfo, ITypeDescriptionHandle> GetTypeDescription(IConnectionHandle connectionHandle, string typeName);
         Either<RfcErrorInfo, string> GetFunctionName(IFunctionDescriptionHandle descriptionHandle);
         Either<RfcErrorInfo, int> GetTypeFieldCount(ITypeDescriptionHandle descriptionHandle);
