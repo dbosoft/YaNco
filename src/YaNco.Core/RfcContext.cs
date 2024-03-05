@@ -13,41 +13,31 @@ namespace Dbosoft.YaNco
     /// </remarks>
     public class RfcContext : IRfcContext
     {
-        private readonly Func<EitherAsync<RfcError, IConnection>> _connectionBuilder;
-        private Option<IConnection> _connection;
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+        private readonly IRfcClientConnectionProvider _connectionProvider;
+        private readonly bool _disposeProvider;
 
+        [Obsolete("Use RfcContext(IRfcConnectionProvider connectionProvider) instead.")]
         public RfcContext(Func<EitherAsync<RfcError, IConnection>> connectionBuilder)
         {
-            _connectionBuilder = connectionBuilder;
+            _connectionProvider = new RfcClientConnectionProvider(connectionBuilder);
+            _disposeProvider = true;
         }
+
+        public RfcContext(IRfcClientConnectionProvider connectionProvider)
+        {
+            _connectionProvider = connectionProvider;
+        }
+
+        private SAPRfcRuntime GetRuntime() => 
+            SAPRfcRuntime.New(_connectionProvider);
+
+        private SAPRfcRuntime GetRuntime(CancellationToken token) =>
+            SAPRfcRuntime.New(_connectionProvider, CancellationTokenSource.CreateLinkedTokenSource(token));
 
         /// <inheritdoc />
         public EitherAsync<RfcError, IConnection> GetConnection()
         {
-
-            async Task<Either<RfcError, IConnection>> GetConnectionAsync()
-            {
-                await _semaphore.WaitAsync().ConfigureAwait(false);
-                try
-                {
-                    return await _connection
-                        .Bind(c => c.Disposed ? Prelude.None : Prelude.Some(c))
-                        .MatchAsync(s => Prelude.Right(s),
-                            async () =>
-                            {
-                                var res = await _connectionBuilder().ToEither();
-                                res.Map(connection => _connection = Prelude.Some(connection));
-                                return res;
-                            }).ConfigureAwait(false);
-                }
-                finally
-                {
-                    _semaphore.Release();
-                }
-            }
-
-            return GetConnectionAsync().ToAsync();
+            return SAPRfc<SAPRfcRuntime>.getConnection().ToEither(GetRuntime());
         }
 
         /// <inheritdoc />
@@ -58,8 +48,7 @@ namespace Dbosoft.YaNco
 
         public EitherAsync<RfcError, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken)
         {
-            return GetConnection()
-                .Bind(conn => conn.InvokeFunction(function, cancellationToken));            
+            return SAPRfc<SAPRfcRuntime>.invokeFunction(function).ToEither(GetRuntime(cancellationToken));
         }
 
         public EitherAsync<RfcError, IRfcContext> Ping()
@@ -69,9 +58,8 @@ namespace Dbosoft.YaNco
 
         public EitherAsync<RfcError, IRfcContext> Ping(CancellationToken cancellationToken)
         {
-            return CreateFunction("RFC_PING", cancellationToken)
-                .Bind(f=>InvokeFunction(f, cancellationToken))
-                .Map(r => (IRfcContext) this );
+            return SAPRfc<SAPRfcRuntime>.ping().ToEither(GetRuntime(cancellationToken))
+                .Map(_ => (IRfcContext) this );
         }
 
         public EitherAsync<RfcError, Unit> Commit()
@@ -100,27 +88,27 @@ namespace Dbosoft.YaNco
             return CreateFunction(name, CancellationToken.None);
         }
 
-        public EitherAsync<RfcError, IFunction> CreateFunction(string name, CancellationToken cancellationToken) => 
-            GetConnection().Bind(conn => conn.CreateFunction(name));
-
-        public EitherAsync<RfcError, Unit> Commit(CancellationToken cancellationToken) => 
-            GetConnection().Bind(conn => conn.Commit(cancellationToken));
+        public EitherAsync<RfcError, IFunction> CreateFunction(string name, CancellationToken cancellationToken) =>
+            SAPRfc<SAPRfcRuntime>.createFunction(name).ToEither(GetRuntime(cancellationToken));
+        
+        public EitherAsync<RfcError, Unit> Commit(CancellationToken cancellationToken) =>
+            SAPRfc<SAPRfcRuntime>.commit().ToEither(GetRuntime(cancellationToken));
 
         public EitherAsync<RfcError, Unit> CommitAndWait()
         {
             return CommitAndWait(CancellationToken.None);
         }
 
-        public EitherAsync<RfcError, Unit> CommitAndWait(CancellationToken cancellationToken) => 
-            GetConnection().Bind(conn => conn.CommitAndWait(cancellationToken));
+        public EitherAsync<RfcError, Unit> CommitAndWait(CancellationToken cancellationToken) =>
+            SAPRfc<SAPRfcRuntime>.commitAndWait().ToEither(GetRuntime(cancellationToken));
 
         public EitherAsync<RfcError, Unit> Rollback()
         {
             return Rollback(CancellationToken.None);
         }
 
-        public EitherAsync<RfcError, Unit> Rollback(CancellationToken cancellationToken) => 
-            GetConnection().Bind(conn => conn.Rollback(cancellationToken));
+        public EitherAsync<RfcError, Unit> Rollback(CancellationToken cancellationToken) =>
+            SAPRfc<SAPRfcRuntime>.rollback().ToEither(GetRuntime(cancellationToken));
 
         public Task<Either<RfcError, Unit>> CommitAsync(CancellationToken cancellationToken) => 
             Commit(cancellationToken).ToEither();
@@ -143,8 +131,8 @@ namespace Dbosoft.YaNco
 
         public void Dispose()
         {
-            _connection.IfSome(conn => conn.Dispose());
-            _connection = Prelude.None;
+            if(_disposeProvider)
+                _connectionProvider.Dispose();
         }
     }
 }

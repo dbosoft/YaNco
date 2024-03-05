@@ -11,6 +11,7 @@ using KellermanSoftware.CompareNetObjects;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using static Dbosoft.YaNco.SAPRfc<Dbosoft.YaNco.SAPRfcRuntime>;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SAPSystemTests
@@ -59,8 +60,7 @@ namespace SAPSystemTests
                 return RfcError.Ok;
             };
 
-
-            var connectionBuilder = new ConnectionBuilder(settings)
+            var connectionProvider = new SAPConnection(settings).AsRfcClient(builder => builder
                 .WithFunctionHandler("ZYANCO_SERVER_FUNCTION_1",
                     cf => cf
                         .Input(i =>
@@ -70,12 +70,10 @@ namespace SAPSystemTests
                             .SetField("RECEIVE", "Hello from YaNco")))
                 .WithStartProgramCallback(callback)
                 .ConfigureRuntime(c =>
-                    c.WithLogger(new SimpleConsoleLogger()));
+                    c.WithLogger(new SimpleConsoleLogger())));
 
-            
-            var connectionFunc = connectionBuilder.Build();
 
-            using (var context = new RfcContext(connectionFunc))
+            using (var context = new RfcContext(connectionProvider))
             {
                 await context.PingAsync();
 
@@ -92,8 +90,16 @@ namespace SAPSystemTests
                 await RunIntegrationTests(context);
             }
 
+            var runtime = SAPRfcRuntime.New(connectionProvider);
+            var call = from userName in callFunction("BAPI_USER_GET_DETAIL",
+                    Input: f => f.SetField("USERNAME", config["saprfc:username"]),
+                    Output: f => f.MapStructure("ADDRESS", s => s.GetField<string>("FULLNAME")))
+                select userName;
 
-            using (var context = new RfcContext(connectionFunc))
+            var fin = await call.Run(runtime);
+            fin.IfSucc(fullName => Console.WriteLine($"Fullname of user: {fullName}"));
+
+            using (var context = new RfcContext(connectionProvider))
             {
                 long totalTest1 = 0;
                 long totalTest2 = 0;
@@ -528,7 +534,6 @@ namespace SAPSystemTests
     }
 
 
-
     public class TestData
     {
         public string Char40 { get; set; }
@@ -572,5 +577,4 @@ namespace SAPSystemTests
 
 
     }
-
 }

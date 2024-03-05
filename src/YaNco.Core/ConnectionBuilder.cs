@@ -81,12 +81,13 @@ namespace Dbosoft.YaNco
         /// <summary>
         /// This method Builds the connection function from the <see cref="ConnectionBuilder"/> settings.
         /// </summary>
-        /// <returns>current instance for chaining.</returns>
+        /// <returns><see cref="Func{EitherAsync{RfcError,IConnection}}"/>.</returns>
         /// <remarks>
         /// The connection builder first creates RfcRuntime and calls any registered runtime configure action.
         /// The result is a function that first calls the connection factory (defaults to <seealso cref="Connection.Create"/>
         /// and afterwards registers function handlers.
         /// </remarks>
+        [Obsolete("Use method GetProvider() instead")]
         public Func<EitherAsync<RfcError, IConnection>> Build()
         {
             if(_buildFunction != null)
@@ -96,6 +97,22 @@ namespace Dbosoft.YaNco
                 .Bind(RegisterFunctionHandlers);
 
             return _buildFunction;
+
+        }
+
+        /// <summary>
+        /// This method Builds the connection function from the <see cref="ConnectionBuilder"/> settings.
+        /// </summary>
+        /// <returns><see cref="IRfcClientConnectionProvider"/> that holds or opens a connection.</returns>
+        /// <remarks>
+        /// The connection builder first creates RfcRuntime and calls any registered runtime configure action.
+        /// The created connection provider holds the connection when used the first time.
+        /// </remarks>
+        public IRfcClientConnectionProvider GetProvider()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            return new RfcClientConnectionProvider(Build());
+#pragma warning restore CS0618 // Type or member is obsolete
 
         }
 
@@ -141,14 +158,14 @@ namespace Dbosoft.YaNco
                                 return Unit.Default;
                             });
                     });
-                }).Traverse(l => l).Map(eu => connection );
+                }).TraverseSerial(l => l).Map(eu => connection );
             });
         }
     }
 
     internal class RfcBuilderSync
     {
-        public static object SyncObject = new object();
+        public static object SyncObject = new();
 
     }
 
@@ -159,8 +176,7 @@ namespace Dbosoft.YaNco
         private IRfcRuntime _rfcRuntime;
 
         protected readonly List<(string, Action<IFunctionBuilder>,
-            Func<CalledFunction, EitherAsync<RfcError, Unit>>)> FunctionHandlers
-            = new List<(string, Action<IFunctionBuilder>, Func<CalledFunction, EitherAsync<RfcError, Unit>>)>();
+            Func<CalledFunction, EitherAsync<RfcError, Unit>>)> FunctionHandlers = new();
 
 
         /// <summary>

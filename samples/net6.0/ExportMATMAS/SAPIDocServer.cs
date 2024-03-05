@@ -55,12 +55,11 @@ public class SAPIDocServer : BackgroundService
         var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
 
 
-        using var rfcServer = await new ServerBuilder(serverSettings)
+        using var rfcServer = await new SAPConnection(serverSettings).AsRfcServer(b=>b
             .WithTransactionalRfc(new MaterialMasterTransactionalRfcHandler(_transactionManager))
             .WithClientConnection(clientSettings,
                 c => c
-                    .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS", ProcessInboundIDoc))
-            .Build()
+                    .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS", ProcessInboundIDoc)))
             .StartOrException();
 
 

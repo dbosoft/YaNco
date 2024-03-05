@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Dbosoft.YaNco.TypeMapping;
-using LanguageExt;
 using Microsoft.Extensions.Configuration;
 
 namespace Dbosoft.YaNco.Hosting
@@ -26,13 +25,11 @@ namespace Dbosoft.YaNco.Hosting
             return config;
         }
 
-        public Func<EitherAsync<RfcError, IConnection>> CreateConnectionFunc()
+        public IRfcClientConnectionProvider GetConnectionProvider()
         {
-            var builder = new ConnectionBuilder(CreateSettings())
+            return new SAPConnection(CreateSettings()).AsRfcClient(b=>b
                 .ConfigureRuntime(c =>
-                    c.UseFactory(_runtimeFactory));
-
-            return builder.Build();
+                    c.UseFactory(_runtimeFactory)));
 
         }
     }

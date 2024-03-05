@@ -34,4 +34,12 @@ public record RfcError(RfcErrorInfo RfcErrorInfo, Option<Error> Inner = new()) :
         YaNco.RfcErrorInfo.Error(message, rc).ToRfcError();
 
     public static RfcError Error(RfcRc rc = RfcRc.RFC_ILLEGAL_STATE) => RfcErrorInfo.Error(rc).ToRfcError();
+
+    public static RfcError New(Error error)
+    {
+        if(error is RfcError rfcError)
+            return rfcError;
+
+        return new RfcError(RfcErrorInfo.Error(error.Message), error);
+    }
 }

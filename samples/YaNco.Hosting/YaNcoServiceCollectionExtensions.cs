@@ -18,7 +18,7 @@ namespace YaNco.Hosting
             services.AddSingleton<Func<ILogger, IFieldMapper, RfcRuntimeOptions, IRfcRuntime>>(
                 sp => (l, m, o) => new RfcRuntime(sp.GetService<ILogger>(), m, o));
             services.AddSingleton<SAPConnectionFactory>();
-            services.AddSingleton(sp => sp.GetRequiredService<SAPConnectionFactory>().CreateConnectionFunc());
+            services.AddScoped(sp => sp.GetRequiredService<SAPConnectionFactory>().GetConnectionProvider());
             services.AddTransient<IRfcContext, RfcContext>();
 
             return services;
