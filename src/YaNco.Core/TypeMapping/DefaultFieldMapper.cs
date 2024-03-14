@@ -19,24 +19,24 @@ namespace Dbosoft.YaNco.TypeMapping
                 switch (abapValue)
                 {
                     case AbapIntValue abapIntValue:
-                        return context.RfcRuntime.SetInt(context.Handle, context.FieldInfo.Name, abapIntValue.Value);
+                        return context.IO.SetInt(context.Handle, context.FieldInfo.Name, abapIntValue.Value);
                     case AbapLongValue abapLongValue:
-                        return context.RfcRuntime.SetLong(context.Handle, context.FieldInfo.Name, abapLongValue.Value);
+                        return context.IO.SetLong(context.Handle, context.FieldInfo.Name, abapLongValue.Value);
                     case AbapByteValue abapByteValue:
-                        return context.RfcRuntime.SetBytes(context.Handle, context.FieldInfo.Name, abapByteValue.Value,
+                        return context.IO.SetBytes(context.Handle, context.FieldInfo.Name, abapByteValue.Value,
                             abapByteValue.Value.LongLength);
                     case AbapStringValue abapStringValue:
                         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
                         switch (context.FieldInfo.Type)
                         {
                             case RfcType.DATE:
-                                return context.RfcRuntime.SetDateString(context.Handle, context.FieldInfo.Name,
+                                return context.IO.SetDateString(context.Handle, context.FieldInfo.Name,
                                     abapStringValue.Value);
                             case RfcType.TIME:
-                                return context.RfcRuntime.SetTimeString(context.Handle, context.FieldInfo.Name,
+                                return context.IO.SetTimeString(context.Handle, context.FieldInfo.Name,
                                     abapStringValue.Value);
                             default:
-                                return context.RfcRuntime.SetString(context.Handle, context.FieldInfo.Name,
+                                return context.IO.SetString(context.Handle, context.FieldInfo.Name,
                                     abapStringValue.Value);
                         }
 
@@ -54,10 +54,10 @@ namespace Dbosoft.YaNco.TypeMapping
                 switch (context.FieldInfo.Type)
                 {
                     case RfcType.DATE:
-                        return context.RfcRuntime.GetDateString(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetDateString(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapStringValue(context.FieldInfo, v));
                     case RfcType.TIME:
-                        return context.RfcRuntime.GetTimeString(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetTimeString(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapStringValue(context.FieldInfo, v));
                     case RfcType.CHAR:
                     case RfcType.NUM:
@@ -66,28 +66,28 @@ namespace Dbosoft.YaNco.TypeMapping
                     case RfcType.FLOAT:
                     case RfcType.DECF16:
                     case RfcType.DECF34:
-                        return context.RfcRuntime.GetString(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetString(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapStringValue(context.FieldInfo, v));
                     case RfcType.INT:
                     case RfcType.INT2:
                     case RfcType.INT1:
-                        return context.RfcRuntime.GetInt(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetInt(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapIntValue(context.FieldInfo, v));
                     case RfcType.INT8:
-                        return context.RfcRuntime.GetLong(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetLong(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapLongValue(context.FieldInfo, v));
                     case RfcType.BYTE:
                     case RfcType.XSTRING:
-                        return context.RfcRuntime.GetBytes(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetBytes(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapByteValue(context.FieldInfo, v));
                     case RfcType.STRUCTURE:
-                        return context.RfcRuntime.GetStructure(context.Handle, context.FieldInfo.Name)
-                            .Map(handle => (IStructure)new Structure(handle, context.RfcRuntime))
+                        return context.IO.GetStructure(context.Handle, context.FieldInfo.Name)
+                            .Map(handle => (IStructure)new Structure(handle, context.IO))
                             .Bind(s => s.ToDictionary())
                             .Map(d => (AbapValue)new AbapStructureValues(context.FieldInfo, d));
                     case RfcType.TABLE:
-                        return context.RfcRuntime.GetTable(context.Handle, context.FieldInfo.Name)
-                            .Map(handle => (ITable)new Table(handle, context.RfcRuntime))
+                        return context.IO.GetTable(context.Handle, context.FieldInfo.Name)
+                            .Map(handle => (ITable)new Table(handle, context.IO))
                             .MapStructure(d => d.ToDictionary())
                             .Map(tr => (AbapValue)new AbapTableValues(context.FieldInfo, tr));
 

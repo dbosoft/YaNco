@@ -4,19 +4,19 @@ namespace Dbosoft.YaNco
 {
     internal class Function : DataContainer, IFunction
     {
+        private readonly SAPRfcFunctionIO _functionIO;
         public IFunctionHandle Handle { get; private set; }
-        private readonly IRfcRuntime _rfcRuntime;
 
-        internal Function(IFunctionHandle handle, IRfcRuntime rfcRuntime) : base(handle, rfcRuntime)
+        internal Function(IFunctionHandle handle, SAPRfcDataIO io, SAPRfcFunctionIO functionIO) : base(handle, io)
         {
+            _functionIO = functionIO;
             Handle = handle;
-            _rfcRuntime = rfcRuntime;
         }
 
         protected override Either<RfcError, RfcFieldInfo> GetFieldInfo(string name)
         {
-            return _rfcRuntime.GetFunctionDescription(Handle).Use(used => used
-                .Bind(handle => _rfcRuntime.GetFunctionParameterDescription(handle, name)).Map(r => (RfcFieldInfo) r));
+            return _functionIO.GetFunctionDescription(Handle).Use(used => used
+                .Bind(handle => _functionIO.GetFunctionParameterDescription(handle, name)).Map(r => (RfcFieldInfo) r));
 
         }
     }

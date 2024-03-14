@@ -7,8 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using Microsoft.Extensions.Configuration;
-using LanguageExt;
-using static Dbosoft.YaNco.SAPRfc<Dbosoft.YaNco.SAPRfcRuntime>;
 
 namespace CreateSalesOrder
 {
@@ -20,13 +18,13 @@ namespace CreateSalesOrder
         {
             AddArgument(new Argument<string>("customerNo", "Number (Id) of the customer"));
             AddArgument(new Argument<string>("productId", "Id of the product"));
-            AddOption(new System.CommandLine.Option<int>(
+            AddOption(new Option<int>(
                 new[] { "--quantity", "-q" }, () => 1, "Quantity ordered"));
         }
 
         public new class Handler : ICommandHandler
         {
-            private readonly SAPRfcRuntime _rfcRuntime;
+            private readonly IRfcContext _rfcContext;
             private readonly CustomizingSettings _customizingSettings = new CustomizingSettings();
 
             public string CustomerNo { get; set; }
@@ -35,10 +33,12 @@ namespace CreateSalesOrder
 
             public static IEnumerable<int> OneLine = Enumerable.Range(0, 1);
 
-            public Handler(RuntimeReference<SAPRfcRuntime> rfcRuntimeRef, IConfiguration configuration)
+            public Handler(IRfcContext rfcContext, IConfiguration configuration)
             {
-                _rfcRuntime = rfcRuntimeRef.Runtime;
+                _rfcContext = rfcContext;
                 configuration.GetSection("salesSettings").Bind(_customizingSettings);
+
+
             }
 
             public int Invoke(InvocationContext context)
@@ -46,9 +46,9 @@ namespace CreateSalesOrder
                 throw new NotImplementedException();
             }
 
-            public async Task<int> InvokeAsync(InvocationContext context)
+            public Task<int> InvokeAsync(InvocationContext context)
             {
-                var fin = await (from createdOrder in callFunction("BAPI_SALESDOCU_CREATEFROMDATA1",
+                return _rfcContext.CallFunction("BAPI_SALESDOCU_CREATEFROMDATA1",
                         Input: f => f
                             // sets the input fields
                             .SetStructure("SALES_HEADER_IN", s => s
@@ -89,20 +89,19 @@ namespace CreateSalesOrder
                             .GetField<string>("SALESDOCUMENT_EX")
 
                     )
-                    from _ in commitAndWait()
-                    select createdOrder).Run(_rfcRuntime);
-
-                return fin.Match(
-                    Fail: l =>
-                    {
-                        Console.Error.WriteLineAsync($"Failed to create sales document. Error: {l.Message}");
-                        return -1;
-                    },
-                    Succ: result =>
-                    {
-                        Console.Out.WriteLineAsync($"Created Sales document: {result}");
-                        return 0;
-                    });
+                    .CommitAndWait(_rfcContext)
+                    //alternative to:
+                    //.Bind(result => _rfcContext.CommitAndWait().Map(_ => result))
+                    .MatchAsync(
+                        LeftAsync: async l =>
+                        {
+                            await Console.Error.WriteLineAsync($"Failed to create sales document. Error: {l.Message}");
+                            return -1;
+                        },
+                        RightAsync: async result => {
+                            await Console.Out.WriteLineAsync($"Created Sales document: {result}");
+                            return 0;
+                        });
 
             }
         }

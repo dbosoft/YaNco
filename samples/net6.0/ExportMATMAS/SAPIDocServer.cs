@@ -20,11 +20,12 @@ public enum TransactionState
 public class SAPIDocServer : BackgroundService
 {
     private readonly IConfiguration _configuration;
-    private readonly TransactionManager<MaterialMasterRecord> _transactionManager = new ();
+    private readonly TransactionManager<MaterialMasterRecord> _transactionManager = new();
 
     public SAPIDocServer(IConfiguration configuration)
     {
-        _configuration = configuration; }
+        _configuration = configuration;
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -32,7 +33,7 @@ public class SAPIDocServer : BackgroundService
 
         var serverSettings = new Dictionary<string, string>
         {
-            
+
             { "SYSID", _configuration["saprfc:sysid"] },
             { "PROGRAM_ID", _configuration["saprfc:program_id"] },
             { "GWHOST", _configuration["saprfc:ashost"] },
@@ -50,16 +51,17 @@ public class SAPIDocServer : BackgroundService
             { "passwd", _configuration["saprfc:passwd"] },
             { "lang", "EN" }
         };
-       
+
 
         var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
 
 
-        using var rfcServer = await new SAPConnection(serverSettings).AsRfcServer(b=>b
+        using var rfcServer = await new ServerBuilder(serverSettings)
             .WithTransactionalRfc(new MaterialMasterTransactionalRfcHandler(_transactionManager))
             .WithClientConnection(clientSettings,
                 c => c
-                    .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS", ProcessInboundIDoc)))
+                    .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS", ProcessInboundIDoc))
+            .Build()
             .StartOrException();
 
 
@@ -80,7 +82,7 @@ public class SAPIDocServer : BackgroundService
     }
 
 
-    private EitherAsync<RfcError, Unit> ProcessInboundIDoc(CalledFunction cf)
+    private EitherAsync<RfcError, Unit> ProcessInboundIDoc(CalledFunction<SAPRfcRuntime, SAPRfcRuntimeSettings> cf)
     {
         return cf
             .Input(i =>
@@ -124,7 +126,7 @@ public class SAPIDocServer : BackgroundService
                         .ToEither(RfcError.Error(RfcRc.RFC_EXTERNAL_FAILURE))
                         .ToAsync()
 
-                    // open a client connection to sender for metadata lookup
+                        // open a client connection to sender for metadata lookup
                     from connection in context.GetConnection()
                     from materialMaster in ExtractMaterialMaster(connection, data)
 
@@ -149,7 +151,7 @@ public class SAPIDocServer : BackgroundService
     }
 
 
-    private static EitherAsync<RfcError, MaterialMasterRecord> ExtractMaterialMaster(IConnection connection, 
+    private static EitherAsync<RfcError, MaterialMasterRecord> ExtractMaterialMaster(IConnection connection,
         Seq<IDocDataRecord> data)
     {
         return
@@ -158,42 +160,42 @@ public class SAPIDocServer : BackgroundService
             from clientSegment in FindRequiredSegment("E1MARAM", data)
             from material in MapSegment(connection, clientSegment, s =>
                 from materialNo in s.GetField<string>("MATNR")
-                from unit in s.GetField<string>("MEINS")  
+                from unit in s.GetField<string>("MEINS")
                 select new
                 {
-                    MaterialNo = materialNo, 
+                    MaterialNo = materialNo,
                     ClientData = new ClientData(unit)
                 })
 
-            //extract descriptions data of material master
+                //extract descriptions data of material master
             from descriptionData in MapSegments(connection, FindSegments("E1MAKTM", data), s =>
                 from language in s.GetField<string>("SPRAS_ISO")
                 from description in s.GetField<string>("MAKTX")
                 select new DescriptionData(language, description))
 
-            //extract some plant data of material master
+                //extract some plant data of material master
             from plantData in MapSegments(connection, FindSegments("E1MARCM", data), s =>
                 from plant in s.GetField<string>("WERKS")
                 from purchasingGroup in s.GetField<string>("EKGRP")
                 select new PlantData(plant, purchasingGroup)
             )
             select new MaterialMasterRecord(
-                material.MaterialNo, 
-                material.ClientData, 
-                descriptionData.ToArray(), 
+                material.MaterialNo,
+                material.ClientData,
+                descriptionData.ToArray(),
                 plantData.ToArray());
     }
 
-    private static EitherAsync<RfcError, T> MapSegment<T>(IConnection connection, 
-        IDocDataRecord data, Func<IStructure,Either<RfcError, T>> mapFunc)
+    private static EitherAsync<RfcError, T> MapSegment<T>(IConnection connection,
+        IDocDataRecord data, Func<IStructure, Either<RfcError, T>> mapFunc)
     {
         //to convert the segment we create a temporary structure of the segment definition type
         //and "move" the segment data into it. 
         return connection.CreateStructure(_segment2Type[data.Segment]).Use(structure =>
         {
             return from _ in structure.Bind(s => s.SetFromString(data.Data).ToAsync())
-                from res in structure.Bind(s => mapFunc(s).ToAsync())
-                select res;
+                   from res in structure.Bind(s => mapFunc(s).ToAsync())
+                   select res;
         });
 
     }
@@ -206,7 +208,7 @@ public class SAPIDocServer : BackgroundService
     }
 
     private static EitherAsync<RfcError, IDocDataRecord> FindRequiredSegment(
-        string typeName, Seq<IDocDataRecord> records )
+        string typeName, Seq<IDocDataRecord> records)
     {
         var segmentName = _type2Segment[typeName];
         return records.Find(x => x.Segment == segmentName)

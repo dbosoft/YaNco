@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime;
+using System.Threading;
 using LanguageExt;
 using LanguageExt.Attributes;
 using LanguageExt.Effects.Traits;
@@ -8,9 +10,33 @@ using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
-[Typeclass("*")]
-public interface HasSAPRfcClient<RT> : HasCancel<RT>
+
+public interface HasSAPRfcFunctions<RT> : HasCancel<RT>
     where RT : struct, HasCancel<RT>
 {
-    Eff<RT, IRfcClientConnectionProvider> RfcClientConnectionEff { get; }
+    Eff<RT, SAPRfcFunctionIO> RfcFunctionsEff { get; }
+}
+
+public interface HasSAPRfcConnection<RT> : HasCancel<RT>
+    where RT : struct, HasCancel<RT>
+{
+    Eff<RT, SAPRfcConnectionIO> RfcConnectionEff { get; }
+}
+
+public interface HasSAPRfcServer<RT> : HasCancel<RT>
+    where RT : struct, HasCancel<RT>
+{
+    Eff<RT, SAPRfcServerIO> RfcServerEff { get; }
+}
+
+public interface HasEnvSettings<TSettings>
+    where TSettings : SAPRfcRuntimeSettings
+{
+    SAPRfcRuntimeEnv<TSettings> Env { get; }
+}
+
+public interface HasCancelFactory<RT> : HasCancel<RT> where RT : struct, HasCancel<RT>
+{
+    RT WithCancelToken(CancellationToken token);
+
 }

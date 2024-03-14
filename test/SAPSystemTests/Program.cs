@@ -11,7 +11,6 @@ using KellermanSoftware.CompareNetObjects;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using static Dbosoft.YaNco.SAPRfc<Dbosoft.YaNco.SAPRfcRuntime>;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SAPSystemTests
@@ -60,7 +59,8 @@ namespace SAPSystemTests
                 return RfcError.Ok;
             };
 
-            var connectionProvider = new SAPConnection(settings).AsRfcClient(builder => builder
+
+            var connectionBuilder = new ConnectionBuilder(settings)
                 .WithFunctionHandler("ZYANCO_SERVER_FUNCTION_1",
                     cf => cf
                         .Input(i =>
@@ -70,10 +70,12 @@ namespace SAPSystemTests
                             .SetField("RECEIVE", "Hello from YaNco")))
                 .WithStartProgramCallback(callback)
                 .ConfigureRuntime(c =>
-                    c.WithLogger(new SimpleConsoleLogger())));
+                    c.WithLogger(new SimpleConsoleLogger()));
 
 
-            using (var context = new RfcContext(connectionProvider))
+            var connectionFunc = connectionBuilder.Build();
+
+            using (var context = new RfcContext(connectionFunc))
             {
                 await context.PingAsync();
 
@@ -90,16 +92,8 @@ namespace SAPSystemTests
                 await RunIntegrationTests(context);
             }
 
-            var runtime = SAPRfcRuntime.New(connectionProvider);
-            var call = from userName in callFunction("BAPI_USER_GET_DETAIL",
-                    Input: f => f.SetField("USERNAME", config["saprfc:username"]),
-                    Output: f => f.MapStructure("ADDRESS", s => s.GetField<string>("FULLNAME")))
-                select userName;
 
-            var fin = await call.Run(runtime);
-            fin.IfSucc(fullName => Console.WriteLine($"Fullname of user: {fullName}"));
-
-            using (var context = new RfcContext(connectionProvider))
+            using (var context = new RfcContext(connectionFunc))
             {
                 long totalTest1 = 0;
                 long totalTest2 = 0;
@@ -423,10 +417,10 @@ namespace SAPSystemTests
                 Input: f => f,
                 Output: f => f.MapStructure("ES_DEEP", s =>
                     s.ToDictionary())
-                
+
                 )
-                from connection in context.GetConnection()
-                select (Values: output, Connection: connection))
+                   from connection in context.GetConnection()
+                   select (Values: output, Connection: connection))
                 .Match(
                 r =>
                 {
@@ -534,6 +528,7 @@ namespace SAPSystemTests
     }
 
 
+
     public class TestData
     {
         public string Char40 { get; set; }
@@ -577,4 +572,5 @@ namespace SAPSystemTests
 
 
     }
+
 }

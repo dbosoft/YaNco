@@ -1,10 +1,13 @@
-﻿namespace Dbosoft.YaNco
+﻿using LanguageExt.Effects.Traits;
+
+namespace Dbosoft.YaNco
 {
-    public interface ITransactionalRfcHandler
+    public interface ITransactionalRfcHandler<RT>
+        where RT : struct
     {
-        RfcRc OnCheck(IRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId);
-        RfcRc OnCommit(IRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId);
-        RfcRc OnRollback(IRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId);
-        RfcRc OnConfirm(IRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId);
+        RfcRc OnCheck(RT runtime, IRfcHandle rfcHandle, string transactionId);
+        RfcRc OnCommit(RT runtime, IRfcHandle rfcHandle, string transactionId);
+        RfcRc OnRollback(RT runtime, IRfcHandle rfcHandle, string transactionId);
+        RfcRc OnConfirm(RT runtime, IRfcHandle rfcHandle, string transactionId);
     }
 }

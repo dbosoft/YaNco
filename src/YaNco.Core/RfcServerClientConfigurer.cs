@@ -1,16 +1,20 @@
 ﻿using System;
+using Dbosoft.YaNco.Live;
 using LanguageExt;
 
 namespace Dbosoft.YaNco
 {
-    public class RfcServerClientConfigurer
+    public class RfcServerClientConfigurer<RT, TSettings> where RT : struct, 
+        HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, 
+        HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvSettings<TSettings>, HasCancelFactory<RT>, HasSAPRfcServer<RT>
+        where TSettings : SAPRfcRuntimeSettings
     {
-        private readonly ConnectionBuilder _builder;
+        private readonly ConnectionBuilder<RT, TSettings> _builder;
 
-        public RfcServerClientConfigurer(ConnectionBuilder builder)
+        public RfcServerClientConfigurer(ConnectionBuilder<RT, TSettings> builder)
         {
             _builder = builder;
-            
+
         }
 
         /// <summary>
@@ -25,8 +29,8 @@ namespace Dbosoft.YaNco
         /// Function handlers are registered process wide (in the SAP NW RFC Library).and mapped to backend system id. 
         /// Multiple registrations of same function and same backend id will therefore have no effect.
         /// </remarks>
-        public RfcServerClientConfigurer WithFunctionHandler(string functionName,
-            Func<CalledFunction, EitherAsync<RfcError, Unit>> calledFunc)
+        public RfcServerClientConfigurer<RT, TSettings> WithFunctionHandler(string functionName,
+            Func<CalledFunction<RT, TSettings>, EitherAsync<RfcError, Unit>> calledFunc)
         {
             _builder.WithFunctionHandler(functionName, calledFunc);
             return this;

@@ -1,32 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using Dbosoft.YaNco.Live;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
+// ReSharper disable InconsistentNaming
 
 namespace Dbosoft.YaNco
 {
-    public interface IRfcRuntime
+    public interface SAPRfcDataIO: SAPRfcTypeIO, SAPRfcStructureIO, SAPRfcTableIO, SAPRfcFieldIO
     {
-        IFieldMapper FieldMapper { get; }
-        RfcRuntimeOptions Options { get; }
-        Option<ILogger> Logger { get; }
+    }
 
-
-        Either<RfcError, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams);
-        Either<RfcError, Unit> LaunchServer(IRfcServerHandle rfcServerHandle);
-        Either<RfcError, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout);
-        Either<RfcError, RfcServerAttributes> GetServerCallContext(IRfcHandle rfcHandle);
-        Either<RfcError, IConnectionHandle> OpenConnection(IDictionary<string, string> connectionParams);
-        Either<RfcError, IFunctionDescriptionHandle> CreateFunctionDescription(string functionName);
-        Either<RfcError, IFunctionDescriptionHandle> AddFunctionParameter(IFunctionDescriptionHandle descriptionHandle, RfcParameterDescription parameterDescription);
-
-        Either<RfcError, IFunctionDescriptionHandle> GetFunctionDescription(IConnectionHandle connectionHandle,
-            string functionName);
-
-        Either<RfcError, IFunctionDescriptionHandle> GetFunctionDescription(IFunctionHandle functionHandle);
+    public interface SAPRfcTypeIO
+    {
         Either<RfcError, ITypeDescriptionHandle> GetTypeDescription(IDataContainerHandle dataContainer);
         Either<RfcError, ITypeDescriptionHandle> GetTypeDescription(IConnectionHandle connectionHandle, string typeName);
-        Either<RfcError, string> GetFunctionName(IFunctionDescriptionHandle descriptionHandle);
         Either<RfcError, int> GetTypeFieldCount(ITypeDescriptionHandle descriptionHandle);
 
         Either<RfcError, RfcFieldInfo> GetTypeFieldDescription(ITypeDescriptionHandle descriptionHandle,
@@ -35,7 +23,36 @@ namespace Dbosoft.YaNco
         Either<RfcError, RfcFieldInfo> GetTypeFieldDescription(ITypeDescriptionHandle descriptionHandle,
             string name);
 
+
+    }
+
+    public interface SAPRfcStructureIO
+    {
+        Either<RfcError, IStructureHandle> GetStructure(IDataContainerHandle dataContainer, string name);
+        Either<RfcError, IStructureHandle> CreateStructure(ITypeDescriptionHandle typeDescriptionHandle);
+        Either<RfcError, Unit> SetStructure(IStructureHandle structureHandle, string content);
+
+    }
+
+    public interface SAPRfcTableIO
+    {
+        RfcTableOptions Options { get; }
+
+        Either<RfcError, ITableHandle> GetTable(IDataContainerHandle dataContainer, string name);
+        Either<RfcError, ITableHandle> CloneTable(ITableHandle tableHandle);
+
+        Either<RfcError, int> GetTableRowCount(ITableHandle tableHandle);
+        Either<RfcError, IStructureHandle> GetCurrentTableRow(ITableHandle tableHandle);
+        Either<RfcError, IStructureHandle> AppendTableRow(ITableHandle tableHandle);
+        Either<RfcError, Unit> MoveToNextTableRow(ITableHandle tableHandle);
+        Either<RfcError, Unit> MoveToFirstTableRow(ITableHandle tableHandle);
+
+    }
+
+    public interface SAPRfcFunctionIO
+    {
         Either<RfcError, IFunctionHandle> CreateFunction(IFunctionDescriptionHandle descriptionHandle);
+
         Either<RfcError, int> GetFunctionParameterCount(IFunctionDescriptionHandle descriptionHandle);
 
         Either<RfcError, RfcParameterInfo> GetFunctionParameterDescription(
@@ -44,38 +61,51 @@ namespace Dbosoft.YaNco
         Either<RfcError, RfcParameterInfo> GetFunctionParameterDescription(
             IFunctionDescriptionHandle descriptionHandle, string name);
 
-        Either<RfcError, IDisposable> AddFunctionHandler(string sysid, 
+        Either<RfcError, IDisposable> AddFunctionHandler(string sysid,
             IFunction function, Func<IRfcHandle, IFunction, EitherAsync<RfcError, Unit>> handler);
 
-        Either<RfcError, IDisposable> AddTransactionHandlers(string sysid, 
+        Either<RfcError, IDisposable> AddFunctionHandler(string sysid,
+            IFunctionDescriptionHandle descriptionHandle, Func<IRfcHandle, IFunction, EitherAsync<RfcError, Unit>> handler);
+
+        Either<RfcError, Unit> Invoke(IConnectionHandle connectionHandle, IFunctionHandle functionHandle);
+        Either<RfcError, IFunctionDescriptionHandle> CreateFunctionDescription(string functionName);
+        Either<RfcError, IFunctionDescriptionHandle> AddFunctionParameter(IFunctionDescriptionHandle descriptionHandle, RfcParameterDescription parameterDescription);
+
+        Either<RfcError, IFunctionDescriptionHandle> GetFunctionDescription(IConnectionHandle connectionHandle,
+            string functionName);
+
+        Either<RfcError, IFunctionDescriptionHandle> GetFunctionDescription(IFunctionHandle functionHandle);
+        Either<RfcError, string> GetFunctionName(IFunctionDescriptionHandle descriptionHandle);
+
+    }
+
+    public interface SAPRfcConnectionIO
+    {
+        Either<RfcError, IConnectionHandle> OpenConnection(IDictionary<string, string> connectionParams);
+        Either<RfcError, Unit> CancelConnection(IConnectionHandle connectionHandle);
+        Either<RfcError, bool> IsConnectionHandleValid(IConnectionHandle connectionHandle);
+        Either<RfcError, ConnectionAttributes> GetConnectionAttributes(IConnectionHandle connectionHandle);
+
+    }
+
+    public interface SAPRfcServerIO
+    {
+        Either<RfcError, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams);
+        Either<RfcError, Unit> LaunchServer(IRfcServerHandle rfcServerHandle);
+        Either<RfcError, Unit> ShutdownServer(IRfcServerHandle rfcServerHandle, int timeout);
+        Either<RfcError, RfcServerAttributes> GetServerCallContext(IRfcHandle rfcHandle);
+
+        Either<RfcError, IDisposable> AddTransactionHandlers(string sysid,
             Func<IRfcHandle, string, RfcRc> onCheck,
             Func<IRfcHandle, string, RfcRc> onCommit,
             Func<IRfcHandle, string, RfcRc> onRollback,
             Func<IRfcHandle, string, RfcRc> onConfirm);
 
-        Either<RfcError, IDisposable> AddFunctionHandler(string sysid, 
-            IFunctionDescriptionHandle descriptionHandle, Func<IRfcHandle, IFunction, EitherAsync<RfcError, Unit>> handler);
 
-        Either<RfcError, Unit> Invoke(IConnectionHandle connectionHandle, IFunctionHandle functionHandle);
-        Either<RfcError, Unit> CancelConnection(IConnectionHandle connectionHandle);
-        Either<RfcError, bool> IsConnectionHandleValid(IConnectionHandle connectionHandle);
-        Either<RfcError, ConnectionAttributes> GetConnectionAttributes(IConnectionHandle connectionHandle);
-        Either<RfcError, IStructureHandle> GetStructure(IDataContainerHandle dataContainer, string name);
-        Either<RfcError, IStructureHandle> CreateStructure(ITypeDescriptionHandle typeDescriptionHandle);
-        Either<RfcError, Unit> SetStructure(IStructureHandle structureHandle, string content);
-        Either<RfcError, ITableHandle> GetTable(IDataContainerHandle dataContainer, string name);
-        Either<RfcError, ITableHandle> CloneTable(ITableHandle tableHandle);
+    }
 
-        [Obsolete("Use method AllowStartOfPrograms of ConnectionBuilder. This method will be removed in next major release.")]
-        Either<RfcError, Unit> AllowStartOfPrograms(IConnectionHandle connectionHandle,
-            StartProgramDelegate callback);
-
-        Either<RfcError, int> GetTableRowCount(ITableHandle tableHandle);
-        Either<RfcError, IStructureHandle> GetCurrentTableRow(ITableHandle tableHandle);
-        Either<RfcError, IStructureHandle> AppendTableRow(ITableHandle tableHandle);
-        Either<RfcError, Unit> MoveToNextTableRow(ITableHandle tableHandle);
-        Either<RfcError, Unit> MoveToFirstTableRow(ITableHandle tableHandle);
-
+    public interface SAPRfcFieldIO
+    {
         Either<RfcError, Unit> SetString(IDataContainerHandle containerHandle, string name,
             string value);
 
@@ -90,14 +120,27 @@ namespace Dbosoft.YaNco
             string value);
 
         Either<RfcError, string> GetTimeString(IDataContainerHandle containerHandle, string name);
-        Either<RfcError, Unit> SetFieldValue<T>(IDataContainerHandle handle, T value, Func<Either<RfcError, RfcFieldInfo>> func);
-        Either<RfcError, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcError, RfcFieldInfo>> func);
         Either<RfcError, Unit> SetInt(IDataContainerHandle containerHandle, string name, int value);
         Either<RfcError, int> GetInt(IDataContainerHandle containerHandle, string name);
         Either<RfcError, Unit> SetLong(IDataContainerHandle containerHandle, string name, long value);
         Either<RfcError, long> GetLong(IDataContainerHandle containerHandle, string name);
         Either<RfcError, Unit> SetBytes(IDataContainerHandle containerHandle, string name, byte[] buffer, long bufferLength);
         Either<RfcError, byte[]> GetBytes(IDataContainerHandle containerHandle, string name);
+
+        Either<RfcError, Unit> SetFieldValue<T>(IDataContainerHandle handle, T value, Func<Either<RfcError, RfcFieldInfo>> func);
+        Either<RfcError, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcError, RfcFieldInfo>> func);
+
+    }
+
+
+    [Obsolete("Use SAPRfcIO instead. This interface will be removed in next major release.")]
+    public interface IRfcRuntime : 
+        SAPRfcServerIO, SAPRfcConnectionIO, SAPRfcFunctionIO, SAPRfcDataIO
+    {
+        IFieldMapper FieldMapper { get; }
+        Option<ILogger> Logger { get; }
+
+
     }
 
 

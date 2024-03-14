@@ -1,6 +1,6 @@
 ﻿namespace Dbosoft.YaNco
 {
-    public class RfcRuntimeOptions
+    public class RfcTableOptions
     {
         /// <summary>
         /// With this option you can disable the default behaviour that a table row

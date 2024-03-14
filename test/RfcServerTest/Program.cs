@@ -49,7 +49,7 @@ var serverBuilderWithClientConnection = new ServerBuilder(serverSettings)
     .ConfigureRuntime(c =>
         c.WithLogger(new SimpleConsoleLogger()))
 
-    .WithClientConnection(clientSettings, 
+    .WithClientConnection(clientSettings,
         c => c
             .WithFunctionHandler("ZYANCO_SERVER_FUNCTION_1",
             cf => cf
@@ -62,11 +62,11 @@ var serverBuilderWithClientConnection = new ServerBuilder(serverSettings)
                     return cf.UseRfcContext(context =>
                     {
                         return from connection in context.GetConnection()
-                            from attributes in connection.GetAttributes()
-                            from userName in context.CallFunction("BAPI_USER_GET_DETAIL",
-                                Input: f => f.SetField("USERNAME", attributes.User),
-                                Output: f => f.MapStructure("ADDRESS", s => s.GetField<string>("FULLNAME")))
-                            select userName;
+                               from attributes in connection.GetAttributes()
+                               from userName in context.CallFunction("BAPI_USER_GET_DETAIL",
+                                   Input: f => f.SetField("USERNAME", attributes.User),
+                                   Output: f => f.MapStructure("ADDRESS", s => s.GetField<string>("FULLNAME")))
+                               select userName;
 
                     }).Match(r => r, l => "John Doe");
 
@@ -86,7 +86,7 @@ try
 {
     await Task.Delay(Timeout.Infinite, cancellationTokenSource.Token);
 }
-catch(TaskCanceledException){}
+catch (TaskCanceledException) { }
 
 
 await rfcServer.Stop().ToEither();
@@ -109,7 +109,7 @@ var serverBuilderWithoutClientConnection = new ServerBuilder(serverSettings)
             {
                 Console.WriteLine($"Received message from backend: {s}");
                 cancellationTokenSource.Cancel();
-                
+
             })
             .Reply((_, f) => f
                 .SetField("RECEIVE", "Hello from YaNco")));

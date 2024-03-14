@@ -10,7 +10,7 @@ namespace Dbosoft.YaNco
     {
         private readonly IStructureHandle _handle;
 
-        public Structure(IStructureHandle handle, IRfcRuntime rfcRuntime) : base(handle, rfcRuntime)
+        public Structure(IStructureHandle handle, SAPRfcDataIO io) : base(handle, io)
         {
             _handle = handle;
         }
@@ -18,13 +18,13 @@ namespace Dbosoft.YaNco
 
         public Either<RfcError, RfcFieldInfo[]> GetFieldInfos()
         {
-            return RfcRuntime.GetTypeDescription(Handle).Use(used => used
+            return IO.GetTypeDescription(Handle).Use(used => used
                 .Bind( handle =>
                 {
-                    return RfcRuntime.GetTypeFieldCount(handle).Bind(fieldCount =>
+                    return IO.GetTypeFieldCount(handle).Bind(fieldCount =>
                     {
-                        return Enumerable.Range(0, fieldCount).Map(i => 
-                            RfcRuntime.GetTypeFieldDescription(handle, i)).Traverse(l=>l);
+                        return Enumerable.Range(0, fieldCount).Map(i =>
+                            IO.GetTypeFieldDescription(handle, i)).Traverse(l=>l);
                     });
 
                 })).Map(r => r.ToArray());
@@ -35,7 +35,7 @@ namespace Dbosoft.YaNco
             return GetFieldInfos()
                 .Bind(fields =>
                     fields.Map(fieldInfo =>
-                        from fieldValue in RfcRuntime.GetFieldValue<AbapValue>(Handle, () => fieldInfo)
+                        from fieldValue in IO.GetFieldValue<AbapValue>(Handle, () => fieldInfo)
                         from fieldName in Prelude.Right(fieldInfo.Name).Bind<RfcError>()
                         select (fieldName, fieldValue)
                     ).Traverse(l => l))
@@ -53,7 +53,7 @@ namespace Dbosoft.YaNco
                     fields.Map(fieldInfo => 
                         !dictionary.ContainsKey(fieldInfo.Name) 
                             ? Unit.Default
-                            : RfcRuntime.SetFieldValue(Handle, dictionary[fieldInfo.Name], () => fieldInfo)
+                            : IO.SetFieldValue(Handle, dictionary[fieldInfo.Name], () => fieldInfo)
                             )
                         .Traverse(l => l))
                 .Map(_ => Unit.Default);
@@ -61,7 +61,7 @@ namespace Dbosoft.YaNco
 
         public Either<RfcError, Unit> SetFromString(string content)
         {
-            return RfcRuntime.SetStructure(_handle, content);
+            return IO.SetStructure(_handle, content);
         }
     }
 }

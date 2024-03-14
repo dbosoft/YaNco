@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Dbosoft.YaNco.TypeMapping;
+using LanguageExt;
 using Microsoft.Extensions.Configuration;
 
 namespace Dbosoft.YaNco.Hosting
@@ -10,11 +10,12 @@ namespace Dbosoft.YaNco.Hosting
     public class SAPConnectionFactory
     {
         private readonly IConfiguration _configuration;
-        private readonly Func<ILogger, IFieldMapper, RfcRuntimeOptions, IRfcRuntime> _runtimeFactory;
-        public SAPConnectionFactory(IConfiguration configuration, Func<ILogger, IFieldMapper, RfcRuntimeOptions, IRfcRuntime> runtimeFactory)
+        private readonly ILogger _logger;
+
+        public SAPConnectionFactory(IConfiguration configuration, ILogger logger)
         {
             _configuration = configuration;
-            _runtimeFactory = runtimeFactory;
+            _logger = logger;
         }
 
         public Dictionary<string, string> CreateSettings()
@@ -25,11 +26,13 @@ namespace Dbosoft.YaNco.Hosting
             return config;
         }
 
-        public IRfcClientConnectionProvider GetConnectionProvider()
+        public Func<EitherAsync<RfcError, IConnection>> CreateConnectionFunc()
         {
-            return new SAPConnection(CreateSettings()).AsRfcClient(b=>b
+            var builder = new ConnectionBuilder(CreateSettings())
                 .ConfigureRuntime(c =>
-                    c.UseFactory(_runtimeFactory)));
+                    c.UseSettingsFactory( (_,m,o) => new SAPRfcRuntimeSettings(_logger, m, o) ));
+
+            return builder.Build();
 
         }
     }

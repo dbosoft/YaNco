@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
+
 // ReSharper disable InconsistentNaming
 
 namespace Dbosoft.YaNco
@@ -110,7 +112,8 @@ namespace Dbosoft.YaNco
         /// </summary>
         /// <param name="eitherServer">RFC Server, wrapping in a <see cref="EitherAsync{RfcError,IRfcServer}"/></param>
         /// <returns>started RFC Server, wrapping in a <see cref="EitherAsync{RfcError,IRfcServer}"/></returns>
-        public static EitherAsync<RfcError, IRfcServer> Start(this EitherAsync<RfcError, IRfcServer> eitherServer)
+        public static EitherAsync<RfcError, IRfcServer<RT>> Start<RT>(this EitherAsync<RfcError, IRfcServer<RT>> eitherServer) 
+                where RT : struct, HasCancel<RT>
         {
             return eitherServer.Bind(s => s.Start().Map(_ => s));
         }
@@ -122,7 +125,8 @@ namespace Dbosoft.YaNco
         /// <returns>Started RFC Server if Either is not left. Otherwise a exception will be thrown.</returns>
         /// <remarks>Use this method to integrate the <see cref="IRfcServer"/> with services that expect exceptions on failure.</remarks>
         /// <exception cref="RfcErrorException"></exception>
-        public static async Task<IRfcServer> StartOrException(this EitherAsync<RfcError, IRfcServer> eitherServer)
+        public static async Task<IRfcServer<RT>> StartOrException<RT>(this EitherAsync<RfcError, IRfcServer<RT>> eitherServer) 
+            where RT : struct, HasCancel<RT>
         {
             var res = await eitherServer.Bind(s => s.Start()
                     .Map(_ => s))
@@ -138,7 +142,7 @@ namespace Dbosoft.YaNco
         /// <param name="eitherServer">RFC Server, wrapping in a <see cref="EitherAsync{RfcError,IRfcServer}"/></param>
         /// <param name="timeout">Timeout for stopping the rfc server</param>
         /// <returns>Stopped RFC Server, wrapping in a <see cref="EitherAsync{RfcError,IRfcServer}"/></returns>
-        public static EitherAsync<RfcError, IRfcServer> Stop(this EitherAsync<RfcError, IRfcServer> eitherServer, int timeout = 0)
+        public static EitherAsync<RfcError, IRfcServer<RT>> Stop<RT>(this EitherAsync<RfcError, IRfcServer<RT>> eitherServer, int timeout = 0) where RT : struct, HasCancel<RT>
         {
             return eitherServer.Bind(s => s.Stop(timeout).Map(_ => s));
         }

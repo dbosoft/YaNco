@@ -88,9 +88,6 @@ namespace Dbosoft.YaNco
         /// <returns>A <see cref="EitherAsync{RfcError,Unit}"/> with any rfc error as left state and Unit as right state.</returns>
         EitherAsync<RfcError, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken);
 
-        [Obsolete("Use method WithStartProgramCallback of ConnectionBuilder instead. This method will be removed in next major release.")]
-        EitherAsync<RfcError, Unit> AllowStartOfPrograms(StartProgramDelegate callback);
-
         /// <summary>
         /// Cancels any running backend communication.
         /// </summary>
@@ -117,7 +114,9 @@ namespace Dbosoft.YaNco
         /// <summary>
         /// Runtime used for the connection
         /// </summary>
+        [Obsolete("RfcRuntime is deprecated and will be removed in next major release.")]
         IRfcRuntime RfcRuntime { get;  }
 
+        T GetRuntimeSettings<T>() where T : SAPRfcRuntimeSettings;
     }
 }

@@ -1,14 +1,16 @@
-﻿namespace Dbosoft.YaNco.TypeMapping
+﻿using Dbosoft.YaNco.Live;
+
+namespace Dbosoft.YaNco.TypeMapping
 {
     public class FieldMappingContext
     {
-        public readonly IRfcRuntime RfcRuntime;
+        public readonly SAPRfcDataIO IO;
         public readonly IDataContainerHandle Handle;
         public readonly RfcFieldInfo FieldInfo;
 
-        public FieldMappingContext(IRfcRuntime rfcRuntime, IDataContainerHandle handle, RfcFieldInfo fieldInfo)
+        public FieldMappingContext(SAPRfcDataIO io, IDataContainerHandle handle, RfcFieldInfo fieldInfo)
         {
-            RfcRuntime = rfcRuntime;
+            IO = io;
             Handle = handle;
             FieldInfo = fieldInfo;
         }

@@ -1,23 +1,25 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco
 {
-    internal class RfcServerContext : IRfcContext
+
+
+    internal class RfcServerContext<RT> : IRfcContext where RT : struct, HasCancel<RT>
     {
-        private readonly IRfcServer _rfcServer;
+        private readonly IRfcServer<RT> _rfcServer;
         private IRfcContext _currentContext;
 
-        public RfcServerContext(IRfcServer rfcServer)
+        public RfcServerContext(IRfcServer<RT> rfcServer)
         {
             _rfcServer = rfcServer;
         }
 
         private EitherAsync<RfcError, IRfcContext> GetContext()
         {
-            if (_currentContext == null)
-                _currentContext = new RfcContext(_rfcServer.OpenClientConnection);
+            _currentContext ??= new RfcContext(_rfcServer.OpenClientConnection);
 
             return Prelude.RightAsync<RfcError, IRfcContext>(_currentContext);
         }
