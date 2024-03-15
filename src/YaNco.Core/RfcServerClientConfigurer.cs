@@ -30,7 +30,7 @@ namespace Dbosoft.YaNco
         /// Multiple registrations of same function and same backend id will therefore have no effect.
         /// </remarks>
         public RfcServerClientConfigurer<RT, TSettings> WithFunctionHandler(string functionName,
-            Func<CalledFunction<RT, TSettings>, EitherAsync<RfcError, Unit>> calledFunc)
+            Func<CalledFunction<RT, TSettings>, Aff<RT, Unit>> calledFunc)
         {
             _builder.WithFunctionHandler(functionName, calledFunc);
             return this;

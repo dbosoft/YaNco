@@ -1,32 +1,26 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System;
+using Dbosoft.YaNco.Live;
 using LanguageExt;
-using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco
 {
 
 
-    internal class RfcServerContext<RT> : IRfcContext where RT : struct, HasCancel<RT>
+    internal class RfcServerContext<RT> : IRfcContext<RT> where RT : struct, HasCancelFactory<RT>, HasSAPRfcData<RT>
     {
         private readonly IRfcServer<RT> _rfcServer;
-        private IRfcContext _currentContext;
+        private IRfcContext<RT> _currentContext;
 
         public RfcServerContext(IRfcServer<RT> rfcServer)
         {
             _rfcServer = rfcServer;
         }
 
-        private EitherAsync<RfcError, IRfcContext> GetContext()
+        private Eff<RT, IRfcContext<RT>> GetContext()
         {
-            _currentContext ??= new RfcContext(_rfcServer.OpenClientConnection);
+            _currentContext ??= new RfcContext<RT>( _rfcServer.GetClientConnection());
 
-            return Prelude.RightAsync<RfcError, IRfcContext>(_currentContext);
-        }
-
-        private Task<Either<RfcError, IRfcContext>> GetContextAsync()
-        {
-            return GetContext().ToEither();
+            return Prelude.SuccessEff(_currentContext);
         }
 
         public void Dispose()
@@ -35,109 +29,64 @@ namespace Dbosoft.YaNco
             _currentContext = null;
         }
 
-        public EitherAsync<RfcError, IFunction> CreateFunction(string name)
+
+        public Aff<RT, IFunction> CreateFunction(string name)
         {
             return GetContext().Bind(c => c.CreateFunction(name));
         }
 
-        public EitherAsync<RfcError, IFunction> CreateFunction(string name, CancellationToken cancellationToken)
-        {
-            return GetContext().Bind(c => c.CreateFunction(name, cancellationToken));
-        }
-
-        public EitherAsync<RfcError, Unit> InvokeFunction(IFunction function)
+        public Aff<RT, Unit> InvokeFunction(IFunction function)
         {
             return GetContext().Bind(c => c.InvokeFunction(function));
         }
 
-        public EitherAsync<RfcError, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken)
-        {
-            return GetContext().Bind(c => c.InvokeFunction(function, cancellationToken));
-        }
-
-        public EitherAsync<RfcError, IRfcContext> Ping()
+        public Aff<RT, Unit> Ping()
         {
             return GetContext().Bind(c => c.Ping());
         }
 
-        public EitherAsync<RfcError, IRfcContext> Ping(CancellationToken cancellationToken)
-        {
-            return GetContext().Bind(c => c.Ping(cancellationToken));
-        }
-
-        public EitherAsync<RfcError, Unit> Commit()
+        public Aff<RT, Unit> Commit()
         {
             return GetContext().Bind(c => c.Commit());
         }
 
-        public EitherAsync<RfcError, Unit> Commit(CancellationToken cancellationToken)
-        {
-            return GetContext().Bind(c => c.Commit(cancellationToken));
-        }
-
-        public EitherAsync<RfcError, Unit> CommitAndWait()
+        public Aff<RT, Unit> CommitAndWait()
         {
             return GetContext().Bind(c => c.CommitAndWait());
         }
 
-        public EitherAsync<RfcError, Unit> CommitAndWait(CancellationToken cancellationToken)
-        {
-            return GetContext().Bind(c => c.CommitAndWait(cancellationToken));
-        }
-
-        public EitherAsync<RfcError, Unit> Rollback()
+        public Aff<RT, Unit> Rollback()
         {
             return GetContext().Bind(c => c.Rollback());
         }
 
-        public EitherAsync<RfcError, Unit> Rollback(CancellationToken cancellationToken)
-        {
-            return GetContext().Bind(c => c.Rollback(cancellationToken));
-        }
-
-        public Task<Either<RfcError, IRfcContext>> PingAsync()
-        {
-            return GetContextAsync().BindAsync(c => c.PingAsync());
-        }
-
-        public Task<Either<RfcError, IRfcContext>> PingAsync(CancellationToken cancellationToken)
-        {
-            return GetContextAsync().BindAsync(c => c.PingAsync(cancellationToken));
-        }
-
-        public Task<Either<RfcError, Unit>> CommitAsync()
-        {
-            return GetContextAsync().BindAsync(c => c.CommitAsync());
-        }
-
-        public Task<Either<RfcError, Unit>> CommitAsync(CancellationToken cancellationToken)
-        {
-            return GetContextAsync().BindAsync(c => c.CommitAsync(cancellationToken));
-        }
-
-        public Task<Either<RfcError, Unit>> CommitAndWaitAsync()
-        {
-            return GetContextAsync().BindAsync(c => c.CommitAndWaitAsync());
-        }
-
-        public Task<Either<RfcError, Unit>> CommitAndWaitAsync(CancellationToken cancellationToken)
-        {
-            return GetContextAsync().BindAsync(c => c.CommitAndWaitAsync(cancellationToken));
-        }
-
-        public Task<Either<RfcError, Unit>> RollbackAsync()
-        {
-            return GetContextAsync().BindAsync(c => c.RollbackAsync());
-        }
-
-        public Task<Either<RfcError, Unit>> RollbackAsync(CancellationToken cancellationToken)
-        {
-            return GetContextAsync().BindAsync(c => c.RollbackAsync(cancellationToken));
-        }
-
-        public EitherAsync<RfcError, IConnection> GetConnection()
+        public Aff<RT, IConnection> GetConnection()
         {
             return GetContext().Bind(c => c.GetConnection());
         }
+
+        // ReSharper disable InconsistentNaming
+        public Aff<RT, TResult> CallFunction<TInput, TResult>(string functionName, Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> Input, Func<Either<RfcError, IFunction>, Either<RfcError, TResult>> Output)
+        {
+            return GetContext().Bind(c => c.CallFunction(functionName, Input, Output));
+        }
+
+        public Aff<RT, TResult> CallFunction<TResult>(string functionName, Func<Either<RfcError, IFunction>, Either<RfcError, TResult>> Output)
+        {
+            return GetContext().Bind(c => c.CallFunction(functionName, Output));
+        }
+
+        public Aff<RT, Unit> InvokeFunction(string functionName)
+        {
+            return GetContext().Bind(c => c.InvokeFunction(functionName));
+        }
+
+        public Aff<RT, Unit> InvokeFunction<TInput>(string functionName, Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> Input)
+        {
+            return GetContext().Bind(c => c.InvokeFunction(functionName, Input));
+        }
+
+        // ReSharper restore InconsistentNaming
+
     }
 }

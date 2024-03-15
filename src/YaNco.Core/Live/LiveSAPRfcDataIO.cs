@@ -9,9 +9,9 @@ public readonly struct LiveSAPRfcDataIO : SAPRfcDataIO
 {
     public Option<ILogger> Logger { get; }
     public IFieldMapper FieldMapper { get; }
-    public RfcTableOptions Options { get; }
+    public RfcRuntimeOptions Options { get; }
 
-    public LiveSAPRfcDataIO(Option<ILogger> logger, IFieldMapper fieldMapper, RfcTableOptions options)
+    public LiveSAPRfcDataIO(Option<ILogger> logger, IFieldMapper fieldMapper, RfcRuntimeOptions options)
     {
         Logger = logger;
         FieldMapper = fieldMapper;
@@ -253,4 +253,10 @@ public readonly struct LiveSAPRfcDataIO : SAPRfcDataIO
         return IOResult.ResultOrError(Logger, result, rc, errorInfo);
 
     }
+
+
+    public Either<RfcError, T> GetValue<T>(AbapValue abapValue) => FieldMapper.FromAbapValue<T>(abapValue);
+
+    public Either<RfcError, AbapValue> SetValue<T>(T value, RfcFieldInfo fieldInfo) => FieldMapper.ToAbapValue(value, fieldInfo);
+
 }

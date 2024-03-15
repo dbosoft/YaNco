@@ -108,7 +108,7 @@
 //            rfcServer.Start();
 
 //            rfcRuntimeMock
-//                .Verify(x=>x.LaunchServer(handle.Object), Times.Never());
+//                .Verify(x => x.LaunchServer(handle.Object), Times.Never());
 
 
 //        }

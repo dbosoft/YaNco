@@ -1,4 +1,5 @@
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.Live;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -82,7 +83,7 @@ public class SAPIDocServer : BackgroundService
     }
 
 
-    private EitherAsync<RfcError, Unit> ProcessInboundIDoc(CalledFunction<SAPRfcRuntime, SAPRfcRuntimeSettings> cf)
+    private Aff<SAPRfcRuntime, Unit> ProcessInboundIDoc(CalledFunction<SAPRfcRuntime, SAPRfcRuntimeSettings> cf)
     {
         return cf
             .Input(i =>
@@ -99,55 +100,39 @@ public class SAPIDocServer : BackgroundService
                         select new IDocDataRecord(iDocNo, segment, segmentNo, parentNo, level, data)
                 )
                 select data.ToSeq())
-            .ProcessAsync(async data =>
-            {
-                var state = cf.RfcRuntime.GetServerCallContext(cf.RfcHandle)
-                    .IfLeft(new RfcServerAttributes("", RfcCallType.SYNCHRONOUS));
+            .Process(data =>
 
-                // check if this a tRFC or Queued RFC call
-                if (state.CallType != RfcCallType.QUEUED && state.CallType != RfcCallType.TRANSACTIONAL)
-                {
-                    Console.WriteLine($"Error: invalid call type {state.CallType}");
-                    return RfcError.Error($"Invalid call type {state.CallType}", RfcRc.RFC_EXTERNAL_FAILURE);
-                }
-
-                // transaction id should be in state
-                if (string.IsNullOrWhiteSpace(state.TransactionId))
-                {
-                    Console.WriteLine($"Error: no transaction id");
-                    return RfcError.Error("Missing transaction id", RfcRc.RFC_EXTERNAL_FAILURE);
-                }
+                from state in cf.GetServerAttributes()
+                from guardIsTa in Prelude.guardnot(
+                    state.CallType != RfcCallType.QUEUED && state.CallType != RfcCallType.TRANSACTIONAL,
+                    RfcError.Error($"Invalid call type {state.CallType}", RfcRc.RFC_EXTERNAL_FAILURE).AsError)
+                from guardTaEmpty in Prelude.guardnot(string.IsNullOrWhiteSpace(state.TransactionId),
+                    RfcError.Error("Missing transaction id", RfcRc.RFC_EXTERNAL_FAILURE).AsError)
 
                 // open a IRfcContext to call back to sender
-                return await cf.UseRfcContextAsync(context => (
+                from clientCall in cf.UseRfcContext(context =>
 
                     // get current transaction
                     from ta in _transactionManager.GetTransaction(state.TransactionId)
                         .ToEither(RfcError.Error(RfcRc.RFC_EXTERNAL_FAILURE))
-                        .ToAsync()
-
-                        // open a client connection to sender for metadata lookup
+                        .ToEff(l => l)
+                    // open a client connection to sender for metadata lookup
                     from connection in context.GetConnection()
-                    from materialMaster in ExtractMaterialMaster(connection, data)
+                    from materialMaster in ExtractMaterialMaster(connection, data).ToAff(l => l)
 
                     from unit in SetTransactionData(ta, materialMaster)
-                    select unit).ToEither());
-
-
-            })
-            .Reply(
-                // as we return a Either<RfcError,Unit> in ProcessAsync we just have to map from Unit to IFunction 
-                // to send back any error occurred in ProcessAsync.
-                (result, reply)
-                    => reply.Bind(f => result.Map(_ => f)));
+                    select unit)
+                select clientCall
+            )
+            .NoReply();
     }
 
-    private static EitherAsync<RfcError, Unit> SetTransactionData(
+    private static Eff<Unit> SetTransactionData(
         TransactionStateRecord<MaterialMasterRecord> ta, MaterialMasterRecord materialMaster)
     {
         ta.Data = materialMaster;
         ta.State = TransactionState.Executed;
-        return Unit.Default;
+        return Prelude.unitEff;
     }
 
 

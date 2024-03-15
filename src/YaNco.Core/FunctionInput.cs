@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
-public readonly struct FunctionInput<TInput>
+public readonly struct FunctionInput<RT,TInput> where RT : struct, HasCancel<RT>
 {
     public readonly TInput Input;
     public readonly IFunction Function;
@@ -21,9 +23,10 @@ public readonly struct FunctionInput<TInput>
     /// <param name="processFunc">Function to map from <typeparamref name="TInput"></typeparamref> to <typeparam name="TOutput"></typeparam>"/></param>
     /// <returns><see cref="FunctionProcessed{TOutput}"/></returns>
 
-    public FunctionProcessed<TOutput> Process<TOutput>(Func<TInput, TOutput> processFunc)
+    public Eff<RT,FunctionProcessed<TOutput>> Process<TOutput>(Func<TInput, Eff<RT,TOutput>> processFunc)
     {
-        return new FunctionProcessed<TOutput>(processFunc(Input), Function);
+        var function = Function;
+        return processFunc(Input).Map(r => new FunctionProcessed<TOutput>(r, function));
     }
 
     /// <summary>
@@ -33,9 +36,17 @@ public readonly struct FunctionInput<TInput>
     /// <param name="processFunc">Function to map from <typeparamref name="TInput"></typeparamref> to <typeparam name="TOutput"></typeparam>"/></param>
     /// <returns><see cref="FunctionProcessed{TOutput}"/> wrapped in a Task</returns>
 
-    public async Task<FunctionProcessed<TOutput>> ProcessAsync<TOutput>(Func<TInput, Task<TOutput>> processFunc)
+    public Aff<RT,FunctionProcessed<TOutput>> Process<TOutput>(Func<TInput, Aff<RT, TOutput>> processFunc)
     {
-        return new FunctionProcessed<TOutput>(await processFunc(Input), Function);
+        var function = Function;
+        return processFunc(Input).Map(r => new FunctionProcessed<TOutput>(r, function));
+    }
+
+    public Aff<RT, FunctionProcessed<TOutput>> ProcessAsync<TOutput>(Func<TInput, ValueTask<TOutput>> processFunc)
+    {
+        var function = Function;
+        var input = Input;
+        return Prelude.Aff( async () => await processFunc(input)).Map(r => new FunctionProcessed<TOutput>(r, function));
     }
 
     public void Deconstruct(out IFunction function, out TInput input)

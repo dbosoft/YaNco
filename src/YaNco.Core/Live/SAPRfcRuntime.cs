@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading;
-using Dbosoft.YaNco.Live;
 using LanguageExt;
 
-namespace Dbosoft.YaNco;
+namespace Dbosoft.YaNco.Live;
 
 public readonly struct SAPRfcRuntime
         
@@ -16,7 +15,9 @@ public readonly struct SAPRfcRuntime
         HasEnvSettings<SAPRfcRuntimeSettings>
 
 {
-    public static SAPRfcRuntime Default => new();
+    public static SAPRfcRuntime Default => New(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(
+        new CancellationTokenSource(),
+        new SAPRfcRuntimeSettings(null, RfcMappingConfigurer.CreateDefaultFieldMapper(null, null), new RfcRuntimeOptions())));
 
     private readonly SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> _env;
     /// <summary>
@@ -61,10 +62,10 @@ public readonly struct SAPRfcRuntime
 
     public Option<ILogger> Logger => Env.Settings.Logger == null? Option<ILogger>.None : Prelude.Some(Env.Settings.Logger);
 
-    private SAPRfcDataIO DataIO => new LiveSAPRfcDataIO(Logger, Env.Settings.FieldMapper, Env.Settings.TableOptions);
-    private SAPRfcFunctionIO FunctionIO => new LiveSAPRfcFunctionIO(Logger, DataIO);
-    private SAPRfcConnectionIO ConnectionIO => new LiveSAPRfcConnectionIO(Logger);
-    private SAPRfcServerIO ServerIO => new LiveSAPRfcServerIO();
+    private SAPRfcDataIO DataIO => Env.Settings.RfcDataIO ?? new LiveSAPRfcDataIO(Logger, Env.Settings.FieldMapper, Env.Settings.TableOptions);
+    private SAPRfcFunctionIO FunctionIO => Env.Settings.RfcFunctionIO ?? new LiveSAPRfcFunctionIO(Logger, DataIO);
+    private SAPRfcConnectionIO ConnectionIO => Env.Settings.RfcConnectionIO ?? new LiveSAPRfcConnectionIO(Logger);
+    private SAPRfcServerIO ServerIO => Env.Settings.RfcServerIO ?? new LiveSAPRfcServerIO();
 
 
     public Eff<SAPRfcRuntime, Option<ILogger>> RfcLoggerEff => Prelude.Eff<SAPRfcRuntime, Option<ILogger>>(rt => rt.Logger);

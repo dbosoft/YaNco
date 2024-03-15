@@ -8,7 +8,7 @@ namespace Dbosoft.YaNco
         where TSettings : SAPRfcRuntimeSettings
         where RT : struct, HasEnvSettings<TSettings>
     {
-        private Func<ILogger, IFieldMapper, RfcTableOptions, TSettings>
+        private Func<ILogger, IFieldMapper, RfcRuntimeOptions, TSettings>
             _settingsFactory = (logger, mapper, o) =>
                 new SAPRfcRuntimeSettings(logger, mapper,o) as TSettings;
 
@@ -20,7 +20,7 @@ namespace Dbosoft.YaNco
         }
 
         private ILogger _logger;
-        private readonly RfcTableOptions _options = new();
+        private readonly RfcRuntimeOptions _options = new();
         private Action<RfcMappingConfigurer> _configureMapping = (m) => { };
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Dbosoft.YaNco
         /// </summary>
         /// <param name="configure"></param>
         /// <returns></returns>
-        public RfcRuntimeConfigurer<RT,TSettings> ConfigureOptions(Action<RfcTableOptions> configure)
+        public RfcRuntimeConfigurer<RT,TSettings> ConfigureOptions(Action<RfcRuntimeOptions> configure)
         {
             configure(_options);
             return this;
@@ -62,7 +62,7 @@ namespace Dbosoft.YaNco
         /// <param name="factory">function of factory method</param>
         /// <returns></returns>
         /// <remarks>Use this method to override the creation of <see cref="SAPRfcRuntimeSettings"/>. For example for dependency injection.</remarks>
-        public RfcRuntimeConfigurer<RT,TSettings> UseSettingsFactory(Func<ILogger, IFieldMapper, RfcTableOptions, TSettings> factory)
+        public RfcRuntimeConfigurer<RT,TSettings> UseSettingsFactory(Func<ILogger, IFieldMapper, RfcRuntimeOptions, TSettings> factory)
         {
             _settingsFactory = factory;
             return this;

@@ -9,7 +9,6 @@ namespace Dbosoft.YaNco
         where RT : struct, HasSAPRfcServer<RT>, HasSAPRfcLogger<RT>
 
     {
-        private readonly RT _runtime;
         private readonly IAgent<AgentMessage, Either<RfcError, object>> _stateAgent;
         public bool Disposed { get; private set; }
 
@@ -19,7 +18,6 @@ namespace Dbosoft.YaNco
 
         private RfcServer(IRfcServerHandle serverHandle, RT runtime)
         {
-            _runtime = runtime;
             _connectionEffect = Prelude.SuccessAff((IConnection) new ConnectionPlaceholder());
 
             _stateAgent = Agent.Start<IRfcServerHandle, AgentMessage, Either<RfcError, object>>(
@@ -39,15 +37,15 @@ namespace Dbosoft.YaNco
                                 {
                                     case LaunchServerMessage _:
                                     {
-                                        var result =
-                                            (await OpenClientConnection().ToEither())
+                                        var result = await
+                                            GetClientConnection().ToEither(runtime)
                                             .Map(c =>
                                             {
                                                 c.Dispose();
                                                 return Unit.Default;
                                             })
                                             .Bind(_ =>
-                                                io.LaunchServer(handle).Map(u => (object)u));
+                                                io.LaunchServer(handle).ToAsync().Map(u => (object)u));
                                         return (handle, result);
 
                                     }
@@ -114,11 +112,9 @@ namespace Dbosoft.YaNco
         public EitherAsync<RfcError, Unit> Stop(int timeout = 0)
             => _stateAgent.Tell(new ShutdownServerMessage(timeout)).ToAsync().Map(_ => Unit.Default);
 
-
-
-        public EitherAsync<RfcError, IConnection> OpenClientConnection()
+        public Aff<RT, IConnection> GetClientConnection()
         {
-            return _connectionEffect.ToEither(_runtime);
+            return _connectionEffect;
         }
 
         public Unit AddClientConnection(Aff<RT, IConnection> connectionEffect)

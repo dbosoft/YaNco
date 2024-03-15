@@ -59,6 +59,21 @@ namespace Dbosoft.YaNco
         /// <returns>A <see cref="EitherAsync{RfcError,IConnection}"/> with any rfc error as left state and <seealso cref="IConnection"/> as right state.</returns>
         Aff<RT,IConnection> GetConnection();
 
+        Aff<RT, TResult> CallFunction<TInput, TResult>(
+            string functionName,
+            Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> Input,
+            Func<Either<RfcError, IFunction>, Either<RfcError, TResult>> Output);
+
+        Aff<RT, TResult> CallFunction<TResult>(
+            string functionName,
+            Func<Either<RfcError, IFunction>, Either<RfcError, TResult>> Output);
+
+        Aff<RT, Unit> InvokeFunction(
+            string functionName);
+
+        Aff<RT, Unit> InvokeFunction<TInput>(
+            string functionName,
+            Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> Input);
     }
 
     public interface IRfcContext : IDisposable

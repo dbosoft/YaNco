@@ -16,7 +16,7 @@ public abstract class RfcBuilderBase<TBuilder, RT, TSettings> where RT : struct,
     protected TBuilder Self { get; set; }
 
     protected readonly List<(string, Action<IFunctionBuilder<RT>>,
-        Func<CalledFunction<RT, TSettings>, EitherAsync<RfcError, Unit>>)> FunctionHandlers = new();
+        Func<CalledFunction<RT, TSettings>, Aff<RT, Unit>>)> FunctionHandlers = new();
 
     /// <summary>
     /// This method registers a callback of type <see cref="StartProgramDelegate"/> 
@@ -55,7 +55,7 @@ public abstract class RfcBuilderBase<TBuilder, RT, TSettings> where RT : struct,
     /// </remarks>
     public TBuilder WithFunctionHandler(string functionName,
         Action<IFunctionBuilder<RT>> configureBuilder,
-        Func<CalledFunction<RT, TSettings>, EitherAsync<RfcError, Unit>> calledFunc)
+        Func<CalledFunction<RT, TSettings>, Aff<RT, Unit>> calledFunc)
     {
         FunctionHandlers.Add((functionName, configureBuilder, calledFunc));
         return Self;

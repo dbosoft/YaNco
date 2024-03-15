@@ -24,6 +24,8 @@ namespace Dbosoft.YaNco
             };
         }
 
+        public Aff<SAPRfcRuntime, IConnection> BuildIO() => base.Build();
+
         /// <summary>
         /// Registers a action to configure the <see cref="IRfcRuntime"/>
         /// </summary>

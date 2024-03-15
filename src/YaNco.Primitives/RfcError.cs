@@ -42,4 +42,6 @@ public record RfcError(RfcErrorInfo RfcErrorInfo, Option<Error> Inner = new()) :
 
         return new RfcError(RfcErrorInfo.Error(error.Message), error);
     }
+
+    public Error AsError => this; 
 }

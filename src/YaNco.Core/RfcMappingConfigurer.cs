@@ -12,6 +12,7 @@ namespace Dbosoft.YaNco
         private readonly List<Type> _fromRfcMappingTypes = new List<Type>();
         private readonly List<Type> _toRfcMappingTypes = new List<Type>();
 
+
         public static IFieldMapper CreateDefaultFieldMapper(IEnumerable<Type> fromRfcConverters = null,
             IEnumerable<Type> toRfcConverters = null)
         {

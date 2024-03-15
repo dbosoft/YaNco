@@ -1,6 +1,6 @@
 ﻿using LanguageExt;
 
-namespace Dbosoft.YaNco.Live;
+namespace Dbosoft.YaNco;
 
 public interface HasSAPRfcData<RT> where RT : struct, HasSAPRfcData<RT>
 {

@@ -35,7 +35,7 @@ namespace Dbosoft.YaNco
             _runtime = runtime;
         }
 
-        public RfcTableOptions Options => _runtime.Env.Settings.TableOptions;
+        public RfcRuntimeOptions Options => _runtime.Env.Settings.TableOptions;
         public IFieldMapper FieldMapper => _runtime.Env.Settings.FieldMapper;
         public Option<ILogger> Logger => _runtime.Env.Settings.Logger != null ? Prelude.Some(_runtime.Env.Settings.Logger) : Option<ILogger>.None;
 
@@ -229,6 +229,16 @@ namespace Dbosoft.YaNco
         public Either<RfcError, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcError, RfcFieldInfo>> func)
         {
             return _runtime.RfcDataEff.Bind(io => io.GetFieldValue<T>(handle, func).ToEff(l => l)).ToEither(_runtime);
+        }
+
+        public Either<RfcError, T> GetValue<T>(AbapValue abapValue)
+        {
+            return _runtime.RfcDataEff.Bind(io => io.GetValue<T>(abapValue).ToEff(l => l)).ToEither(_runtime);
+        }
+
+        public Either<RfcError, AbapValue> SetValue<T>(T value, RfcFieldInfo fieldInfo)
+        {
+            return _runtime.RfcDataEff.Bind(io => io.SetValue<T>(value, fieldInfo).ToEff(l => l)).ToEither(_runtime);
         }
 
         public Either<RfcError, ITypeDescriptionHandle> GetTypeDescription(IDataContainerHandle dataContainer)

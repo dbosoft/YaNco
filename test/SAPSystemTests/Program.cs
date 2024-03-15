@@ -6,11 +6,13 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.Live;
 using Dbosoft.YaNco.TypeMapping;
 using KellermanSoftware.CompareNetObjects;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using static Dbosoft.YaNco.SAPRfc<Dbosoft.YaNco.Live.SAPRfcRuntime>;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SAPSystemTests
@@ -93,32 +95,71 @@ namespace SAPSystemTests
             }
 
 
-            using (var context = new RfcContext(connectionFunc))
-            {
-                long totalTest1 = 0;
-                long totalTest2 = 0;
+            //using (var context = new RfcContext(connectionFunc))
+            //{
+            //    long totalTest1 = 0;
+            //    long totalTest2 = 0;
 
-                //second call back test (should still be called)
-                await RunCallbackTest(context);
+            //    //second call back test (should still be called)
+            //    await RunCallbackTest(context);
 
 
-                for (var run = 0; run < repeats; run++)
-                {
-                    Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 01");
-                    totalTest1 += await RunPerformanceTest01(context, rows);
-                    Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 02");
-                    totalTest2 += await RunPerformanceTest02(context, rows);
+            //    for (var run = 0; run < repeats; run++)
+            //    {
+            //        Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 01");
+            //        totalTest1 += await RunPerformanceTest01(context, rows);
+            //        Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 02");
+            //        totalTest2 += await RunPerformanceTest02(context, rows);
 
-                    GC.Collect();
+            //        GC.Collect();
 
-                }
+            //    }
 
-                Console.WriteLine("Total runtime Test 01: " + totalTest1);
-                Console.WriteLine("Total runtime Test 02: " + totalTest2);
-                Console.WriteLine("Average runtime Test 01: " + totalTest1 / repeats);
-                Console.WriteLine("Average runtime Test 02: " + totalTest2 / repeats);
+            //    Console.WriteLine("Total runtime Test 01: " + totalTest1);
+            //    Console.WriteLine("Total runtime Test 02: " + totalTest2);
+            //    Console.WriteLine("Average runtime Test 01: " + totalTest1 / repeats);
+            //    Console.WriteLine("Average runtime Test 02: " + totalTest2 / repeats);
 
-            }
+            //}
+
+            // functional style Tests:
+
+            var connectionEffect = new ConnectionBuilder(settings)
+                .ConfigureRuntime(c=>c.WithLogger(new SimpleConsoleLogger()))
+                .BuildIO();
+
+            var call = useConnection(connectionEffect, connection=> 
+                    from userName in callFunction(connection, "BAPI_USER_GET_DETAIL", f=> 
+                            f.SetField("USERNAME", "SAP*"), 
+                           f=> f.GetField<string>("USERNAME"))
+                    select userName);
+
+            var result = await call.Run(SAPRfcRuntime.Default);
+            Console.WriteLine("call_getUsername_with_connection: " + result);
+
+            call = useContext(connectionEffect, context =>
+                from userName in context.CallFunction("BAPI_USER_GET_DETAIL", f =>
+                        f.SetField("USERNAME", "SAP*"),
+                    f => f.GetField<string>("USERNAME"))
+                select userName);
+
+            result = await call.Run(SAPRfcRuntime.Default);
+            Console.WriteLine("call_getUsername_with_context: " + result );
+
+
+            var withFieldMapping = useContext(connectionEffect, context =>
+                from attributes in context.GetConnection().Bind(c => c.GetAttributes().ToAff(l => l))
+                from structure in context.CallFunction("BAPI_USER_GET_DETAIL", f =>
+                        f.SetField("USERNAME", attributes.User),
+                    f => f.MapStructure("address", s=>s.ToDictionary()))
+                from userName in getValue<string>(structure["FULLNAME"])
+                
+                select userName);
+
+            result = await withFieldMapping.Run(SAPRfcRuntime.Default);
+
+            Console.WriteLine("call_getFullName_with_abapValue: " + result);
+
         }
 
         private static async Task RunIntegrationTests(IRfcContext context)

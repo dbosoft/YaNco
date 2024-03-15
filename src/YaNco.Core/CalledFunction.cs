@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Dbosoft.YaNco.Live;
 using LanguageExt;
 
 namespace Dbosoft.YaNco
@@ -11,17 +8,14 @@ namespace Dbosoft.YaNco
         where TSettings : SAPRfcRuntimeSettings
     {
         public readonly IFunction Function;
-        private readonly Func<IRfcContext> _rfcContextFunc;
-        private readonly Func<CancellationToken, RT> _runtimeFunc;
+        private readonly Func<IRfcContext<RT>> _rfcContextFunc;
 
         internal CalledFunction(IRfcHandle rfcHandle, IFunction function,
-        Func<IRfcContext> rfcContextFunc,
-        Func<CancellationToken, RT> runtimeFunc)
+        Func<IRfcContext<RT>> rfcContextFunc)
         {
             RfcHandle = rfcHandle;
             Function = function;
             _rfcContextFunc = rfcContextFunc;
-            _runtimeFunc = runtimeFunc;
         }
 
         /// <summary>
@@ -30,35 +24,30 @@ namespace Dbosoft.YaNco
         /// <typeparam name="TInput">Type of data extracted from function. Could be any type.</typeparam>
         /// <param name="inputFunc">Function to map from RFC function to the desired input type</param>
         /// <returns><see cref="FunctionInput{TInput}"/> wrapped in a <see cref="Either{L,R}"/> </returns>
-        public Either<RfcError, FunctionInput<TInput>> Input<TInput>(Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> inputFunc)
+        public Either<RfcError, FunctionInput<RT,TInput>> Input<TInput>(Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> inputFunc)
         {
             var function = Function;
-            return inputFunc(Prelude.Right(function)).Map(input => new FunctionInput<TInput>(input, function));
+            return inputFunc(Prelude.Right(function)).Map(input => new FunctionInput<RT,TInput>(input, function));
         }
 
-        public T UseRfcContext<T>(Func<IRfcContext, T> mapFunc)
+        public Eff<RT,TR> UseRfcContext<TR>(Func<IRfcContext<RT>, Eff<RT,TR>> mapFunc)
         {
-            using var rfcContext = _rfcContextFunc();
-            return mapFunc(rfcContext);
+            return Prelude.use(_rfcContextFunc(),mapFunc);
         }
 
-        public async Task<T> UseRfcContextAsync<T>(Func<IRfcContext, Task<T>> mapFunc)
+        public Aff<RT,TR> UseRfcContext<TR>(Func<IRfcContext<RT>, Aff<RT,TR>> mapFunc)
         {
-            using var rfcContext = _rfcContextFunc();
-            return await mapFunc(rfcContext);
+            return Prelude.use(_rfcContextFunc(), mapFunc);
         }
 
 
         public readonly IRfcHandle RfcHandle;
 
-        public Either<RfcError, RfcServerAttributes> GetServerAttributes(CancellationToken cancellationToken = default)
+        public Eff<RT, RfcServerAttributes> GetServerAttributes()
         {
             var handle = RfcHandle;
-            return default(RT).RfcServerEff.Bind(io => io.GetServerCallContext(handle).ToEff(l => l))
-                .ToEither(_runtimeFunc(cancellationToken));
+            return default(RT).RfcServerEff.Bind(io => io.GetServerCallContext(handle).ToEff(l => l));
         }
 
-        [Obsolete("Obsolete")]
-        public IRfcRuntime RfcRuntime => new RfcRuntime<RT, TSettings>(_runtimeFunc(CancellationToken.None));
     }
 }

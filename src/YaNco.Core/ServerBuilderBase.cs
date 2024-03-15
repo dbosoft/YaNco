@@ -179,16 +179,17 @@ public class ServerBuilderBase<TBuilder,RT, TSettings> : RfcBuilderBase<TBuilder
             var builder = new FunctionBuilder<RT>(functionName);
             configureBuilder(builder);
             return from description in builder.Build()
+                from rt in Prelude.runtime<RT>()
                 from functionsIO in default(RT).RfcFunctionsEff
                 from uAdd in functionsIO.AddFunctionHandler(_systemId,
                         description,
                         (rfcHandle, f) => callBackFunction(
-                            new CalledFunction<RT,TSettings>(rfcHandle, f, () => new RfcServerContext<RT>(server),  runtime.WithCancelToken))).ToEff(l => l)
+                            new CalledFunction<RT,TSettings>(rfcHandle, f, () => new RfcServerContext<RT>(server))).ToEither(rt))
                     .Map(holder =>
                     {
                         _functionRegistration.Add(reg.Item1, functionName, holder);
                         return Unit.Default;
-                    })
+                    }).ToEff(l=>l)
                 select Unit.Default;
 
         }).Traverse(l => l).Map(_ => server);

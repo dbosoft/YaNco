@@ -10,7 +10,7 @@ namespace Dbosoft.YaNco
         bool Disposed { get; }
         EitherAsync<RfcError, Unit> Start();
         EitherAsync<RfcError, Unit> Stop(int timeout = 0);
-        EitherAsync<RfcError, IConnection> OpenClientConnection();
+        Aff<RT, IConnection> GetClientConnection();
 
         Unit AddClientConnection(Aff<RT, IConnection> connectionEffect);
 

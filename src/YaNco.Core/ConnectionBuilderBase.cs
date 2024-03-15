@@ -25,6 +25,8 @@ public class ConnectionBuilderBase<TBuilder, RT, TSettings> : RfcBuilderBase<TBu
     private IFunctionRegistration _functionRegistration = FunctionRegistration.Instance;
 
     private Aff<RT, IConnection>? _buildFunction;
+    private Func<IDictionary<string, string>, RT, Eff<RT, IConnection>>
+        _connectionFactory = Connection<RT, TSettings>.Create;
 
     /// <summary>
     /// Creates a new connection builder. 
@@ -36,6 +38,19 @@ public class ConnectionBuilderBase<TBuilder, RT, TSettings> : RfcBuilderBase<TBu
         Self = (TBuilder)this;
     }
 
+    /// <summary>
+    /// Use a alternative factory method to create connection. 
+    /// </summary>
+    /// <param name="factory">factory method</param>
+    /// <returns>current instance for chaining.</returns
+    /// <remarks>The default implementation call <see cref="Connection.Create"/>.
+    /// </remarks>
+    public TBuilder UseFactory(
+        Func<IDictionary<string, string>, RT, Eff<RT, IConnection>> factory)
+    {
+        _connectionFactory = factory;
+        return (TBuilder) this;
+    }
     /// <summary>
     /// This method sets the function registration where functions created by the
     /// connection are registered. The default function registration is a global static reference
@@ -64,7 +79,7 @@ public class ConnectionBuilderBase<TBuilder, RT, TSettings> : RfcBuilderBase<TBu
     /// Multiple registrations of same function and same backend id will therefore have no effect.
     /// </remarks>
     public TBuilder WithFunctionHandler(string functionName,
-        Func<CalledFunction<RT, TSettings>, EitherAsync<RfcError, Unit>> calledFunc)
+        Func<CalledFunction<RT, TSettings>, Aff<RT, Unit>> calledFunc)
     {
         FunctionHandlers.Add((functionName, null, calledFunc));
         return (TBuilder)this;
@@ -86,7 +101,7 @@ public class ConnectionBuilderBase<TBuilder, RT, TSettings> : RfcBuilderBase<TBu
 
         _buildFunction =
             from rt in Prelude.runtime<RT>()
-            from connection in Connection<RT, TSettings>.Create(_connectionParam, rt)
+            from connection in _connectionFactory(_connectionParam, rt)
             from withHandlers in RegisterFunctionHandlers(connection)
             select withHandlers;
 
@@ -117,8 +132,7 @@ public class ConnectionBuilderBase<TBuilder, RT, TSettings> : RfcBuilderBase<TBu
                         from addHandler in functionsIO.AddFunctionHandler(attributes.SystemId,
                                 functionDescription,
                                 (rfcHandle, f) => callBackFunction(new CalledFunction<RT, TSettings>(rfcHandle, f,
-                                    () => new RfcContext(() => Build().ToEither(rt)),
-                                    rt.WithCancelToken)))
+                                    () => new RfcContext<RT>(Build()))).ToEither(rt))
                             .Map(holder =>
                             {
                                 _functionRegistration.Add(attributes.SystemId, functionName, holder);
@@ -132,7 +146,8 @@ public class ConnectionBuilderBase<TBuilder, RT, TSettings> : RfcBuilderBase<TBu
                     from uAdd in functionsIO.AddFunctionHandler(attributes.SystemId,
                             functionDescription,
                             (rfcHandle, f) => callBackFunction(
-                                new CalledFunction<RT, TSettings>(rfcHandle, f, () => new RfcContext( () =>Build().ToEither(rt)), rt.WithCancelToken))).ToAff(l => l)
+                                new CalledFunction<RT, TSettings>(rfcHandle, f, () => new RfcContext<RT>(Build())))
+                                .ToEither(rt)).ToAff(l => l)
                         .Map(holder =>
                         {
                             _functionRegistration.Add(attributes.SystemId, functionName, holder);

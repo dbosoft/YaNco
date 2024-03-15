@@ -1,145 +1,202 @@
-//using System;
-//using System.Diagnostics.CodeAnalysis;
-//using System.Threading;
-//using System.Threading.Tasks;
-//using Dbosoft.YaNco;
-//using LanguageExt;
-//using Moq;
-//using Xunit;
-//using YaNco.Core.Tests.RfcMock;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
+using Dbosoft.YaNco;
+using Dbosoft.YaNco.Test;
+using LanguageExt;
+using Moq;
+using Xunit;
+using YaNco.Core.Tests.RfcMock;
+using static Dbosoft.YaNco.SAPRfc<Dbosoft.YaNco.Test.TestSAPRfcRuntime>;
 
-//namespace YaNco.Core.Tests
-//{
-    
-//    [ExcludeFromCodeCoverage]
+namespace YaNco.Core.Tests
+{
 
-//    public class ConnectionTests
-//    {
-//        [Fact]
-//        public async Task Connection_is_Opened()
-//        {
-//            var rfcRuntimeMock = new Mock<IRfcRuntime>();
-//            rfcRuntimeMock.SetupOpenConnection(out _);
+    [ExcludeFromCodeCoverage]
 
-//            await rfcRuntimeMock.CreateConnection();
+    public class ConnectionTests
+    {
+        [Fact]
+        public async Task Connection_is_Opened_And_Disposed()
+        {
+            var connectionIO = new Mock<SAPRfcConnectionIO>();
+            connectionIO.SetupOpenConnection(out _);
 
-//            rfcRuntimeMock.VerifyAll();
+            var runtime = TestSAPRfcRuntime.New(settings =>
+            {
+                settings.RfcConnectionIO = connectionIO.Object;
+                settings.RfcFunctionIO = new Mock<SAPRfcFunctionIO>().Object;
+            });
 
-//        }
+            var call = from conn in useConnection(NewConnection()
+                    , c=> Prelude.SuccessAff(c).WithRuntime<TestSAPRfcRuntime>())
+                select conn;
+            var finConn = await call.Run(runtime);
+            connectionIO.VerifyAll();
 
-//        [Fact]
-//        public async Task Function_is_created()
-//        {
-//            var rfcRuntimeMock = new Mock<IRfcRuntime>()
-//                .SetupOpenConnection(out _)
-//                .SetupGetFunctionDescription("RFC_PING", out var descHandle)
-//                .SetupGetFunction(descHandle, out _);
+            finConn.IfSucc(c => Assert.True(c.Disposed));
 
-//            await (await rfcRuntimeMock.CreateConnection())
-//                .CreateFunction("RFC_PING")
-//                .IfLeft(l => throw new Exception(l.Message));
+        }
 
+        private static Aff<TestSAPRfcRuntime, IConnection> NewConnection() =>
+            new ConnectionBuilder<TestSAPRfcRuntime, TestSAPRfcRuntimeSettings>(new Dictionary<string, string>())
+                .Build();
 
-//            rfcRuntimeMock.VerifyAll();
+        [Fact]
+        public async Task Function_is_created()
+        {
+            var connectionIO = new Mock<SAPRfcConnectionIO>();
+            connectionIO.SetupOpenConnection(out var connHandle);
+            var functionIO = new Mock<SAPRfcFunctionIO>();
+            functionIO.Setup(x => x.GetFunctionDescription(connHandle.Object, "RFC_PING"))
+                .Returns(Prelude.Right(new Mock<IFunctionDescriptionHandle>().Object));
 
-//        }
-
-//        [Fact]
-//        public async Task Commit_is_called()
-//        {
-
-//            var rfcRuntimeMock = new Mock<IRfcRuntime>()
-//                .SetupOpenConnection(out var connHandle)
-//                .SetupFunction("BAPI_TRANSACTION_COMMIT", connHandle, (r, h) =>
-//                {
-//                    var structureHandle = new Mock<IStructureHandle>();
-
-//                    r.Setup(x => x.GetStructure(h, "RETURN"))
-//                        .Returns(Prelude.Right(structureHandle.Object));
-//                    r.Setup(x =>
-//                            x.GetFieldValue<string>(structureHandle.Object,
-//                                It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()))
-//                        .Returns(Prelude.Right(""));
-//                });
-
-//            await (await rfcRuntimeMock.CreateConnection())
-//                .Commit()
-//                .IfLeft(l => throw new Exception(l.Message));
+            var dataIO = new Mock<SAPRfcDataIO>();
 
 
-//            rfcRuntimeMock.VerifyAll();
+            var runtime = TestSAPRfcRuntime.New(settings =>
+            {
+                settings.RfcConnectionIO = connectionIO.Object;
+                settings.RfcFunctionIO = functionIO.Object;
+                settings.RfcDataIO = dataIO.Object;
+            });
 
-//        }
+            var call = from conn in new ConnectionBuilder<TestSAPRfcRuntime, TestSAPRfcRuntimeSettings>(new Dictionary<string, string>())
+                    .Build()
+                      from func in createFunction(conn, "RFC_PING" )
+                select func;
 
-//        [Fact]
-//        public async Task CommitWithWait_is_called()
-//        {
-
-//            var rfcRuntimeMock = new Mock<IRfcRuntime>()
-//                .SetupOpenConnection(out var connHandle)
-//                .SetupFunction("BAPI_TRANSACTION_COMMIT", connHandle, (r, h) =>
-//                {
-//                    var structureHandle = new Mock<IStructureHandle>();
-//                    r.Setup(x => x.SetFieldValue(h, "X",
-//                            It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()))
-//                        .Returns(Prelude.Right(Unit.Default));
-
-//                    r.Setup(x => x.GetStructure(h, "RETURN"))
-//                        .Returns(Prelude.Right(structureHandle.Object));
-//                    r.Setup(x =>
-//                            x.GetFieldValue<string>(structureHandle.Object,
-//                                It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()))
-//                        .Returns(Prelude.Right(""));
-//                });
-
-//            await (await rfcRuntimeMock.CreateConnection())
-//                .CommitAndWait()
-//                .IfLeft(l => throw new Exception(l.Message));
+            var fin = await call.Run(runtime);
+            connectionIO.VerifyAll();
+            functionIO.VerifyAll();
 
 
-//            rfcRuntimeMock.VerifyAll();
+        }
 
-//        }
+        [Fact]
+        public async Task Commit_is_called()
+        {
 
-//        [Fact]
-//        public async Task Rollback_is_called()
-//        {
+            var connectionIO = new Mock<SAPRfcConnectionIO>();
+            connectionIO.SetupOpenConnection(out var connHandle);
+            var functionIO = new Mock<SAPRfcFunctionIO>();
+            var dataIO = new Mock<SAPRfcDataIO>();
 
-//            var rfcRuntimeMock = new Mock<IRfcRuntime>()
-//                .SetupOpenConnection(out var connHandle)
-//                .SetupFunction("BAPI_TRANSACTION_ROLLBACK", connHandle, (r, h) => { });
+            functionIO.SetupFunction("BAPI_TRANSACTION_COMMIT", connHandle, (h) =>
+            {
+                var structureHandle = new Mock<IStructureHandle>();
 
-//            await (await rfcRuntimeMock.CreateConnection())
-//                .Rollback()
-//                .IfLeft(l => throw new Exception(l.Message));
+                dataIO.Setup(x => x.GetStructure(h, "RETURN"))
+                    .Returns(Prelude.Right(structureHandle.Object));
+                dataIO.Setup(x =>
+                        x.GetFieldValue<string>(structureHandle.Object,
+                            It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()))
+                    .Returns(Prelude.Right(""));
+            });
+
+            var runtime = TestSAPRfcRuntime.New(settings =>
+            {
+                settings.RfcConnectionIO = connectionIO.Object;
+                settings.RfcFunctionIO = functionIO.Object;
+                settings.RfcDataIO = dataIO.Object;
+            });
+
+            var call = from conn in useConnection(NewConnection()
+                    , commit )
+                select conn;
+
+            var fin = await call.Run(runtime);
+
+            connectionIO.VerifyAll();
+            functionIO.VerifyAll();
+            dataIO.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CommitWithWait_is_called()
+        {
+
+            var connectionIO = new Mock<SAPRfcConnectionIO>();
+            connectionIO.SetupOpenConnection(out var connHandle);
+            var functionIO = new Mock<SAPRfcFunctionIO>();
+            var dataIO = new Mock<SAPRfcDataIO>();
+
+            functionIO.SetupFunction("BAPI_TRANSACTION_COMMIT", connHandle, (h) =>
+            {
+                var structureHandle = new Mock<IStructureHandle>();
+                dataIO.Setup(x => x.SetFieldValue(h, "X",
+                        It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()))
+                    .Returns(Prelude.Right(Unit.Default));
+
+                dataIO.Setup(x => x.GetStructure(h, "RETURN"))
+                    .Returns(Prelude.Right(structureHandle.Object));
+                dataIO.Setup(x =>
+                        x.GetFieldValue<string>(structureHandle.Object,
+                            It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()))
+                    .Returns(Prelude.Right(""));
+
+            });
+
+            var runtime = TestSAPRfcRuntime.New(settings =>
+            {
+                settings.RfcConnectionIO = connectionIO.Object;
+                settings.RfcFunctionIO = functionIO.Object;
+                settings.RfcDataIO = dataIO.Object;
+            });
+
+            var call = from conn in useConnection(NewConnection()
+                    , commitAndWait)
+                select conn;
+
+            var fin = await call.Run(runtime);
+
+            connectionIO.VerifyAll();
+            functionIO.VerifyAll();
+            dataIO.VerifyAll();
 
 
-//            rfcRuntimeMock.VerifyAll();
+        }
 
-//        }
+        //[Fact]
+        //public async Task Rollback_is_called()
+        //{
+
+        //    var rfcRuntimeMock = new Mock<IRfcRuntime>()
+        //        .SetupOpenConnection(out var connHandle)
+        //        .SetupFunction("BAPI_TRANSACTION_ROLLBACK", connHandle, (r, h) => { });
+
+        //    await (await rfcRuntimeMock.CreateConnection())
+        //        .Rollback()
+        //        .IfLeft(l => throw new Exception(l.Message));
 
 
-//        [Fact]
-//        public async Task Cancel_function_is_cancelled()
-//        {
-//            var rfcRuntimeMock = new Mock<IRfcRuntime>()
-//                .SetupOpenConnection(out var connHandle)
-//                .SetupFunction("MOCK", connHandle, (r, h) => { }, true);
+        //    rfcRuntimeMock.VerifyAll();
 
-//            rfcRuntimeMock.Setup(r => r.CancelConnection(connHandle.Object))
-//                .Returns(Prelude.Right(new Unit()));
+        //}
 
-//            var conn = await rfcRuntimeMock.CreateConnection()
-//                .Map(c =>
-//                    from fd in c.CreateFunction("MOCK")
-//                    from _ in c.InvokeFunction(fd)
-//                    from __ in c.Cancel()
-//                    select c);
 
-//            await conn.IfRight(c => Assert.True(c.Disposed));
+        //[Fact]
+        //public async Task Cancel_function_is_cancelled()
+        //{
+        //    var rfcRuntimeMock = new Mock<IRfcRuntime>()
+        //        .SetupOpenConnection(out var connHandle)
+        //        .SetupFunction("MOCK", connHandle, (r, h) => { }, true);
 
-//            rfcRuntimeMock.VerifyAll();
-//        }
+        //    rfcRuntimeMock.Setup(r => r.CancelConnection(connHandle.Object))
+        //        .Returns(Prelude.Right(new Unit()));
 
-//    }
-//}
+        //    var conn = await rfcRuntimeMock.CreateConnection()
+        //        .Map(c =>
+        //            from fd in c.CreateFunction("MOCK")
+        //            from _ in c.InvokeFunction(fd)
+        //            from __ in c.Cancel()
+        //            select c);
+
+        //    await conn.IfRight(c => Assert.True(c.Disposed));
+
+        //    rfcRuntimeMock.VerifyAll();
+        //}
+
+    }
+}

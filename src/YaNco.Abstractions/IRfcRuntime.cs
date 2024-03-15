@@ -36,7 +36,7 @@ namespace Dbosoft.YaNco
 
     public interface SAPRfcTableIO
     {
-        RfcTableOptions Options { get; }
+        RfcRuntimeOptions Options { get; }
 
         Either<RfcError, ITableHandle> GetTable(IDataContainerHandle dataContainer, string name);
         Either<RfcError, ITableHandle> CloneTable(ITableHandle tableHandle);
@@ -129,6 +129,9 @@ namespace Dbosoft.YaNco
 
         Either<RfcError, Unit> SetFieldValue<T>(IDataContainerHandle handle, T value, Func<Either<RfcError, RfcFieldInfo>> func);
         Either<RfcError, T> GetFieldValue<T>(IDataContainerHandle handle, Func<Either<RfcError, RfcFieldInfo>> func);
+
+        Either<RfcError, T> GetValue<T>(AbapValue abapValue);
+        Either<RfcError, AbapValue> SetValue<T>(T value, RfcFieldInfo fieldInfo);
 
     }
 

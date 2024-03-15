@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using Dbosoft.YaNco.Live;
 using LanguageExt;
+// ReSharper disable InconsistentNaming
 
 namespace Dbosoft.YaNco
 {
     public class RfcContext<RT> : IRfcContext<RT>
-        where RT : struct, HasCancelFactory<RT>
+        where RT : struct, HasCancelFactory<RT>, HasSAPRfcData<RT>
     {
         private readonly Aff<RT, IConnection> _connectionEffect;
         private Option<IConnection> _openedConnection;
@@ -59,7 +61,39 @@ namespace Dbosoft.YaNco
             from connection in GetConnection()
             from res in  SAPRfc<RT>.createFunction(connection,name)
             select res;
-        
+
+        public Aff<RT, TResult> CallFunction<TInput, TResult>(
+            string functionName,
+            Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> Input,
+            Func<Either<RfcError, IFunction>, Either<RfcError, TResult>> Output) =>
+            from connection in GetConnection()
+            from res in SAPRfc<RT>.callFunction(connection, functionName, Input, Output)
+            select res;
+
+
+        public Aff<RT, TResult> CallFunction<TResult>(
+            string functionName,
+            Func<Either<RfcError, IFunction>, Either<RfcError, TResult>> Output) =>
+            from connection in GetConnection()
+            from res in SAPRfc<RT>.callFunction(connection, functionName, Output)
+            select res;
+
+
+        public Aff<RT, Unit> InvokeFunction(
+            string functionName) =>
+            from connection in GetConnection() 
+            from res in SAPRfc<RT>.invokeFunction(connection, functionName)
+            select res;
+
+
+        public Aff<RT, Unit> InvokeFunction<TInput>(
+            string functionName,
+            Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> Input) =>
+            from connection in GetConnection()
+            from res in SAPRfc<RT>.invokeFunction(connection, functionName, Input)
+            select res;
+
+
         public Aff<RT, Unit> Commit() =>
             from connection in GetConnection()
             from res in SAPRfc<RT>.commit(connection)
@@ -83,6 +117,7 @@ namespace Dbosoft.YaNco
         {
             if (disposing)
             {
+                _semaphore.Dispose();
                 _openedConnection.IfSome(c => c.Dispose());
                 _openedConnection = Option<IConnection>.None;
             }

@@ -1,4 +1,6 @@
 ﻿using System;
+using Dbosoft.YaNco.Live;
+using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
 using LanguageExt.Effects.Traits;
 
@@ -8,15 +10,18 @@ namespace Dbosoft.YaNco;
 
 
 public static class SAPRfc<RT>
-    where RT : struct, HasCancel<RT>
+    where RT : struct, HasCancelFactory<RT>, HasSAPRfcData<RT>
 
 {
 
     public static Aff<RT, TR> useConnection<TR>(Aff<RT, IConnection> connectionEffect, Func<IConnection, Aff<RT, TR>> mapFunc )
     {
-        return from connection in connectionEffect
-            from res in Prelude.use(connection, mapFunc)
-            select res;
+        return Prelude.use(connectionEffect, mapFunc);
+    }
+
+    public static Aff<RT, TR> useContext<TR>(Aff<RT, IConnection> connectionEffect, Func<RfcContext<RT>, Aff<RT, TR>> mapFunc)
+    {
+        return Prelude.use(Prelude.Eff( () => new RfcContext<RT>(connectionEffect)), mapFunc);
     }
 
     /// <summary>
@@ -183,6 +188,23 @@ public static class SAPRfc<RT>
         return from ct in Prelude.cancelToken<RT>()
             from _ in connection.Rollback(ct).ToAff(l => l)
             select Unit.Default;
+
+    }
+
+
+    public static Eff<RT, TR> getValue<TR>(AbapValue abapValue)
+    {
+        return from dataIO in default(RT).RfcDataEff
+            from result in dataIO.GetValue<TR>(abapValue).ToEff(l => l)
+               select result;
+
+    }
+
+    public static Eff<RT, AbapValue> setValue<TIn>(TIn value, RfcFieldInfo fieldInfo)
+    {
+        return from dataIO in default(RT).RfcDataEff
+            from result in dataIO.SetValue(value, fieldInfo).ToEff(l => l)
+            select result;
 
     }
 

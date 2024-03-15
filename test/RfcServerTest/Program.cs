@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.Live;
+using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using RfcServerTest;
 
@@ -54,21 +56,26 @@ var serverBuilderWithClientConnection = new ServerBuilder(serverSettings)
             .WithFunctionHandler("ZYANCO_SERVER_FUNCTION_1",
             cf => cf
                 .Input(i => i.GetField<string>("SEND"))
-                .ProcessAsync(s =>
+                .Process(s =>
                 {
-                    Console.WriteLine($"Received message from backend: {s}");
-                    cancellationTokenSource.Cancel();
+                    return from uIn in Prelude.Eff(() =>
+                        {
+                            Console.WriteLine($"Received message from backend: {s}");
+                            cancellationTokenSource.Cancel();
+                            return Prelude.unit;
+                        })
 
-                    return cf.UseRfcContext(context =>
-                    {
-                        return from connection in context.GetConnection()
-                               from attributes in connection.GetAttributes()
-                               from userName in context.CallFunction("BAPI_USER_GET_DETAIL",
-                                   Input: f => f.SetField("USERNAME", attributes.User),
-                                   Output: f => f.MapStructure("ADDRESS", s => s.GetField<string>("FULLNAME")))
-                               select userName;
+                        from userFromServer in cf.UseRfcContext(context =>
+                        {
+                            return from connection in context.GetConnection()
+                                from attributes in connection.GetAttributes().ToAff(l => l)
+                                from userName in context.CallFunction("BAPI_USER_GET_DETAIL",
+                                    Input: f => f.SetField("USERNAME", attributes.User),
+                                    Output: f => f.MapStructure("ADDRESS", s => s.GetField<string>("FULLNAME")))
+                                select userName;
 
-                    }).Match(r => r, l => "John Doe");
+                        })
+                        select userFromServer;
 
                 })
                 .Reply((username, f) => f
@@ -109,7 +116,6 @@ var serverBuilderWithoutClientConnection = new ServerBuilder(serverSettings)
             {
                 Console.WriteLine($"Received message from backend: {s}");
                 cancellationTokenSource.Cancel();
-
             })
             .Reply((_, f) => f
                 .SetField("RECEIVE", "Hello from YaNco")));
