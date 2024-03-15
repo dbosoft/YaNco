@@ -1,5 +1,4 @@
 ﻿using System;
-using Dbosoft.YaNco.Live;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
 using LanguageExt.Effects.Traits;
@@ -8,20 +7,26 @@ namespace Dbosoft.YaNco;
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006
 
-
-public static class SAPRfc<RT>
-    where RT : struct, HasCancelFactory<RT>, HasSAPRfcData<RT>
-
+public static class SAPRfcServer<RT>
+    where RT : struct, HasSAPRfcServer<RT>
 {
+    public static Eff<RT, RfcServerAttributes> getServerAttributes(IRfcHandle handle)
+    {
+        return default(RT).RfcServerEff.Bind(io => io.GetServerCallContext(handle).ToEff(l => l));
+    }
+}
 
-    public static Aff<RT, TR> useConnection<TR>(Aff<RT, IConnection> connectionEffect, Func<IConnection, Aff<RT, TR>> mapFunc )
+
+public static class SAPRfc<RT> where RT : struct, HasCancel<RT>, HasSAPRfcData<RT>
+{
+    public static Aff<RT, TR> useConnection<TR>(Aff<RT, IConnection> connectionEffect, Func<IConnection, Aff<RT, TR>> mapFunc)
     {
         return Prelude.use(connectionEffect, mapFunc);
     }
 
     public static Aff<RT, TR> useContext<TR>(Aff<RT, IConnection> connectionEffect, Func<RfcContext<RT>, Aff<RT, TR>> mapFunc)
     {
-        return Prelude.use(Prelude.Eff( () => new RfcContext<RT>(connectionEffect)), mapFunc);
+        return Prelude.use(Prelude.Eff(() => new RfcContext<RT>(connectionEffect)), mapFunc);
     }
 
     /// <summary>
@@ -31,8 +36,8 @@ public static class SAPRfc<RT>
     /// <returns>A <see cref="Aff{RT,IFunction}"/> with any error as left state and function as right state.</returns>
     public static Aff<RT, IFunction> createFunction(IConnection connection, string functionName)
     {
-        return from function in connection.CreateFunction(functionName).ToAff(l=>l)
-        select function;
+        return from function in connection.CreateFunction(functionName).ToAff(l => l)
+               select function;
     }
 
     /// <summary>
@@ -43,8 +48,8 @@ public static class SAPRfc<RT>
     public static Aff<RT, Unit> invokeFunction(IConnection connection, IFunction function)
     {
         return from ct in Prelude.cancelToken<RT>()
-            from _ in connection.InvokeFunction(function, ct).ToAff(l => l)
-            select Unit.Default;
+               from _ in connection.InvokeFunction(function, ct).ToAff(l => l)
+               select Unit.Default;
     }
 
 
@@ -73,7 +78,7 @@ public static class SAPRfc<RT>
         from result in createFunction(connection, functionName).Use(
             func =>
                 from input in Input(Prelude.Right(func)).ToAff(l => l)
-                from _ in invokeFunction(connection,func)
+                from _ in invokeFunction(connection, func)
                 from output in Output(Prelude.Right(func)).ToAff(l => l)
                 select output)
         select result;
@@ -94,9 +99,9 @@ public static class SAPRfc<RT>
         IConnection connection,
         string functionName,
         Func<Either<RfcError, IFunction>, Either<RfcError, TResult>> Output) =>
-        from result in createFunction(connection,functionName).Use(
+        from result in createFunction(connection, functionName).Use(
             func =>
-                from _ in invokeFunction(connection,func)
+                from _ in invokeFunction(connection, func)
                 from output in Output(Prelude.Right(func)).ToAff(l => l)
                 select output)
         select result;
@@ -106,15 +111,15 @@ public static class SAPRfc<RT>
     /// </summary>
     /// <param name="functionName">ABAP function name</param>
     /// <returns>Unit</returns>
-    public static Aff<RT,Unit> invokeFunction(
+    public static Aff<RT, Unit> invokeFunction(
         IConnection connection,
         string functionName)
     {
-        return from result in createFunction(connection,functionName).Use(
+        return from result in createFunction(connection, functionName).Use(
                 func =>
-                    from _ in invokeFunction(connection,func)
+                    from _ in invokeFunction(connection, func)
                     select Unit.Default)
-            select result;
+               select result;
 
     }
 
@@ -133,10 +138,10 @@ public static class SAPRfc<RT>
         IConnection connection,
         string functionName,
         Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> Input) =>
-        from result in createFunction(connection,functionName).Use(
+        from result in createFunction(connection, functionName).Use(
             func =>
                 from input in Input(Prelude.Right(func)).ToAff(l => l)
-                from _ in invokeFunction(connection,func)
+                from _ in invokeFunction(connection, func)
                 select Unit.Default)
         select result;
 
@@ -146,8 +151,8 @@ public static class SAPRfc<RT>
     /// <returns>A <see cref="Aff{RT,Unit}"/> with any error as left state and <seealso cref="Unit"/> as right state</returns>
     public static Aff<RT, Unit> ping(IConnection connection)
     {
-        return 
-            from result in createFunction(connection,"RFC_PING").Use(
+        return
+            from result in createFunction(connection, "RFC_PING").Use(
             func =>
                 from _ in invokeFunction(connection, func)
                 select Unit.Default)
@@ -163,8 +168,8 @@ public static class SAPRfc<RT>
     public static Aff<RT, Unit> commit(IConnection connection)
     {
         return from ct in Prelude.cancelToken<RT>()
-            from _ in connection.Commit(ct).ToAff(l => l)
-            select Unit.Default;
+               from _ in connection.Commit(ct).ToAff(l => l)
+               select Unit.Default;
     }
 
     /// <summary>
@@ -174,8 +179,8 @@ public static class SAPRfc<RT>
     public static Aff<RT, Unit> commitAndWait(IConnection connection)
     {
         return from ct in Prelude.cancelToken<RT>()
-            from _ in connection.CommitAndWait(ct).ToAff(l => l)
-            select Unit.Default;
+               from _ in connection.CommitAndWait(ct).ToAff(l => l)
+               select Unit.Default;
 
     }
 
@@ -186,12 +191,11 @@ public static class SAPRfc<RT>
     public static Aff<RT, Unit> rollback(IConnection connection)
     {
         return from ct in Prelude.cancelToken<RT>()
-            from _ in connection.Rollback(ct).ToAff(l => l)
-            select Unit.Default;
+               from _ in connection.Rollback(ct).ToAff(l => l)
+               select Unit.Default;
 
     }
-
-
+    
     public static Eff<RT, TR> getValue<TR>(AbapValue abapValue)
     {
         return from dataIO in default(RT).RfcDataEff

@@ -4,7 +4,6 @@ using ExportMATMAS;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using YaNco.Hosting;
 
 [assembly: ExcludeFromCodeCoverage]
 

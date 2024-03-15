@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dbosoft.YaNco.Live;
 using JetBrains.Annotations;
 using LanguageExt;
 
@@ -10,17 +9,15 @@ namespace Dbosoft.YaNco;
 /// <summary>
 /// This class is used to configure a SAP RFC server
 /// </summary>
-public class ServerBuilderBase<TBuilder,RT, TSettings> : RfcBuilderBase<TBuilder, RT, TSettings>
+public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     where RT : struct, HasSAPRfcServer<RT>,
-    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>,
-    HasEnvSettings<TSettings>, HasCancelFactory<RT>
-    where TSettings : SAPRfcRuntimeSettings
-    where TBuilder: ServerBuilderBase<TBuilder, RT, TSettings>
+    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvRuntimeSettings
+    where TBuilder: ServerBuilderBase<TBuilder, RT>
 
 {
     private readonly IDictionary<string, string> _serverParam;
     [CanBeNull] private IDictionary<string, string> _clientParam;
-    private Action<RfcServerClientConfigurer<RT, TSettings>> _configureServerClient = (c) => { };
+    private Action<RfcServerClientConfigurer<RT>> _configureServerClient = (c) => { };
     private readonly IFunctionRegistration _functionRegistration = new ScopedFunctionRegistration();
 
     private Func<IDictionary<string, string>, RT, Eff<RT, IRfcServer<RT>>>
@@ -68,7 +65,7 @@ public class ServerBuilderBase<TBuilder,RT, TSettings> : RfcBuilderBase<TBuilder
     /// <param name="configure">action to configure connection</param>
     /// <returns>current instance for chaining.</returns>
     public TBuilder WithClientConnection(
-        IDictionary<string, string> connectionParams, Action<RfcServerClientConfigurer<RT, TSettings>> configure)
+        IDictionary<string, string> connectionParams, Action<RfcServerClientConfigurer<RT>> configure)
     {
         _clientParam = connectionParams;
         _configureServerClient = configure;
@@ -112,14 +109,14 @@ public class ServerBuilderBase<TBuilder,RT, TSettings> : RfcBuilderBase<TBuilder
         //build connection from client build if necessary
         if (_connectionEffect == null && _clientParam != null)
         {
-            var clientBuilder = new ConnectionBuilder<RT,TSettings>(_clientParam);
+            var clientBuilder = new ConnectionBuilder<RT>(_clientParam);
 
             //take control of registration made by clients
             clientBuilder.WithFunctionRegistration(_functionRegistration);
             //take runtime of client
             //clientBuilder.ConfigureRuntime(cfg => cfg.UseFactory((l, m, o) => runtime));
 
-            _configureServerClient(new RfcServerClientConfigurer<RT, TSettings>(clientBuilder));
+            _configureServerClient(new RfcServerClientConfigurer<RT>(clientBuilder));
 
             WithClientConnection(clientBuilder.Build());
         }
@@ -184,7 +181,7 @@ public class ServerBuilderBase<TBuilder,RT, TSettings> : RfcBuilderBase<TBuilder
                 from uAdd in functionsIO.AddFunctionHandler(_systemId,
                         description,
                         (rfcHandle, f) => callBackFunction(
-                            new CalledFunction<RT,TSettings>(rfcHandle, f, () => new RfcServerContext<RT>(server))).ToEither(rt))
+                            new CalledFunction<RT>(rfcHandle, f, () => new RfcServerContext<RT>(server))).ToEither(rt))
                     .Map(holder =>
                     {
                         _functionRegistration.Add(reg.Item1, functionName, holder);

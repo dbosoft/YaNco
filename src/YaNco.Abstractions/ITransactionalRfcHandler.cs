@@ -1,6 +1,4 @@
-﻿using LanguageExt.Effects.Traits;
-
-namespace Dbosoft.YaNco
+﻿namespace Dbosoft.YaNco
 {
     public interface ITransactionalRfcHandler<RT>
         where RT : struct

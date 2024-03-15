@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dbosoft.YaNco.Live;
 using LanguageExt;
 
 namespace Dbosoft.YaNco;
@@ -9,24 +8,22 @@ namespace Dbosoft.YaNco;
 /// <summary>
 /// This class is used to build client connections to a SAP ABAP backend.  
 /// </summary>
-public class ConnectionBuilderBase<TBuilder, RT, TSettings> : RfcBuilderBase<TBuilder, RT, TSettings>
-    where TBuilder: ConnectionBuilderBase<TBuilder, RT, TSettings>
-    where TSettings : SAPRfcRuntimeSettings
+public class ConnectionBuilderBase<TBuilder, RT> : RfcBuilderBase<TBuilder, RT>
+    where TBuilder: ConnectionBuilderBase<TBuilder, RT>
     where RT : struct,
     HasSAPRfcFunctions<RT>,
-    HasCancelFactory<RT>,
     HasSAPRfcServer<RT>,
     HasSAPRfcConnection<RT>,
     HasSAPRfcLogger<RT>,
     HasSAPRfcData<RT>,
-    HasEnvSettings<TSettings>
+    HasEnvRuntimeSettings
 {
     private readonly IDictionary<string, string> _connectionParam;
     private IFunctionRegistration _functionRegistration = FunctionRegistration.Instance;
 
     private Aff<RT, IConnection>? _buildFunction;
     private Func<IDictionary<string, string>, RT, Eff<RT, IConnection>>
-        _connectionFactory = Connection<RT, TSettings>.Create;
+        _connectionFactory = Connection<RT>.Create;
 
     /// <summary>
     /// Creates a new connection builder. 
@@ -79,7 +76,7 @@ public class ConnectionBuilderBase<TBuilder, RT, TSettings> : RfcBuilderBase<TBu
     /// Multiple registrations of same function and same backend id will therefore have no effect.
     /// </remarks>
     public TBuilder WithFunctionHandler(string functionName,
-        Func<CalledFunction<RT, TSettings>, Aff<RT, Unit>> calledFunc)
+        Func<CalledFunction<RT>, Aff<RT, Unit>> calledFunc)
     {
         FunctionHandlers.Add((functionName, null, calledFunc));
         return (TBuilder)this;
@@ -131,7 +128,7 @@ public class ConnectionBuilderBase<TBuilder, RT, TSettings> : RfcBuilderBase<TBu
                         from functionDescription in builder.Build()
                         from addHandler in functionsIO.AddFunctionHandler(attributes.SystemId,
                                 functionDescription,
-                                (rfcHandle, f) => callBackFunction(new CalledFunction<RT, TSettings>(rfcHandle, f,
+                                (rfcHandle, f) => callBackFunction(new CalledFunction<RT>(rfcHandle, f,
                                     () => new RfcContext<RT>(Build()))).ToEither(rt))
                             .Map(holder =>
                             {
@@ -146,7 +143,7 @@ public class ConnectionBuilderBase<TBuilder, RT, TSettings> : RfcBuilderBase<TBu
                     from uAdd in functionsIO.AddFunctionHandler(attributes.SystemId,
                             functionDescription,
                             (rfcHandle, f) => callBackFunction(
-                                new CalledFunction<RT, TSettings>(rfcHandle, f, () => new RfcContext<RT>(Build())))
+                                new CalledFunction<RT>(rfcHandle, f, () => new RfcContext<RT>(Build())))
                                 .ToEither(rt)).ToAff(l => l)
                         .Map(holder =>
                         {

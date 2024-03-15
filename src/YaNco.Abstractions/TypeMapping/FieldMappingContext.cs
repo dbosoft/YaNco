@@ -1,6 +1,4 @@
-﻿using Dbosoft.YaNco.Live;
-
-namespace Dbosoft.YaNco.TypeMapping
+﻿namespace Dbosoft.YaNco.TypeMapping
 {
     public class FieldMappingContext
     {

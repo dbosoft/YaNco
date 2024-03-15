@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using Dbosoft.YaNco.Live;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
+
 // ReSharper disable InconsistentNaming
 
 namespace Dbosoft.YaNco
 {
     public class RfcContext<RT> : IRfcContext<RT>
-        where RT : struct, HasCancelFactory<RT>, HasSAPRfcData<RT>
+        where RT : struct, HasSAPRfcData<RT>, HasCancel<RT>
     {
         private readonly Aff<RT, IConnection> _connectionEffect;
         private Option<IConnection> _openedConnection;

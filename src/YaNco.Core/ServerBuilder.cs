@@ -7,7 +7,7 @@ using LanguageExt;
 namespace Dbosoft.YaNco
 {
 
-    public class ServerBuilder : ServerBuilderBase<ServerBuilder, SAPRfcRuntime, SAPRfcRuntimeSettings>
+    public class ServerBuilder : ServerBuilderBase<ServerBuilder, SAPRfcRuntime>
     {
         public ServerBuilder(IDictionary<string, string> serverParam) : base(serverParam)
         {
@@ -21,7 +21,7 @@ namespace Dbosoft.YaNco
         /// <remarks>
         /// Multiple calls of this method will override the previous configuration action. 
         /// </remarks>
-        public ServerBuilder ConfigureRuntime(Action<RfcRuntimeConfigurer<SAPRfcRuntime, SAPRfcRuntimeSettings>> configure)
+        public ServerBuilder ConfigureRuntime(Action<RfcRuntimeConfigurer<SAPRfcRuntime>> configure)
             => ConfigureRuntimeInternal(configure) as ServerBuilder;
 
 
@@ -33,11 +33,9 @@ namespace Dbosoft.YaNco
     }
 
 
-    public class ServerBuilder<RT, TSettings> : ServerBuilderBase<ServerBuilder<RT, TSettings>, RT, TSettings>
+    public class ServerBuilder<RT> : ServerBuilderBase<ServerBuilder<RT>, RT>
         where RT : struct, HasSAPRfcServer<RT>,
-        HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>,
-        HasEnvSettings<TSettings>, HasCancelFactory<RT>
-        where TSettings : SAPRfcRuntimeSettings
+        HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvRuntimeSettings
     {
         public ServerBuilder(IDictionary<string, string> serverParam) : base(serverParam)
         {

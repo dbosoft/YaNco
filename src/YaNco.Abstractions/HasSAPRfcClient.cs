@@ -1,8 +1,4 @@
-﻿using System;
-using System.Runtime;
-using System.Threading;
-using LanguageExt;
-using LanguageExt.Attributes;
+﻿using LanguageExt;
 using LanguageExt.Effects.Traits;
 
 // ReSharper disable InconsistentNaming
@@ -29,14 +25,7 @@ public interface HasSAPRfcServer<RT> : HasCancel<RT>
     Eff<RT, SAPRfcServerIO> RfcServerEff { get; }
 }
 
-public interface HasEnvSettings<TSettings>
-    where TSettings : SAPRfcRuntimeSettings
+public interface HasEnvRuntimeSettings
 {
-    SAPRfcRuntimeEnv<TSettings> Env { get; }
-}
-
-public interface HasCancelFactory<RT> : HasCancel<RT> where RT : struct, HasCancel<RT>
-{
-    RT WithCancelToken(CancellationToken token);
-
+    SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> Env { get; }
 }

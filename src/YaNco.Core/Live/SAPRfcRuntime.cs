@@ -11,8 +11,7 @@ public readonly struct SAPRfcRuntime
         HasSAPRfcFunctions<SAPRfcRuntime>,
         HasSAPRfcConnection<SAPRfcRuntime>,
         HasSAPRfcServer<SAPRfcRuntime>,
-        HasCancelFactory<SAPRfcRuntime>,
-        HasEnvSettings<SAPRfcRuntimeSettings>
+        HasEnvRuntimeSettings
 
 {
     public static SAPRfcRuntime Default => New(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(
@@ -82,9 +81,4 @@ public readonly struct SAPRfcRuntime
     public Eff<SAPRfcRuntime, SAPRfcServerIO> RfcServerEff => Prelude.Eff<SAPRfcRuntime, SAPRfcServerIO>(
         rt => rt.ServerIO);
 
-    public SAPRfcRuntime WithCancelToken(CancellationToken token)
-    {
-        return New(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(Env.Source, token,
-             Env.Settings));
-    }
 }

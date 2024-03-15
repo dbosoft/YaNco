@@ -1,5 +1,4 @@
-﻿using System;
-using LanguageExt;
+﻿using LanguageExt;
 
 namespace Dbosoft.YaNco.TypeMapping
 {

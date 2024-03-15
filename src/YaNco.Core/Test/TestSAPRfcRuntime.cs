@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Dbosoft.YaNco.Live;
 using LanguageExt;
 
 namespace Dbosoft.YaNco.Test;
@@ -12,33 +11,31 @@ public readonly struct TestSAPRfcRuntime
         HasSAPRfcFunctions<TestSAPRfcRuntime>,
         HasSAPRfcConnection<TestSAPRfcRuntime>,
         HasSAPRfcServer<TestSAPRfcRuntime>,
-        HasCancelFactory<TestSAPRfcRuntime>,
-        HasEnvSettings<TestSAPRfcRuntimeSettings>
-
+        HasEnvRuntimeSettings
 {
-    private readonly SAPRfcRuntimeEnv<TestSAPRfcRuntimeSettings> _env;
+    private readonly SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> _env;
     /// <summary>
     /// Constructor
     /// </summary>
-    private TestSAPRfcRuntime(SAPRfcRuntimeEnv<TestSAPRfcRuntimeSettings> env) =>
+    private TestSAPRfcRuntime(SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> env) =>
         _env = env;
 
 
     /// <summary>
     /// Configuration environment accessor
     /// </summary>
-    public SAPRfcRuntimeEnv<TestSAPRfcRuntimeSettings> Env =>
+    public SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> Env =>
         _env ?? throw new InvalidOperationException("Runtime Env not set.  Perhaps because of using default(Runtime) or new Runtime() rather than Runtime.New()");
 
     /// <summary>
     /// Constructor function
     /// </summary>
-    public static TestSAPRfcRuntime New(SAPRfcRuntimeEnv<TestSAPRfcRuntimeSettings> env) => new(env);
-    public static TestSAPRfcRuntime New(Action<TestSAPRfcRuntimeSettings> configure)
+    public static TestSAPRfcRuntime New(SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> env) => new(env);
+    public static TestSAPRfcRuntime New(Action<SAPRfcRuntimeSettings> configure)
     {
-        var settings = TestSAPRfcRuntimeSettings.Empty();
+        var settings = new SAPRfcRuntimeSettings(null, null, new RfcRuntimeOptions());
         configure(settings);
-        return New(new SAPRfcRuntimeEnv<TestSAPRfcRuntimeSettings>(new CancellationTokenSource(),settings));
+        return New(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(new CancellationTokenSource(),settings));
     }
 
 
@@ -48,7 +45,7 @@ public readonly struct TestSAPRfcRuntime
     /// <remarks>Used by localCancel to create new cancellation context for its sub-environment</remarks>
     /// <returns>New runtime</returns>
     public TestSAPRfcRuntime LocalCancel =>
-        new(new SAPRfcRuntimeEnv<TestSAPRfcRuntimeSettings>(new CancellationTokenSource(), Env.Settings));
+        new(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(new CancellationTokenSource(), Env.Settings));
 
     /// <summary>
     /// Direct access to cancellation token
@@ -87,7 +84,7 @@ public readonly struct TestSAPRfcRuntime
 
     public TestSAPRfcRuntime WithCancelToken(CancellationToken token)
     {
-        return New(new SAPRfcRuntimeEnv<TestSAPRfcRuntimeSettings>(Env.Source, token,
+        return New(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(Env.Source, token,
              Env.Settings));
     }
 }

@@ -3,9 +3,8 @@ using LanguageExt;
 
 namespace Dbosoft.YaNco
 {
-    public readonly struct CalledFunction<RT, TSettings> where RT : struct, HasCancelFactory<RT>,
-        HasSAPRfcServer<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasEnvSettings<TSettings>
-        where TSettings : SAPRfcRuntimeSettings
+    public readonly struct CalledFunction<RT> where RT : struct,
+        HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>
     {
         public readonly IFunction Function;
         private readonly Func<IRfcContext<RT>> _rfcContextFunc;
@@ -43,11 +42,6 @@ namespace Dbosoft.YaNco
 
         public readonly IRfcHandle RfcHandle;
 
-        public Eff<RT, RfcServerAttributes> GetServerAttributes()
-        {
-            var handle = RfcHandle;
-            return default(RT).RfcServerEff.Bind(io => io.GetServerCallContext(handle).ToEff(l => l));
-        }
 
     }
 }

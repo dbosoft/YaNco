@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime;
 using System.Threading;
 using Dbosoft.YaNco.Live;
 using LanguageExt;
 
 namespace Dbosoft.YaNco
 {
-    public class ConnectionBuilder : ConnectionBuilderBase<ConnectionBuilder, SAPRfcRuntime, SAPRfcRuntimeSettings>
+    public class ConnectionBuilder : ConnectionBuilderBase<ConnectionBuilder, SAPRfcRuntime>
     {
         public ConnectionBuilder(IDictionary<string, string> connectionParam) : base(connectionParam)
         {
@@ -34,7 +33,7 @@ namespace Dbosoft.YaNco
         /// <remarks>
         /// Multiple calls of this method will override the previous configuration action. 
         /// </remarks>
-        public ConnectionBuilder ConfigureRuntime(Action<RfcRuntimeConfigurer<SAPRfcRuntime, SAPRfcRuntimeSettings>> configure)
+        public ConnectionBuilder ConfigureRuntime(Action<RfcRuntimeConfigurer<SAPRfcRuntime>> configure)
             => ConfigureRuntimeInternal(configure) as ConnectionBuilder;
 
     }
@@ -43,15 +42,9 @@ namespace Dbosoft.YaNco
     /// <summary>
     /// This class is used to build client connections to a SAP ABAP backend.  
     /// </summary>
-    public class ConnectionBuilder<RT, TSettings> : ConnectionBuilderBase<ConnectionBuilder<RT, TSettings>, RT, TSettings>
-        where TSettings : SAPRfcRuntimeSettings where RT : struct,
-        HasSAPRfcFunctions<RT>,
-        HasCancelFactory<RT>,
-        HasSAPRfcServer<RT>,
-        HasSAPRfcConnection<RT>,
-        HasSAPRfcLogger<RT>,
-        HasSAPRfcData<RT>,
-        HasEnvSettings<TSettings>
+    public class ConnectionBuilder<RT> : ConnectionBuilderBase<ConnectionBuilder<RT>, RT>
+        where RT : struct, HasSAPRfcFunctions<RT>, HasSAPRfcServer<RT>, HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasEnvRuntimeSettings
+
     {
         public ConnectionBuilder(IDictionary<string, string> connectionParam) : base(connectionParam)
         {

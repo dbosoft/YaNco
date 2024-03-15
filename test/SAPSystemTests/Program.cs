@@ -13,6 +13,7 @@ using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using static Dbosoft.YaNco.SAPRfc<Dbosoft.YaNco.Live.SAPRfcRuntime>;
+
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SAPSystemTests

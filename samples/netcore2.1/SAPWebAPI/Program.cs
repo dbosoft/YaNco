@@ -2,8 +2,6 @@
 using Dbosoft.YaNco.Hosting;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using WebApi;
-using YaNco.Hosting;
 
 namespace SAPWebAPI
 {

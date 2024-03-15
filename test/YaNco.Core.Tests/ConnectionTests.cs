@@ -40,7 +40,7 @@ namespace YaNco.Core.Tests
         }
 
         private static Aff<TestSAPRfcRuntime, IConnection> NewConnection() =>
-            new ConnectionBuilder<TestSAPRfcRuntime, TestSAPRfcRuntimeSettings>(new Dictionary<string, string>())
+            new ConnectionBuilder<TestSAPRfcRuntime>(new Dictionary<string, string>())
                 .Build();
 
         [Fact]
@@ -62,7 +62,7 @@ namespace YaNco.Core.Tests
                 settings.RfcDataIO = dataIO.Object;
             });
 
-            var call = from conn in new ConnectionBuilder<TestSAPRfcRuntime, TestSAPRfcRuntimeSettings>(new Dictionary<string, string>())
+            var call = from conn in new ConnectionBuilder<TestSAPRfcRuntime>(new Dictionary<string, string>())
                     .Build()
                       from func in createFunction(conn, "RFC_PING" )
                 select func;

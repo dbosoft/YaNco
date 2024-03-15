@@ -12,9 +12,8 @@ namespace Dbosoft.YaNco
     /// <summary>
     /// Default implementation of <see cref="IConnection"/>
     /// </summary>
-    public class Connection<RT, TSettings> : IConnection
-        where RT : struct,HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvSettings<TSettings> 
-        where TSettings : SAPRfcRuntimeSettings
+    public class Connection<RT> : IConnection
+        where RT : struct,HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvRuntimeSettings
     {
         private readonly RT _runtime;
         private readonly IConnectionHandle _connectionHandle;
@@ -131,7 +130,7 @@ namespace Dbosoft.YaNco
         {
             return from connectionIO in default(RT).RfcConnectionEff
                 from handle in connectionIO.OpenConnection(connectionParams).ToEff(l => l)
-                select (IConnection) new Connection<RT, TSettings>(runtime, handle);
+                select (IConnection) new Connection<RT>(runtime, handle);
         }
 
         /// <inheritdoc cref="CommitAndWait()"/>

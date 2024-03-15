@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Dbosoft.YaNco.Live;
 using LanguageExt;
 
 namespace Dbosoft.YaNco;
 
-public abstract class RfcBuilderBase<TBuilder, RT, TSettings> where RT : struct, 
-    HasSAPRfcFunctions<RT>, HasCancelFactory<RT>, HasSAPRfcServer<RT>, 
-    HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, 
-    HasEnvSettings<TSettings>
-    where TSettings : SAPRfcRuntimeSettings
-    where TBuilder: RfcBuilderBase<TBuilder, RT, TSettings>
+public abstract class RfcBuilderBase<TBuilder, RT> where RT : struct, 
+    HasSAPRfcFunctions<RT>, HasSAPRfcServer<RT>, 
+    HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>
+    where TBuilder: RfcBuilderBase<TBuilder, RT>
 {
     protected TBuilder Self { get; set; }
 
     protected readonly List<(string, Action<IFunctionBuilder<RT>>,
-        Func<CalledFunction<RT, TSettings>, Aff<RT, Unit>>)> FunctionHandlers = new();
+        Func<CalledFunction<RT>, Aff<RT, Unit>>)> FunctionHandlers = new();
 
     /// <summary>
     /// This method registers a callback of type <see cref="StartProgramDelegate"/> 
@@ -55,14 +52,14 @@ public abstract class RfcBuilderBase<TBuilder, RT, TSettings> where RT : struct,
     /// </remarks>
     public TBuilder WithFunctionHandler(string functionName,
         Action<IFunctionBuilder<RT>> configureBuilder,
-        Func<CalledFunction<RT, TSettings>, Aff<RT, Unit>> calledFunc)
+        Func<CalledFunction<RT>, Aff<RT, Unit>> calledFunc)
     {
         FunctionHandlers.Add((functionName, configureBuilder, calledFunc));
         return Self;
     }
 
 
-    private Action<RfcRuntimeConfigurer<RT, TSettings>> _configureRuntime = (c) => { };
+    private Action<RfcRuntimeConfigurer<RT>> _configureRuntime = (c) => { };
 
     /// <summary>
     /// Registers a action to configure the <see cref="IRfcRuntime"/>
@@ -72,7 +69,7 @@ public abstract class RfcBuilderBase<TBuilder, RT, TSettings> where RT : struct,
     /// <remarks>
     /// Multiple calls of this method will override the previous configuration action. 
     /// </remarks>
-    protected TBuilder ConfigureRuntimeInternal(Action<RfcRuntimeConfigurer<RT, TSettings>> configure)
+    protected TBuilder ConfigureRuntimeInternal(Action<RfcRuntimeConfigurer<RT>> configure)
     {
         lock (RfcBuilderSync.SyncObject)
         {
@@ -82,12 +79,12 @@ public abstract class RfcBuilderBase<TBuilder, RT, TSettings> where RT : struct,
         return Self;
     }
 
-    protected RT CreateRuntime(CancellationTokenSource cancellationTokenSource, Func<SAPRfcRuntimeEnv<TSettings>, RT> runtimeFactory)
+    protected RT CreateRuntime(CancellationTokenSource cancellationTokenSource, Func<SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>, RT> runtimeFactory)
     {
 
         lock (RfcBuilderSync.SyncObject)
         {
-            var runtimeConfigurer = new RfcRuntimeConfigurer<RT, TSettings>(runtimeFactory);
+            var runtimeConfigurer = new RfcRuntimeConfigurer<RT>(runtimeFactory);
             _configureRuntime(runtimeConfigurer);
             return runtimeConfigurer.CreateRuntime(cancellationTokenSource);
 
