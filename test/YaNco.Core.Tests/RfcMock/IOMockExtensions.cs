@@ -61,7 +61,7 @@ namespace YaNco.Core.Tests.RfcMock
                 .Returns(() =>
                 {
                     if (delay)
-                        Thread.Sleep(2000);
+                        Thread.Sleep(5000);
                     return Prelude.Right(Unit.Default);
                 });
 
