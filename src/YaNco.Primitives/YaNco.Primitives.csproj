@@ -10,7 +10,7 @@ This package contains primitive type definitions.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dbosoft.Functional" Version="3.0.0" />
+    <PackageReference Include="Dbosoft.Functional" Version="3.1.0" />
     <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -19,7 +19,11 @@ This package contains primitive type definitions.</Description>
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
   </ItemGroup>
 
 </Project>
