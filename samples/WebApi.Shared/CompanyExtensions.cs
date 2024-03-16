@@ -4,6 +4,7 @@ using Dbosoft.YaNco;
 using LanguageExt;
 using WebApi.ApiModel;
 
+// ReSharper disable once CheckNamespace
 namespace WebApi.Shared
 {
     [ExcludeFromCodeCoverage]

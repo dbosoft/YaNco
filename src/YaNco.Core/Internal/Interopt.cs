@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+// ReSharper disable IdentifierTypo
+// ReSharper disable CommentTypo
 
 namespace Dbosoft.YaNco.Internal;
 

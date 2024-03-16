@@ -3,6 +3,8 @@
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 
+// ReSharper disable CommentTypo
+// ReSharper disable IdentifierTypo
 namespace Dbosoft.YaNco;
 
 /// <summary>
@@ -156,7 +158,6 @@ public enum RfcType
     /// <summary>boxed structure, note: not supported by NW RFC lib</summary>
     BOX = 41,
     /// <summary>boxed client dependent structure, note: not supported by NW RFC lib</summary>
-    GENERIC_BOX = 42,
-    /// <summary>the max. value of RFCTYPEs</summary>
+    GENERIC_BOX = 42
     //_maxValue = 43
 }

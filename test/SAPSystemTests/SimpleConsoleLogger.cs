@@ -68,16 +68,13 @@ public class SimpleConsoleLogger : ILogger
 
     }
 
-    class HandleToStringJsonConverter : JsonConverter
+    private class HandleToStringJsonConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
-            if(objectType.BaseType  != null 
-               && objectType.BaseType.FullName != null 
-               && (objectType.BaseType.FullName.StartsWith("Dbosoft.SAP.NWRfc.Native.HandleBase") 
-                   || objectType.BaseType.FullName.StartsWith("Dbosoft.SAP.NWRfc.Native.DataContainerBase")))
-                return true;
-            return false;
+            return objectType.BaseType is { FullName: not null }
+                   && (objectType.BaseType.FullName.StartsWith("Dbosoft.SAP.NWRfc.Native.HandleBase") 
+                       || objectType.BaseType.FullName.StartsWith("Dbosoft.SAP.NWRfc.Native.DataContainerBase"));
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -86,10 +83,7 @@ public class SimpleConsoleLogger : ILogger
             writer.WriteValue($"{typeName}<{value}>");
         }
 
-        public override bool CanRead
-        {
-            get { return false; }
-        }
+        public override bool CanRead => false;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {

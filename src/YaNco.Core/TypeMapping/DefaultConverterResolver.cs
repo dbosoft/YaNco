@@ -18,7 +18,7 @@ public class DefaultConverterResolver : IRfcConverterResolver
             typeof(ByteValueConverter),
             typeof(DictionaryFromAbapStructureValueConverter),
             typeof(ListFromAbapTableValueConverter),
-            typeof(DefaultFromAbapValueConverter<>),
+            typeof(DefaultFromAbapValueConverter<>)
         });
 
         toRfcConverters = (toRfcConverters ?? Type.EmptyTypes).Append(new[]
@@ -77,7 +77,7 @@ public class DefaultConverterResolver : IRfcConverterResolver
     {
         return _fromRfcConverters
             .Map(type =>
-                (CreateConverter(type, typeof(T), abapValueType)) as
+                CreateConverter(type, typeof(T), abapValueType) as
                 IFromAbapValueConverter<T>)
             .Where(c => c != null)
             .Where(c => c.CanConvertTo(rfcType));

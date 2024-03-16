@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using RfcServerTest;
 using static Dbosoft.YaNco.SAPRfcServer<Dbosoft.YaNco.Live.SAPRfcRuntime>;
 using static LanguageExt.Prelude;
+// ReSharper disable AccessToModifiedClosure
+// ReSharper disable VariableHidesOuterVariable
 
 [assembly: ExcludeFromCodeCoverage]
 
@@ -42,7 +44,7 @@ var clientSettings = new Dictionary<string, string>
     {"client", config["saprfc:client"]},
     {"user", config["saprfc:username"]},
     {"passwd", config["saprfc:password"]},
-    {"lang", "EN"},
+    {"lang", "EN"}
 };
 
 

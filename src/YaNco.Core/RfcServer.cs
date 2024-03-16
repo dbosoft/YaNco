@@ -35,7 +35,7 @@ public class RfcServer<RT> : IRfcServer<RT>
                         {
                             switch (msg)
                             {
-                                case LaunchServerMessage _:
+                                case LaunchServerMessage:
                                 {
                                     var result = GetClientConnection()
                                         .Map(c =>

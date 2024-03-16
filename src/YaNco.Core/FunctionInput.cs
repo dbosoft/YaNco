@@ -46,7 +46,7 @@ public readonly struct FunctionInput<RT,TInput> where RT : struct, HasCancel<RT>
     {
         var function = Function;
         var input = Input;
-        return Prelude.Aff( async () => await processFunc(input)).Map(r => new FunctionProcessed<TOutput>(r, function));
+        return Prelude.Aff( async () => await processFunc(input).ConfigureAwait(false)).Map(r => new FunctionProcessed<TOutput>(r, function));
     }
 
     public void Deconstruct(out IFunction function, out TInput input)

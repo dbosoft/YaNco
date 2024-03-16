@@ -13,14 +13,14 @@ public class DateTimeValueConverter: IToAbapValueConverter<DateTime>, IFromAbapV
             if (!IsSupportedRfcType(fieldInfo.Type))
                 throw new NotSupportedException($"Cannot convert DateTime to RfcType {fieldInfo.Type} .");
 
-            string stringValue;
-
             var dateTime = (DateTime)Convert.ChangeType(value, typeof(DateTime), CultureInfo.InvariantCulture);
 
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-            stringValue = fieldInfo.Type switch
+            // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
+            var stringValue = fieldInfo.Type switch
             {
                 RfcType.DATE => dateTime.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
+                // ReSharper disable once StringLiteralTypo
                 RfcType.TIME => dateTime.ToString("HHmmss", CultureInfo.InvariantCulture),
                 _ => throw new ArgumentOutOfRangeException(nameof(fieldInfo), fieldInfo.Type,
                     $"not supported Type field in {nameof(fieldInfo)}.")
@@ -36,7 +36,7 @@ public class DateTimeValueConverter: IToAbapValueConverter<DateTime>, IFromAbapV
         return IsSupportedRfcType(rfcType);
     }
 
-    private bool IsSupportedRfcType(RfcType rfcType)
+    private static bool IsSupportedRfcType(RfcType rfcType)
     {
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (rfcType)
@@ -70,6 +70,7 @@ public class DateTimeValueConverter: IToAbapValueConverter<DateTime>, IFromAbapV
                         dateTime = DateTime.MinValue;
                     else
                         dateTime = default(DateTime).Add(
+                            // ReSharper disable once StringLiteralTypo
                             DateTime.ParseExact(stringValue.Value, "HHmmss", CultureInfo.InvariantCulture).TimeOfDay);
                     break;
                 default:

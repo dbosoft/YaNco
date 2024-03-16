@@ -25,7 +25,7 @@ public class RfcContext<RT> : IRfcContext<RT>
     {
         return from acquire in Prelude.Aff(async () =>
             {
-                await _semaphore.WaitAsync();
+                await _semaphore.WaitAsync().ConfigureAwait(false);
                 return new SemaphoreHolder(_semaphore);
             }).WithRuntime<RT>()
             from used in Prelude.use(acquire, _ =>
@@ -116,12 +116,10 @@ public class RfcContext<RT> : IRfcContext<RT>
 
     protected virtual void Dispose(bool disposing)
     {
-        if (disposing)
-        {
-            _semaphore.Dispose();
-            _openedConnection.IfSome(c => c.Dispose());
-            _openedConnection = Option<IConnection>.None;
-        }
+        if (!disposing) return;
+        _semaphore.Dispose();
+        _openedConnection.IfSome(c => c.Dispose());
+        _openedConnection = Option<IConnection>.None;
     }
 
     public void Dispose()

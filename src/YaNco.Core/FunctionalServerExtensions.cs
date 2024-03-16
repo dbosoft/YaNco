@@ -81,10 +81,10 @@ public static class FunctionalServerExtensions
         this Either<RfcError, FunctionInput<RT, TInput>> input,
         Func<TInput,ValueTask> processAction) where RT : struct, HasCancel<RT>
     {
-        return input.ToEff((l => l)).Bind(i => Prelude.Aff(async () =>
+        return input.ToEff(l => l).Bind(i => Prelude.Aff(async () =>
         {
             var (function, input1) = i;
-            await processAction(input1);
+            await processAction(input1).ConfigureAwait(false);
             return new FunctionProcessed<Unit>(Unit.Default, function);
         }));
     }

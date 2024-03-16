@@ -12,10 +12,6 @@ internal class SemaphoreHolder : IDisposable
         _semaphore = semaphore;
     }
 
-    public void Release()
-    {
-        _semaphore.Release();
-    }
 
     public void Dispose()
     {

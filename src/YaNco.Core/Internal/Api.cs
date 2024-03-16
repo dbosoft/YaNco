@@ -99,16 +99,16 @@ public static class Api
     public static RfcRc GetTypeFieldDescription(TypeDescriptionHandle descriptionHandle, string name,
         out RfcFieldInfo parameterInfo, out RfcErrorInfo errorInfo)
     {
-        var rc = Interopt.RfcGetFieldDescByName(descriptionHandle.Ptr, name.ToUpperInvariant(), out var parameterDescr, out errorInfo);
-        parameterInfo = new RfcFieldInfo(parameterDescr.Name, parameterDescr.Type, parameterDescr.NucLength, parameterDescr.UcLength, parameterDescr.Decimals);
+        var rc = Interopt.RfcGetFieldDescByName(descriptionHandle.Ptr, name.ToUpperInvariant(), out var parameterDescription, out errorInfo);
+        parameterInfo = new RfcFieldInfo(parameterDescription.Name, parameterDescription.Type, parameterDescription.NucLength, parameterDescription.UcLength, parameterDescription.Decimals);
         return rc;
     }
 
     public static RfcRc GetTypeFieldDescription(TypeDescriptionHandle descriptionHandle, int index,
         out RfcFieldInfo parameterInfo, out RfcErrorInfo errorInfo)
     {
-        var rc = Interopt.RfcGetFieldDescByIndex(descriptionHandle.Ptr, (uint)index, out var parameterDescr, out errorInfo);
-        parameterInfo = new RfcFieldInfo(parameterDescr.Name, parameterDescr.Type, parameterDescr.NucLength, parameterDescr.UcLength, parameterDescr.Decimals);
+        var rc = Interopt.RfcGetFieldDescByIndex(descriptionHandle.Ptr, (uint)index, out var parameterDescription, out errorInfo);
+        parameterInfo = new RfcFieldInfo(parameterDescription.Name, parameterDescription.Type, parameterDescription.NucLength, parameterDescription.UcLength, parameterDescription.Decimals);
         return rc;
 
     }

@@ -15,7 +15,7 @@ public class RfcContext : IRfcContext
 {
     private readonly Func<EitherAsync<RfcError, IConnection>> _connectionBuilder;
     private Option<IConnection> _connection;
-    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim _semaphore = new(1);
 
     public RfcContext(Func<EitherAsync<RfcError, IConnection>> connectionBuilder)
     {
@@ -36,8 +36,8 @@ public class RfcContext : IRfcContext
                     .MatchAsync(s => Prelude.Right(s),
                         async () =>
                         {
-                            var res = await _connectionBuilder().ToEither();
-                            res.Map(connection => _connection = Prelude.Some(connection));
+                            var res = await _connectionBuilder().ToEither().ConfigureAwait(false);
+                            _ = res.Map(connection => _connection = Prelude.Some(connection));
                             return res;
                         }).ConfigureAwait(false);
             }

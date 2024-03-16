@@ -25,7 +25,7 @@ internal class Program
         //we use the System.CommandLine package for handling input
         var runner = new CommandLineBuilder(new CreateSimpleSalesDocument())
 
-            .UseHost(_ => new HostBuilder(), (builder) => builder
+            .UseHost(_ => new HostBuilder(), builder => builder
                 .ConfigureDefaults(args)
                 .ConfigureServices((_, services) =>
                 {

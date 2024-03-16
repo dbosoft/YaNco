@@ -15,15 +15,16 @@ using Newtonsoft.Json;
 using static Dbosoft.YaNco.SAPRfc<Dbosoft.YaNco.Live.SAPRfcRuntime>;
 
 using JsonSerializer = System.Text.Json.JsonSerializer;
+// ReSharper disable StringLiteralTypo
 
 namespace SAPSystemTests;
 
-class Program
+internal class Program
 {
 
-    private static string CallbackCommand = null;
+    private static string _callbackCommand;
 
-    static async Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
         var configurationBuilder =
             new ConfigurationBuilder();
@@ -46,21 +47,13 @@ class Program
             {"client", config["saprfc:client"]},
             {"user", config["saprfc:username"]},
             {"passwd", config["saprfc:password"]},
-            {"lang", "EN"},
+            {"lang", "EN"}
         };
 
         var rows = Convert.ToInt32(config["tests:rows"]);
         var repeats = Convert.ToInt32(config["tests:repeats"]);
         Console.WriteLine($"Test rows: {rows}");
         Console.WriteLine($"Test repeats: {repeats}");
-
-
-        StartProgramDelegate callback = command =>
-        {
-            CallbackCommand = command;
-
-            return RfcError.Ok;
-        };
 
 
         var connectionBuilder = new ConnectionBuilder(settings)
@@ -71,7 +64,7 @@ class Program
                     .Process(Console.WriteLine)
                     .Reply((_, f) => f
                         .SetField("RECEIVE", "Hello from YaNco")))
-            .WithStartProgramCallback(callback)
+            .WithStartProgramCallback(Callback)
             .ConfigureRuntime(c =>
                 c.WithLogger(new SimpleConsoleLogger()));
 
@@ -90,7 +83,7 @@ class Program
                 });
 
             // call server function
-            await context.CallFunctionOneWay("ZYANCO_IT_3", f => f).ToEither();
+            _ = await context.CallFunctionOneWay("ZYANCO_IT_3", f => f).ToEither();
 
             await RunIntegrationTests(context);
         }
@@ -160,7 +153,14 @@ class Program
         result = await withFieldMapping.Run(SAPRfcRuntime.Default);
 
         Console.WriteLine("call_getFullName_with_abapValue: " + result);
+        return;
 
+        RfcError Callback(string command)
+        {
+            _callbackCommand = command;
+
+            return RfcError.Ok;
+        }
     }
 
     private static async Task RunIntegrationTests(IRfcContext context)
@@ -297,7 +297,7 @@ class Program
             });
         // ReSharper restore StringLiteralTypo
 
-        var compareLogic = new CompareLogic(new ComparisonConfig() { MaxDifferences = int.MaxValue });
+        var compareLogic = new CompareLogic(new ComparisonConfig { MaxDifferences = int.MaxValue });
         var result = compareLogic.Compare(inputData, outputData);
 
         Console.WriteLine(!result.AreEqual ? result.DifferencesString : "Test succeed");
@@ -442,7 +442,7 @@ class Program
 
         // ReSharper restore StringLiteralTypo
 
-        var compareLogic = new CompareLogic(new ComparisonConfig() { MaxDifferences = int.MaxValue });
+        var compareLogic = new CompareLogic(new ComparisonConfig { MaxDifferences = int.MaxValue });
         var result = compareLogic.Compare(inputData, outputData);
 
         Console.WriteLine(!result.AreEqual ? result.DifferencesString : "Test succeed");
@@ -467,7 +467,9 @@ class Program
                 r =>
                 {
                     var jsonOptions = new JsonSerializerOptions();
+#pragma warning disable CS0618 // Type or member is obsolete
                     jsonOptions.Converters.Add(new AbapValueJsonConverter(r.Connection.RfcRuntime.FieldMapper));
+#pragma warning restore CS0618 // Type or member is obsolete
                     var json = JsonSerializer.Serialize(r.Values, jsonOptions);
                     Console.WriteLine(json == expected ? "Test succeed" : "Test failed");
                 },
@@ -481,12 +483,12 @@ class Program
     {
         Console.WriteLine("Integration Tests 04 (callback function test)");
         var commandString = RandomString(40);
-        await context.CallFunctionOneWay("ZYANCO_IT_2", f => f.SetField("COMMAND", commandString)).ToEither();
-        if (CallbackCommand == commandString)
+        _ = await context.CallFunctionOneWay("ZYANCO_IT_2", f => f.SetField("COMMAND", commandString)).ToEither();
+        if (_callbackCommand == commandString)
             Console.WriteLine("Test succeed");
         else
         {
-            Console.WriteLine("Callback Test failed, command received: " + CallbackCommand);
+            Console.WriteLine("Callback Test failed, command received: " + _callbackCommand);
 
         }
     }
@@ -552,7 +554,7 @@ class Program
         return rows == 0 ? func : func.SetField("IV_UP_TO", rows);
     }
 
-    private static Random random = new Random();
+    private static readonly Random random = new();
     public static string RandomString(int length)
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

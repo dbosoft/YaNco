@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+// ReSharper disable IdentifierTypo
 
 namespace Dbosoft.YaNco;
 

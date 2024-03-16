@@ -14,7 +14,7 @@ namespace Dbosoft.YaNco.Hosting
         /// </summary>
         public static void EnsurePathVariable()
         {
-            var executeableDir = AppDomain.CurrentDomain.BaseDirectory;
+            var executableDir = AppDomain.CurrentDomain.BaseDirectory;
             var pathVariableName = "PATH";
 
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -25,7 +25,7 @@ namespace Dbosoft.YaNco.Hosting
             if (currentPathVariable != null)
             {
 
-                if (currentPathVariable.Contains(executeableDir))
+                if (currentPathVariable.Contains(executableDir ?? throw new InvalidOperationException()))
                     return;
 
                 if (!currentPathVariable.EndsWith(";"))
@@ -38,7 +38,7 @@ namespace Dbosoft.YaNco.Hosting
             }
 
 
-            Environment.SetEnvironmentVariable(pathVariableName, $"{currentPathVariable}{executeableDir}");
+            Environment.SetEnvironmentVariable(pathVariableName, $"{currentPathVariable}{executableDir}");
         }
     }
 }

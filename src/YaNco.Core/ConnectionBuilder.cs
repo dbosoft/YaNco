@@ -34,7 +34,7 @@ public class ConnectionBuilder : ConnectionBuilderBase<ConnectionBuilder, SAPRfc
     /// Multiple calls of this method will override the previous configuration action. 
     /// </remarks>
     public ConnectionBuilder ConfigureRuntime(Action<RfcRuntimeConfigurer<SAPRfcRuntime>> configure)
-        => ConfigureRuntimeInternal(configure) as ConnectionBuilder;
+        => ConfigureRuntimeInternal(configure);
 
 }
 

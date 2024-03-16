@@ -21,12 +21,12 @@ public class ServerBuilder : ServerBuilderBase<ServerBuilder, SAPRfcRuntime>
     /// Multiple calls of this method will override the previous configuration action. 
     /// </remarks>
     public ServerBuilder ConfigureRuntime(Action<RfcRuntimeConfigurer<SAPRfcRuntime>> configure)
-        => ConfigureRuntimeInternal(configure) as ServerBuilder;
+        => ConfigureRuntimeInternal(configure);
 
 
     public new EitherAsync<RfcError, IRfcServer<SAPRfcRuntime>> Build()
     {
-        var runtime = CreateRuntime(new CancellationTokenSource(), ( env) => 
+        var runtime = CreateRuntime(new CancellationTokenSource(), env => 
             SAPRfcRuntime.New(env.Source, env.Settings));
         return base.Build().ToEither(runtime);
     }

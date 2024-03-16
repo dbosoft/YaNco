@@ -236,7 +236,7 @@ public class RfcRuntime<RT> : IRfcRuntime
 
     public Either<RfcError, AbapValue> SetValue<T>(T value, RfcFieldInfo fieldInfo)
     {
-        return _runtime.RfcDataEff.Bind(io => io.SetValue<T>(value, fieldInfo).ToEff(l => l)).ToEither(_runtime);
+        return _runtime.RfcDataEff.Bind(io => io.SetValue(value, fieldInfo).ToEff(l => l)).ToEither(_runtime);
     }
 
     public Either<RfcError, ITypeDescriptionHandle> GetTypeDescription(IDataContainerHandle dataContainer)

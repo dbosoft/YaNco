@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 
 namespace Dbosoft.YaNco;
 
@@ -14,6 +15,7 @@ namespace Dbosoft.YaNco;
 /// <para>this structure to the RFC library in order to specify the error type&amp;message that</para>
 /// <para>you want to send back to the backend.</para>
 /// </remarks>
+[PublicAPI]
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 public readonly struct RfcErrorInfo
 {
@@ -50,10 +52,10 @@ public readonly struct RfcErrorInfo
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 50 + 1)]
     public readonly string AbapMsgV4;
 
-    public RfcErrorInfo(RfcRc code, RfcErrorGroup @group, string key, string message, string abapMsgClass, string abapMsgType, string abapMsgNumber, string abapMsgV1, string abapMsgV2, string abapMsgV3, string abapMsgV4)
+    public RfcErrorInfo(RfcRc code, RfcErrorGroup group, string key, string message, string abapMsgClass, string abapMsgType, string abapMsgNumber, string abapMsgV1, string abapMsgV2, string abapMsgV3, string abapMsgV4)
     {
         Code = code;
-        Group = @group;
+        Group = group;
         Key = key;
         Message = message;
         AbapMsgClass = abapMsgClass;

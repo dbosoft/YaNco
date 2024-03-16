@@ -21,7 +21,7 @@ internal static class RuntimeToEitherExtensions
 
         async Task<Fin<T>> Run()
         {
-            return await aff.Run(runtime);
+            return await aff.Run(runtime).ConfigureAwait(false);
 
         }
     }

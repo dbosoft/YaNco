@@ -22,7 +22,7 @@ public class RfcRuntimeConfigurer<RT>
 
     private ILogger _logger;
     private readonly RfcRuntimeOptions _options = new();
-    private Action<RfcMappingConfigurer> _configureMapping = (_) => { };
+    private Action<RfcMappingConfigurer> _configureMapping = _ => { };
 
     /// <summary>
     /// Registers a <see cref="ILogger"/> implementation as logger in runtime.

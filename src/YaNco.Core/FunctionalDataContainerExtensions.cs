@@ -56,18 +56,18 @@ public static class FunctionalDataContainerExtensions
 
     }
 
-    static public Either<RfcError, IEnumerable<TResult>> MapStructure<TResult>(this Either<RfcError, ITable> eitherTable, Func<IStructure,Either<RfcError, TResult>> mapperFunc)
+    public static Either<RfcError, IEnumerable<TResult>> MapStructure<TResult>(this Either<RfcError, ITable> eitherTable, Func<IStructure,Either<RfcError, TResult>> mapperFunc)
     {
         return eitherTable.Bind(table=> table.Rows.Map(mapperFunc).Traverse(l=>l));
     }
 
-    static public Either<RfcError, IEnumerable<TResult>> MapTable<TCont,TResult>(this Either<RfcError, TCont> self, string tableName, Func<IStructure, Either<RfcError, TResult>> mapperFunc)
+    public static Either<RfcError, IEnumerable<TResult>> MapTable<TCont,TResult>(this Either<RfcError, TCont> self, string tableName, Func<IStructure, Either<RfcError, TResult>> mapperFunc)
         where TCont: IDataContainer
     {
         return self.Map(s =>s.GetTable(tableName)).Bind(t => t.MapStructure(mapperFunc));
     }
 
-    static public Either<RfcError, TResult> MapStructure<TCont,TResult>(this Either<RfcError, TCont> self, string structureName, Func<IStructure, Either<RfcError, TResult>> mapperFunc)
+    public static Either<RfcError, TResult> MapStructure<TCont,TResult>(this Either<RfcError, TCont> self, string structureName, Func<IStructure, Either<RfcError, TResult>> mapperFunc)
         where TCont : IDataContainer
     {
         return self.Bind(s=>s.GetStructure(structureName).Bind(mapperFunc));

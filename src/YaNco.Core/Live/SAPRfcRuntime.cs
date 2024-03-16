@@ -18,7 +18,7 @@ public readonly struct SAPRfcRuntime
 {
     public static SAPRfcRuntime Default => New(
         new CancellationTokenSource(),
-        new SAPRfcRuntimeSettings(null, RfcMappingConfigurer.CreateDefaultFieldMapper(null, null), new RfcRuntimeOptions()));
+        new SAPRfcRuntimeSettings(null, RfcMappingConfigurer.CreateDefaultFieldMapper(), new RfcRuntimeOptions()));
 
     private readonly SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> _env;
     /// <summary>

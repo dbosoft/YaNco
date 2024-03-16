@@ -16,29 +16,26 @@ public class DefaultFieldMapper : IFieldMapper
     {
         return ToAbapValue(value, context.FieldInfo).Bind(abapValue =>
         {
-            switch (abapValue)
+            return abapValue switch
             {
-                case AbapIntValue abapIntValue:
-                    return context.IO.SetInt(context.Handle, context.FieldInfo.Name, abapIntValue.Value);
-                case AbapLongValue abapLongValue:
-                    return context.IO.SetLong(context.Handle, context.FieldInfo.Name, abapLongValue.Value);
-                case AbapByteValue abapByteValue:
-                    return context.IO.SetBytes(context.Handle, context.FieldInfo.Name, abapByteValue.Value,
-                        abapByteValue.Value.LongLength);
-                case AbapStringValue abapStringValue:
+                AbapIntValue abapIntValue => context.IO.SetInt(context.Handle, context.FieldInfo.Name,
+                    abapIntValue.Value),
+                AbapLongValue abapLongValue => context.IO.SetLong(context.Handle, context.FieldInfo.Name,
+                    abapLongValue.Value),
+                AbapByteValue abapByteValue => context.IO.SetBytes(context.Handle, context.FieldInfo.Name,
+                    abapByteValue.Value, abapByteValue.Value.LongLength),
+                AbapStringValue abapStringValue =>
                     // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-                    return context.FieldInfo.Type switch
+                    context.FieldInfo.Type switch
                     {
                         RfcType.DATE => context.IO.SetDateString(context.Handle, context.FieldInfo.Name,
                             abapStringValue.Value),
                         RfcType.TIME => context.IO.SetTimeString(context.Handle, context.FieldInfo.Name,
                             abapStringValue.Value),
                         _ => context.IO.SetString(context.Handle, context.FieldInfo.Name, abapStringValue.Value)
-                    };
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(abapValue));
-            }
+                    },
+                _ => throw new ArgumentOutOfRangeException(nameof(abapValue))
+            };
         });
 
     }
@@ -47,6 +44,7 @@ public class DefaultFieldMapper : IFieldMapper
     {
         return context.Apply(_ =>
         {
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (context.FieldInfo.Type)
             {
                 case RfcType.DATE:
@@ -142,16 +140,4 @@ public class DefaultFieldMapper : IFieldMapper
         return abapValue;
     }
 
-    public Either<RfcError, Unit> SetFieldValue<T>(SAPRfcDataIO rfcRuntime, IDataContainerHandle handle, T value, Func<Either<RfcError, RfcFieldInfo>> func)
-    {
-        return func().Bind(fieldInfo => 
-            SetField(value, new FieldMappingContext(rfcRuntime, handle, fieldInfo)));
-
-    }
-
-    public Either<RfcError, T> GetFieldValue<T>(SAPRfcDataIO rfcRuntime, IDataContainerHandle handle, Func<Either<RfcError, RfcFieldInfo>> func)
-    {
-        return func().Bind(fieldInfo => 
-            GetField<T>(new FieldMappingContext(rfcRuntime, handle, fieldInfo)));
-    }
 }

@@ -11,8 +11,8 @@ public class RfcMappingConfigurer
     private Func<IEnumerable<Type>, IEnumerable<Type>,IFieldMapper>
         _mappingFactory = CreateDefaultFieldMapper;
 
-    private readonly List<Type> _fromRfcMappingTypes = new List<Type>();
-    private readonly List<Type> _toRfcMappingTypes = new List<Type>();
+    private readonly List<Type> _fromRfcMappingTypes = new();
+    private readonly List<Type> _toRfcMappingTypes = new();
 
 
     public static IFieldMapper CreateDefaultFieldMapper(IEnumerable<Type> fromRfcConverters = null,

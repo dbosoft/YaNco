@@ -2,6 +2,7 @@
 
 namespace Dbosoft.YaNco.TypeMapping;
 
+// ReSharper disable once TypeParameterCanBeVariant
 public interface IToAbapValueConverter<T>
 {
     Try<AbapValue> ConvertFrom(T value, RfcFieldInfo fieldInfo);

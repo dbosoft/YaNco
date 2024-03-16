@@ -120,37 +120,35 @@ public class ConnectionBuilderBase<TBuilder, RT> : RfcBuilderBase<TBuilder, RT>
                 if (_functionRegistration.IsFunctionRegistered(attributes.SystemId, functionName))
                     return Prelude.unitAff;
 
-                if (configureBuilder != null)
-                {
-                    var builder = new FunctionBuilder<RT>(functionName);
-                    configureBuilder(builder);
-                    return
-                        from functionDescription in builder.Build()
-                        from addHandler in functionsIO.AddFunctionHandler(attributes.SystemId,
+                if (configureBuilder == null)
+                    return from functionDescription in connection.CreateFunction(functionName).ToAff(l => l)
+                        from uAdd in functionsIO.AddFunctionHandler(attributes.SystemId,
                                 functionDescription,
-                                (rfcHandle, f) => callBackFunction(new CalledFunction<RT>(rfcHandle, f,
-                                    () => new RfcContext<RT>(Build()))).ToEither(rt))
+                                (rfcHandle, f) => callBackFunction(
+                                        new CalledFunction<RT>(rfcHandle, f, () => new RfcContext<RT>(Build())))
+                                    .ToEither(rt)).ToAff(l => l)
                             .Map(holder =>
                             {
                                 _functionRegistration.Add(attributes.SystemId, functionName, holder);
                                 return Unit.Default;
-                            }).ToAff(l => l)
-                        select addHandler;
+                            })
+                        select uAdd;
 
-                }
-
-                return from functionDescription in connection.CreateFunction(functionName).ToAff(l => l)
-                    from uAdd in functionsIO.AddFunctionHandler(attributes.SystemId,
+                var builder = new FunctionBuilder<RT>(functionName);
+                configureBuilder(builder);
+                return
+                    from functionDescription in builder.Build()
+                    from addHandler in functionsIO.AddFunctionHandler(attributes.SystemId,
                             functionDescription,
-                            (rfcHandle, f) => callBackFunction(
-                                new CalledFunction<RT>(rfcHandle, f, () => new RfcContext<RT>(Build())))
-                                .ToEither(rt)).ToAff(l => l)
+                            (rfcHandle, f) => callBackFunction(new CalledFunction<RT>(rfcHandle, f,
+                                () => new RfcContext<RT>(Build()))).ToEither(rt))
                         .Map(holder =>
                         {
                             _functionRegistration.Add(attributes.SystemId, functionName, holder);
                             return Unit.Default;
-                        })
-                    select uAdd;
+                        }).ToAff(l => l)
+                    select addHandler;
+
             }).TraverseSerial(l => l).Map(_ => connection)
             select attach;
     }

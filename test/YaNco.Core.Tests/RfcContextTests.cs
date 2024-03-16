@@ -47,7 +47,7 @@ namespace YaNco.Core.Tests
             var functionIO = new Mock<SAPRfcFunctionIO>();
             var dataIO = new Mock<SAPRfcDataIO>();
             functionIO.SetupFunction("A_FUNC", connHandle,
-                (h) =>
+                h =>
                 {
                     dataIO.Setup(x => x.GetFieldValue<string>(h, It.IsAny<Func<Either<RfcError, RfcFieldInfo>>>()
                         ))

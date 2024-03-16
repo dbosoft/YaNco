@@ -57,7 +57,7 @@ internal class TableRowEnumerator : IEnumerator<Structure>
 
         _handle.IfSome(h =>
         {
-            _io.MoveToFirstTableRow(h).Map(_ => ReadCurrentRow());
+            _ = _io.MoveToFirstTableRow(h).Map(_ => ReadCurrentRow());
         });
     }
 

@@ -1,5 +1,6 @@
 ﻿namespace Dbosoft.YaNco;
 
+// ReSharper disable once TypeParameterCanBeVariant
 public interface ITransactionalRfcHandler<RT>
     where RT : struct
 {

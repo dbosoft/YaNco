@@ -16,17 +16,17 @@ public class SimpleConsoleLogger : ILogger
         LogException(exception, "");
     }
 
-    public void LogTrace(string message, object data)
+    public void LogTrace(string message, object? data)
     {
         //Console.WriteLine($"TRACE\t{message}{ObjectToString(data)}");
     }
 
-    public void LogError(string message, object data)
+    public void LogError(string message, object? data)
     {
         Console.WriteLine($"ERROR\t{message}{ObjectToString(data)}");
     }
 
-    public void LogDebug(string message, object data)
+    public void LogDebug(string message, object? data)
     {
         if (data is RfcErrorInfo { Key: "RFC_TABLE_MOVE_EOF" })
             return;
@@ -49,7 +49,7 @@ public class SimpleConsoleLogger : ILogger
         LogError(message, null);
     }
 
-    public static string ObjectToString(object valueObject)
+    public static string ObjectToString(object? valueObject)
     {
         var dataString = new StringBuilder();
         if (valueObject == null)
@@ -66,30 +66,24 @@ public class SimpleConsoleLogger : ILogger
 
     }
 
-    class HandleToStringJsonConverter : JsonConverter
+    private class HandleToStringJsonConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
-            if(objectType.BaseType  != null 
-               && objectType.BaseType.FullName != null 
-               && (objectType.BaseType.FullName.StartsWith("Dbosoft.SAP.NWRfc.Native.HandleBase") 
-                   || objectType.BaseType.FullName.StartsWith("Dbosoft.SAP.NWRfc.Native.DataContainerBase")))
-                return true;
-            return false;
+            return objectType.BaseType is { FullName: not null }
+                   && (objectType.BaseType.FullName.StartsWith("Dbosoft.SAP.NWRfc.Native.HandleBase") 
+                       || objectType.BaseType.FullName.StartsWith("Dbosoft.SAP.NWRfc.Native.DataContainerBase"));
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            var typeName = value.GetType().Name;                
+            var typeName = value?.GetType().Name;                
             writer.WriteValue($"{typeName}<{value}>");
         }
 
-        public override bool CanRead
-        {
-            get { return false; }
-        }
+        public override bool CanRead => false;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             throw new NotImplementedException();
         }

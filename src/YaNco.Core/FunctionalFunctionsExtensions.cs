@@ -63,8 +63,7 @@ public static class FunctionalFunctionsExtensions
     /// <returns>A <see cref="Either{RfcError,IFunction}"/> with the function as right value or the left value.</returns>
     public static Either<RfcError, IFunction> HandleReturn(this Either<RfcError, IFunction> self)
     {
-        return self.Bind(f => (
-            from ret in f.GetStructure("RETURN")
+        return self.Bind(f => from ret in f.GetStructure("RETURN")
             from type in ret.GetField<string>("TYPE")
             from id in ret.GetField<string>("ID")
             from number in ret.GetField<string>("NUMBER")
@@ -75,7 +74,7 @@ public static class FunctionalFunctionsExtensions
             from v4 in ret.GetField<string>("MESSAGE_V4")
 
             from _ in ErrorOrResult(f, type, id, number, message, v1, v2, v3, v4)
-            select f));
+            select f);
 
     }
 
@@ -100,8 +99,7 @@ public static class FunctionalFunctionsExtensions
     /// <returns>A <see cref="Either{RfcError,IFunction}"/> with the function as right value or the left value.</returns>
     public static Either<RfcError, IFunction> HandleReturnTable(this Either<RfcError, IFunction> self)
     {
-        return self.Bind(f => (
-            from retTab in f.GetTable("RETURN")
+        return self.Bind(f => from retTab in f.GetTable("RETURN")
             from messages in retTab.Rows.Map(r =>
                 from type in r.GetField<string>("TYPE")
                 from id in r.GetField<string>("ID")
@@ -124,7 +122,7 @@ public static class FunctionalFunctionsExtensions
                 }
             ).Traverse(l => l)
             from _ in ErrorOrResult(f, messages)
-            select f));
+            select f);
 
     }
 

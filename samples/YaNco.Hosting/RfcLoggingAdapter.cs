@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -13,7 +12,7 @@ namespace Dbosoft.YaNco.Hosting
     {
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
 
-        public RfcLoggingAdapter(ILoggerFactory loggerFactory, IConfiguration configuration)
+        public RfcLoggingAdapter(ILoggerFactory loggerFactory)
         {
             _logger = loggerFactory.CreateLogger("saprfc");
 
@@ -110,6 +109,7 @@ namespace Dbosoft.YaNco.Hosting
 
             public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
             {
+                if (value == null) return;
                 var typeName = value.GetType().Name;
                 writer.WriteValue($"{typeName}<{value}>");
             }

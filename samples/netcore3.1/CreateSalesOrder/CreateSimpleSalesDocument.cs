@@ -25,7 +25,7 @@ public class CreateSimpleSalesDocument : RootCommand
     public new class Handler : ICommandHandler
     {
         private readonly IRfcContext _rfcContext;
-        private readonly CustomizingSettings _customizingSettings = new CustomizingSettings();
+        private readonly CustomizingSettings _customizingSettings = new();
 
         public string CustomerNo { get; set; }
         public int Quantity { get; set; }
