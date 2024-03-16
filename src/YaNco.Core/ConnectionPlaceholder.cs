@@ -91,6 +91,7 @@ internal class ConnectionPlaceholder : IConnection
     public bool Disposed { get; private set; }
 #pragma warning disable CS0618 // Type or member is obsolete
     public IRfcRuntime RfcRuntime { get; } = new RfcRuntime(SAPRfcRuntime.Default);
+    public HasEnvRuntimeSettings ConnectionRuntime { get; } = SAPRfcRuntime.Default;
 #pragma warning restore CS0618 // Type or member is obsolete
     public T GetRuntimeSettings<T>() where T : SAPRfcRuntimeSettings
     {
