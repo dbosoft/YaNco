@@ -7,6 +7,7 @@
 This library provides an alternative SAP .NET Connector based on the SAP NetWeaver RFC SDK.
 </Description>
     <RootNamespace>Dbosoft.YaNco</RootNamespace>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
 
@@ -19,6 +20,10 @@ This library provides an alternative SAP .NET Connector based on the SAP NetWeav
 
   <ItemGroup>
     <ProjectReference Include="..\YaNco.Core\YaNco.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
   </ItemGroup>
 
 </Project>

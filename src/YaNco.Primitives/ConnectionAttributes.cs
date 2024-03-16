@@ -80,5 +80,8 @@ namespace Dbosoft.YaNco
             PartnerIPv4 = partnerIPv4;
             PartnerIPv6 = partnerIPv6;
         }
+
+        public static ConnectionAttributes Empty() => new ("", "", "", "", "", "", "", "", "", "",
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "");
     }
 }

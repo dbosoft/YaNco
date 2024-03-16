@@ -1,112 +1,123 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using Dbosoft.Functional;
 using LanguageExt;
 
 namespace Dbosoft.YaNco
 {
-    public class RfcServer : IRfcServer
+    public class RfcServer<RT> : IRfcServer<RT>
+        where RT : struct, HasSAPRfcServer<RT>, HasSAPRfcLogger<RT>
+
     {
-        public IRfcRuntime RfcRuntime { get; }
-        private readonly IAgent<AgentMessage, Either<RfcErrorInfo, object>> _stateAgent;
+        private readonly IAgent<AgentMessage, Either<RfcError, object>> _stateAgent;
         public bool Disposed { get; private set; }
 
-        private Func<EitherAsync<RfcErrorInfo, IConnection>>
-            _clientConnectionFactory;
+        private Aff<RT, IConnection> _connectionEffect;
         private Seq<IDisposable> _references;
 
 
-        private RfcServer(IRfcServerHandle serverHandle, IRfcRuntime rfcRuntime)
+        private RfcServer(IRfcServerHandle serverHandle, RT runtime)
         {
-            RfcRuntime = rfcRuntime;
-            _clientConnectionFactory = () => new ConnectionPlaceholder(RfcRuntime);
+            _connectionEffect = Prelude.SuccessAff((IConnection) new ConnectionPlaceholder());
 
-            _stateAgent = Agent.Start<IRfcServerHandle, AgentMessage, Either<RfcErrorInfo, object>>(
+            _stateAgent = Agent.Start<IRfcServerHandle, AgentMessage, Either<RfcError, object>>(
                 serverHandle, async (handle, msg) =>
                 {
                     if (handle == null)
                         return (null,
                             new RfcErrorInfo(RfcRc.RFC_INVALID_HANDLE, RfcErrorGroup.EXTERNAL_RUNTIME_FAILURE,
-                                "", "Rfc Server already destroyed", "", "E", "", "", "", "", ""));
-
-                    try
-                    {
-                        switch (msg)
+                                "", "Rfc Server already destroyed", "", "E", "", "", "", "", "").ToRfcError());
+                    var effect = from io in default(RT).RfcServerEff
+                        from logger in default(RT).RfcLoggerEff 
+                        from processed in Unit.Default.Apply(_ =>
                         {
-                            case LaunchServerMessage _:
+                            try
                             {
-                                var result = 
-                                    (await OpenClientConnection().ToEither())
-                                    .Map( c =>
-                                    {
-                                        c.Dispose();
-                                        return Unit.Default;
-                                    })
-                                    .Bind( _ =>
-                                    rfcRuntime.LaunchServer(handle).Map(u => (object)u));
-                                return (handle, result);
-
-                            }
-
-                            case ShutdownServerMessage shutdownServerMessage:
-                            {
-                                var result = rfcRuntime.ShutdownServer(
-                                    handle, shutdownServerMessage.Timeout).Map(u => (object) u);
-                                return (handle, result);
-
-                            }
-
-                            case DisposeMessage disposeMessage:
-                            {
-                                handle.Dispose();
-
-                                foreach (var disposable in _references)
+                                switch (msg)
                                 {
-                                    disposable.Dispose();
+                                    case LaunchServerMessage _:
+                                    {
+                                        var result = GetClientConnection()
+                                            .Map(c =>
+                                            {
+                                                c.Dispose();
+                                                return Unit.Default;
+                                            })
+                                            .Bind(_ =>
+                                                io.LaunchServer(handle).ToEff(l=>l).Map(u => (object)u));
+                                        return result;
+
+                                    }
+
+                                    case ShutdownServerMessage shutdownServerMessage:
+                                    {
+                                        var result = io.ShutdownServer(
+                                            handle, shutdownServerMessage.Timeout).Map(u => (object)u).ToEff(l => l);
+                                        return result;
+
+                                    }
+
+                                    case DisposeMessage disposeMessage:
+                                    {
+                                        handle.Dispose();
+
+                                        foreach (var disposable in _references)
+                                        {
+                                            disposable.Dispose();
+                                        }
+
+                                        _references = Seq<IDisposable>.Empty;
+                                        handle = null;
+                                        return Prelude.FailEff<object>(disposeMessage.ErrorInfo);
+                                    }
                                 }
-                                _references = Seq<IDisposable>.Empty;
-
-                                return (null, Prelude.Left(disposeMessage.ErrorInfo));
                             }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        rfcRuntime.Logger.IfSome(l => l.LogException(ex));
-                        return (null, Prelude.Left(RfcErrorInfo.Error(ex.Message)));
-                    }
+                            catch (Exception ex)
+                            {
+                                logger.IfSome(l => l.LogException(ex));
+                                return Prelude.FailEff<object>(RfcError.Error(ex.Message));
+                            }
 
-                    rfcRuntime.Logger.IfSome(l => l.LogError(
-                        $"Invalid rfc server message {msg.GetType()}"));
-                    return (null, Prelude.Left(RfcErrorInfo.Error($"Invalid rfc server message {msg.GetType().Name}")));
+                            logger.IfSome(l => l.LogError(
+                                $"Invalid rfc server message {msg.GetType()}"));
+                            return Prelude.FailEff<object>(RfcError.Error($"Invalid rfc server message {msg.GetType().Name}"));
+
+                        })
+                        select processed;
+
+                    var res = await effect.ToEither(runtime);
+                    return (handle,res);
+
 
                 });
 
         }
 
-        public static EitherAsync<RfcErrorInfo, IRfcServer> Create(
-            IDictionary<string, string> connectionParams, IRfcRuntime runtime)
+        public static Eff<RT, IRfcServer<RT>> Create(
+            IDictionary<string, string> connectionParams, RT runtime)
         {
-            return runtime.CreateServer(connectionParams).ToAsync().Map(handle => (IRfcServer)new RfcServer(handle, runtime));
+            return default(RT).RfcServerEff.Bind(io =>
+                io.CreateServer(connectionParams).ToEff(l=>l)
+                    .Map(handle => (IRfcServer<RT>)new RfcServer<RT>(handle, runtime)));
         }
 
 
-        public EitherAsync<RfcErrorInfo, Unit> Start() =>
+        public EitherAsync<RfcError, Unit> Start() =>
             _stateAgent.Tell(new LaunchServerMessage()).ToAsync().Map(_ => Unit.Default);
 
-        public EitherAsync<RfcErrorInfo, Unit> Stop(int timeout = 0)
+        public EitherAsync<RfcError, Unit> Stop(int timeout = 0)
             => _stateAgent.Tell(new ShutdownServerMessage(timeout)).ToAsync().Map(_ => Unit.Default);
 
-        public Unit AddConnectionFactory(Func<EitherAsync<RfcErrorInfo, IConnection>> connectionFactory)
+        public Aff<RT, IConnection> GetClientConnection()
         {
-            _clientConnectionFactory = connectionFactory;
-            return Unit.Default;
+            return _connectionEffect;
         }
 
-        public EitherAsync<RfcErrorInfo,IConnection> OpenClientConnection()
+        public Unit AddClientConnection(Aff<RT, IConnection> connectionEffect)
         {
-            return _clientConnectionFactory();
+            _connectionEffect = connectionEffect;
+            return Unit.Default;
+
         }
 
 
@@ -116,7 +127,7 @@ namespace Dbosoft.YaNco
                 return;
 
             Disposed = true;
-            _stateAgent.Tell(new DisposeMessage(RfcErrorInfo.EmptyResult()));
+            _stateAgent.Tell(new DisposeMessage(RfcErrorInfo.EmptyResult().ToRfcError()));
         }
 
         public void Dispose()
@@ -152,9 +163,9 @@ namespace Dbosoft.YaNco
 
         private class DisposeMessage : AgentMessage
         {
-            public readonly RfcErrorInfo ErrorInfo;
+            public readonly RfcError ErrorInfo;
 
-            public DisposeMessage(RfcErrorInfo errorInfo)
+            public DisposeMessage(RfcError errorInfo)
             {
                 ErrorInfo = errorInfo;
             }
@@ -165,93 +176,6 @@ namespace Dbosoft.YaNco
             _references = _references.Concat(disposables);
         }
 
-        private class ConnectionPlaceholder : IConnection
-        {
 
-            private static readonly RfcErrorInfo ErrorResponse = new RfcErrorInfo(RfcRc.RFC_CLOSED,
-                RfcErrorGroup.COMMUNICATION_FAILURE, "",
-                "no client connection", 
-                "", "", "", "", "", "", "");
-
-            public ConnectionPlaceholder(IRfcRuntime runtime)
-            {
-                RfcRuntime = runtime;
-
-            }
-
-            public void Dispose()
-            {
-                Disposed = true;
-            }
-
-            public EitherAsync<RfcErrorInfo, Unit> CommitAndWait()
-            {
-                return ErrorResponse;
-
-            }
-
-            public EitherAsync<RfcErrorInfo, Unit> CommitAndWait(CancellationToken cancellationToken)
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, Unit> Commit()
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, Unit> Commit(CancellationToken cancellationToken)
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, Unit> Rollback()
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, Unit> Rollback(CancellationToken cancellationToken)
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, IStructure> CreateStructure(string name)
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, IFunction> CreateFunction(string name)
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function)
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, Unit> InvokeFunction(IFunction function, CancellationToken cancellationToken)
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, Unit> Cancel()
-            {
-                return ErrorResponse;
-            }
-
-            public EitherAsync<RfcErrorInfo, ConnectionAttributes> GetAttributes()
-            {
-                return ErrorResponse;
-            }
-
-            public bool Disposed { get; private set; }
-            public IRfcRuntime RfcRuntime { get;  }
-        }
     }
 }

@@ -6,10 +6,11 @@
     <RootNamespace>Dbosoft.YaNco</RootNamespace>
     <Description>YaNco is a modern alternative to the SAP .NET Connector. 
 This package contains the core implementation.</Description>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dbosoft.Functional" Version="2.1.0" />
+    <PackageReference Include="Dbosoft.Functional" Version="3.1.0" />
     <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -18,6 +19,10 @@ This package contains the core implementation.</Description>
 
   <ItemGroup>
     <ProjectReference Include="..\YaNco.Abstractions\YaNco.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
   </ItemGroup>
 
 </Project>

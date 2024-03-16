@@ -6,6 +6,6 @@ namespace Dbosoft.YaNco
     public interface ITable : IDataContainer
     {
         IEnumerable<IStructure> Rows { get; }
-        Either<RfcErrorInfo, IStructure> AppendRow();
+        Either<RfcError, IStructure> AppendRow();
     }
 }

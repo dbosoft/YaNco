@@ -7,13 +7,13 @@ namespace Dbosoft.YaNco
     internal class TableRowEnumerator : IEnumerator<Structure>
     {
         private Option<ITableHandle> _handle;
-        private readonly IRfcRuntime _rfcRuntime;
+        private readonly SAPRfcDataIO _io;
         private Option<Structure> _currentRow;
         private bool _first = true;
 
-        public TableRowEnumerator(IRfcRuntime rfcRuntime, Option<ITableHandle> handle)
+        public TableRowEnumerator(SAPRfcDataIO io, Option<ITableHandle> handle)
         {
-            _rfcRuntime = rfcRuntime;
+            _io = io;
             _handle = handle;
             Reset();
         }
@@ -32,7 +32,7 @@ namespace Dbosoft.YaNco
                 return _currentRow.IsSome;
             }
 
-            var hasNext = _handle.Map(h => _rfcRuntime.MoveToNextTableRow(h)).Traverse(l => l)
+            var hasNext = _handle.Map(h => _io.MoveToNextTableRow(h)).Traverse(l => l)
                 .Match(r => true, l => false);
 
             if(hasNext)
@@ -44,8 +44,8 @@ namespace Dbosoft.YaNco
         public Unit ReadCurrentRow()
         {
             _currentRow= _handle
-                .Map(_rfcRuntime.GetCurrentTableRow).Traverse(l => l)
-                .Map(sho => sho.Map(sh => new Structure(sh, _rfcRuntime)))
+                .Map(_io.GetCurrentTableRow).Traverse(l => l)
+                .Map(sho => sho.Map(sh => new Structure(sh, _io)))
                 .Match(r => r, l => Prelude.None);
 
             return Unit.Default;
@@ -57,7 +57,7 @@ namespace Dbosoft.YaNco
 
             _handle.IfSome(h =>
             {
-                _rfcRuntime.MoveToFirstTableRow(h).Map(u => ReadCurrentRow());
+                _io.MoveToFirstTableRow(h).Map(u => ReadCurrentRow());
             });
         }
 

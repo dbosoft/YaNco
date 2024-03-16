@@ -1,15 +1,25 @@
 ﻿using System;
+using System.Threading;
 using Dbosoft.YaNco.TypeMapping;
 
 namespace Dbosoft.YaNco
 {
-    public class RfcRuntimeConfigurer
+    public class RfcRuntimeConfigurer<RT>
+        where RT : struct
     {
-        private Func<ILogger, IFieldMapper, RfcRuntimeOptions, IRfcRuntime>
-            _runtimeFactory = (logger, mapper, options) => new RfcRuntime(logger, mapper, options);
+        private Func<ILogger, IFieldMapper, RfcRuntimeOptions, SAPRfcRuntimeSettings>
+            _settingsFactory = (logger, mapper, o) =>
+                new SAPRfcRuntimeSettings(logger, mapper,o);
+
+        private Func<SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>, RT> _runtimeFactory;
+
+        public RfcRuntimeConfigurer(Func<SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>, RT> runtimeFactory)
+        {
+            _runtimeFactory = runtimeFactory;
+        }
 
         private ILogger _logger;
-        private readonly RfcRuntimeOptions _options = new RfcRuntimeOptions();
+        private readonly RfcRuntimeOptions _options = new();
         private Action<RfcMappingConfigurer> _configureMapping = (m) => { };
 
         /// <summary>
@@ -17,7 +27,7 @@ namespace Dbosoft.YaNco
         /// </summary>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public RfcRuntimeConfigurer WithLogger(ILogger logger)
+        public RfcRuntimeConfigurer<RT> WithLogger(ILogger logger)
         {
             _logger = logger;
             return this;
@@ -28,7 +38,7 @@ namespace Dbosoft.YaNco
         /// </summary>
         /// <param name="configure"></param>
         /// <returns></returns>
-        public RfcRuntimeConfigurer ConfigureOptions(Action<RfcRuntimeOptions> configure)
+        public RfcRuntimeConfigurer<RT> ConfigureOptions(Action<RfcRuntimeOptions> configure)
         {
             configure(_options);
             return this;
@@ -39,7 +49,7 @@ namespace Dbosoft.YaNco
         /// </summary>
         /// <param name="configure"></param>
         /// <returns></returns>
-        public RfcRuntimeConfigurer ConfigureMapping(Action<RfcMappingConfigurer> configure)
+        public RfcRuntimeConfigurer<RT> ConfigureMapping(Action<RfcMappingConfigurer> configure)
         {
             _configureMapping = configure;
             return this;
@@ -50,20 +60,33 @@ namespace Dbosoft.YaNco
         /// </summary>
         /// <param name="factory">function of factory method</param>
         /// <returns></returns>
-        /// <remarks>Use this method to override the creation of <see cref="IRfcRuntime"/>. For example for dependency injection.</remarks>
-        public RfcRuntimeConfigurer UseFactory(Func<ILogger, IFieldMapper, RfcRuntimeOptions, IRfcRuntime> factory)
+        /// <remarks>Use this method to override the creation of <see cref="SAPRfcRuntimeSettings"/>. For example for dependency injection.</remarks>
+        public RfcRuntimeConfigurer<RT> UseSettingsFactory(Func<ILogger, IFieldMapper, RfcRuntimeOptions, SAPRfcRuntimeSettings> factory)
+        {
+            _settingsFactory = factory;
+            return this;
+        }
+
+        /// <summary>
+        /// Use a factory method to create the RFC runtime.
+        /// </summary>
+        /// <param name="factory">function of factory method</param>
+        /// <returns></returns>
+        /// <remarks>Use this method to override the creation of <see cref="SAPRfcRuntimeSettings"/>. For example for dependency injection.</remarks>
+        public RfcRuntimeConfigurer<RT> UseRuntimeFactory(Func<SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>,RT> factory)
         {
             _runtimeFactory = factory;
             return this;
         }
 
-        internal IRfcRuntime Create()
+        public RT CreateRuntime(CancellationTokenSource cancellationTokenSource)
         {
             var mappingConfigurer = new RfcMappingConfigurer();
             _configureMapping(mappingConfigurer);
             var mapping = mappingConfigurer.Create();
             
-            return _runtimeFactory(_logger, mapping,_options);
+            var settings = _settingsFactory(_logger, mapping,_options);
+            return _runtimeFactory(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(cancellationTokenSource, settings));
         }
     }
     

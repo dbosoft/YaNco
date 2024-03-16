@@ -10,7 +10,7 @@ namespace WebApi
     [ExcludeFromCodeCoverage]
     public static class ApiResultExtensions
     {
-        public static Task<IActionResult> ToActionResult<T>(this EitherAsync<RfcErrorInfo, T> result)
+        public static Task<IActionResult> ToActionResult<T>(this EitherAsync<RfcError, T> result)
         {
             return result.Match(
                 r => (IActionResult)new ObjectResult(r),

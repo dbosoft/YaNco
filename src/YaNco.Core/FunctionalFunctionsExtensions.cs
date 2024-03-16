@@ -10,13 +10,13 @@ namespace Dbosoft.YaNco
     {
         /// <summary>
         /// Commits current transaction in ABAP backend.
-        /// This method accepts a <see cref="EitherAsync{RfcErrorInfo,R1}"/> with any right value and returns it after commit.
+        /// This method accepts a <see cref="EitherAsync{RfcError,R1}"/> with any right value and returns it after commit.
         /// </summary>
         /// <typeparam name="R1">Type of function result</typeparam>
         /// <param name="self"></param>
         /// <param name="context"></param>
-        /// <returns>A <see cref="EitherAsync{RfcErrorInfo,R1}"/> with the Right value of argument self or the left value.</returns>
-        public static EitherAsync<RfcErrorInfo, R1> Commit<R1>(this EitherAsync<RfcErrorInfo, R1> self,
+        /// <returns>A <see cref="EitherAsync{RfcError,R1}"/> with the Right value of argument self or the left value.</returns>
+        public static EitherAsync<RfcError, R1> Commit<R1>(this EitherAsync<RfcError, R1> self,
             IRfcContext context)
         {
             return self.Bind(res => context.Commit().Map(u => res));
@@ -24,13 +24,13 @@ namespace Dbosoft.YaNco
 
         /// <summary>
         /// Commits current transaction in ABAP backend and waits for the commit to be completed.
-        /// This method accepts a <see cref="EitherAsync{RfcErrorInfo,R1}"/> with any right value and returns it after commit.
+        /// This method accepts a <see cref="EitherAsync{RfcError,R1}"/> with any right value and returns it after commit.
         /// </summary>
         /// <typeparam name="R1">Type of function result</typeparam>
         /// <param name="self"></param>
         /// <param name="context"></param>
-        /// <returns>A <see cref="EitherAsync{RfcErrorInfo,R1}"/> with the Right value of argument self or the left value.</returns>
-        public static EitherAsync<RfcErrorInfo, R1> CommitAndWait<R1>(this EitherAsync<RfcErrorInfo, R1> self,
+        /// <returns>A <see cref="EitherAsync{RfcError,R1}"/> with the Right value of argument self or the left value.</returns>
+        public static EitherAsync<RfcError, R1> CommitAndWait<R1>(this EitherAsync<RfcError, R1> self,
             IRfcContext context)
         {
             return self.Bind(res => context.CommitAndWait().Map(u => res));
@@ -39,15 +39,15 @@ namespace Dbosoft.YaNco
         /// <summary>
         /// This methods extracts the value of a RETURN structure (BAPIRET or BAPIRET2) and processes it's value as
         /// left value if return contains a non-successful result (abort or error). 
-        /// This method accepts a <see cref="EitherAsync{RfcErrorInfo,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
+        /// This method accepts a <see cref="EitherAsync{RfcError,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
         /// </summary>
-        /// <returns>A <see cref="EitherAsync{RfcErrorInfo,IFunction}"/> with the function as right value or the left value.</returns>
-        public static EitherAsync<RfcErrorInfo, IFunction> HandleReturn(this EitherAsync<RfcErrorInfo, IFunction> self)
+        /// <returns>A <see cref="EitherAsync{RfcError,IFunction}"/> with the function as right value or the left value.</returns>
+        public static EitherAsync<RfcError, IFunction> HandleReturn(this EitherAsync<RfcError, IFunction> self)
         {
             return self.ToEither().Map(f => f.HandleReturn()).ToAsync();
         }
 
-        public static EitherAsync<RfcErrorInfo, Unit> AsUnit(this EitherAsync<RfcErrorInfo, IFunction> self)
+        public static EitherAsync<RfcError, Unit> AsUnit(this EitherAsync<RfcError, IFunction> self)
         {
             return self.Map(_ => Unit.Default);
         }
@@ -55,11 +55,11 @@ namespace Dbosoft.YaNco
         /// <summary>
         /// This methods extracts the value of a RETURN structure (BAPIRET or BAPIRET2) and processes it's value as
         /// left value if return contains a non-successful result (abort or error). 
-        /// This method accepts a <see cref="Either{RfcErrorInfo,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
+        /// This method accepts a <see cref="Either{RfcError,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
         /// </summary>
         /// <param name="self"></param>
-        /// <returns>A <see cref="Either{RfcErrorInfo,IFunction}"/> with the function as right value or the left value.</returns>
-        public static Either<RfcErrorInfo, IFunction> HandleReturn(this Either<RfcErrorInfo, IFunction> self)
+        /// <returns>A <see cref="Either{RfcError,IFunction}"/> with the function as right value or the left value.</returns>
+        public static Either<RfcError, IFunction> HandleReturn(this Either<RfcError, IFunction> self)
         {
             return self.Bind(f => (
                 from ret in f.GetStructure("RETURN")
@@ -81,10 +81,10 @@ namespace Dbosoft.YaNco
         /// <summary>
         /// This methods extracts the value of a RETURN table (BAPIRET or BAPIRET2) and processes it's value as
         /// left value if return contains a non-successful result (abort or error). 
-        /// This method accepts a <see cref="EitherAsync{RfcErrorInfo,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
+        /// This method accepts a <see cref="EitherAsync{RfcError,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
         /// </summary>
-        /// <returns>A <see cref="EitherAsync{RfcErrorInfo,IFunction}"/> with the function as right value or the left value.</returns>
-        public static EitherAsync<RfcErrorInfo, IFunction> HandleReturnTable(this EitherAsync<RfcErrorInfo, IFunction> self)
+        /// <returns>A <see cref="EitherAsync{RfcError,IFunction}"/> with the function as right value or the left value.</returns>
+        public static EitherAsync<RfcError, IFunction> HandleReturnTable(this EitherAsync<RfcError, IFunction> self)
         {
             return self.ToEither().Map(f => f.HandleReturnTable()).ToAsync();
         }
@@ -92,11 +92,11 @@ namespace Dbosoft.YaNco
         /// <summary>
         /// This methods extracts the value of a RETURN table (BAPIRET or BAPIRET2) and processes it's value as
         /// left value if return contains a non-successful result (abort or error). 
-        /// This method accepts a <see cref="Either{RfcErrorInfo,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
+        /// This method accepts a <see cref="Either{RfcError,IFunction}"/> with <see cref="IFunction"/> as right value and returns it if return contains a successful result.
         /// </summary>
         /// <param name="self"></param>
-        /// <returns>A <see cref="Either{RfcErrorInfo,IFunction}"/> with the function as right value or the left value.</returns>
-        public static Either<RfcErrorInfo, IFunction> HandleReturnTable(this Either<RfcErrorInfo, IFunction> self)
+        /// <returns>A <see cref="Either{RfcError,IFunction}"/> with the function as right value or the left value.</returns>
+        public static Either<RfcError, IFunction> HandleReturnTable(this Either<RfcError, IFunction> self)
         {
             return self.Bind(f => (
                 from retTab in f.GetTable("RETURN")
@@ -140,7 +140,7 @@ namespace Dbosoft.YaNco
 
         }
 
-        private static Either<RfcErrorInfo, TResult> ErrorOrResult<TResult>(TResult result, IEnumerable<ReturnData> messages)
+        private static Either<RfcError, TResult> ErrorOrResult<TResult>(TResult result, IEnumerable<ReturnData> messages)
         {
             var messagesArray = messages as ReturnData[] ?? messages.ToArray();
 
@@ -154,13 +154,13 @@ namespace Dbosoft.YaNco
                 failedMessage?.Message, failedMessage?.Id,
                 failedMessage?.Type, failedMessage?.Number,
                 failedMessage?.MessageV1, failedMessage?.MessageV2,
-                failedMessage?.MessageV3, failedMessage?.MessageV4);
+                failedMessage?.MessageV3, failedMessage?.MessageV4).ToRfcError();
         }
 
-        private static Either<RfcErrorInfo, TResult> ErrorOrResult<TResult>(TResult result, string type, string id, string number, string message, string v1, string v2, string v3, string v4)
+        private static Either<RfcError, TResult> ErrorOrResult<TResult>(TResult result, string type, string id, string number, string message, string v1, string v2, string v3, string v4)
         {
             if (type.Contains('E') || type.Contains('A'))
-                return new RfcErrorInfo(RfcRc.RFC_ABAP_MESSAGE, RfcErrorGroup.ABAP_APPLICATION_FAILURE, "", message, id, type, number, v1, v2, v3, v4);
+                return new RfcErrorInfo(RfcRc.RFC_ABAP_MESSAGE, RfcErrorGroup.ABAP_APPLICATION_FAILURE, "", message, id, type, number, v1, v2, v3, v4).ToRfcError();
 
             return result;
         }
@@ -188,11 +188,11 @@ namespace Dbosoft.YaNco
         /// <param name="Output">Output function lifted in either monad.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Result of output mapping function.</returns>
-        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TRInput, TResult>(
+        public static EitherAsync<RfcError, TResult> CallFunction<TRInput, TResult>(
             this IRfcContext context, 
             string functionName, 
-            Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TRInput>> Input, 
-            Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TResult>> Output,
+            Func<Either<RfcError, IFunction>, Either<RfcError, TRInput>> Input, 
+            Func<Either<RfcError, IFunction>, Either<RfcError, TResult>> Output,
             CancellationToken cancellationToken = default)
         {
             return context.CreateFunction(functionName).Use(
@@ -207,7 +207,7 @@ namespace Dbosoft.YaNco
         }
 
         /// <summary>
-        /// CallFunction with RfcErrorInfo lifted output.
+        /// CallFunction with RfcError lifted output.
         /// </summary>
         /// <remarks>
         /// The output parameter of this method is a function that maps from a <see cref="Either{RfcErrorInfo,IFunction}"/>
@@ -223,10 +223,10 @@ namespace Dbosoft.YaNco
         /// <param name="Output">Output function lifted in either monad.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Result of output mapping function.</returns>
-        public static EitherAsync<RfcErrorInfo, TResult> CallFunction<TResult>(
+        public static EitherAsync<RfcError, TResult> CallFunction<TResult>(
             this IRfcContext context, 
             string functionName, 
-            Func<Either<RfcErrorInfo,IFunction>, Either<RfcErrorInfo, TResult>> Output,
+            Func<Either<RfcError,IFunction>, Either<RfcError, TResult>> Output,
             CancellationToken cancellationToken = default)
         {
             return context.CreateFunction(functionName).Use(
@@ -244,7 +244,7 @@ namespace Dbosoft.YaNco
         /// <param name="functionName">ABAP function name</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Unit</returns>
-        public static EitherAsync<RfcErrorInfo, Unit> CallFunctionOneWay(
+        public static EitherAsync<RfcError, Unit> CallFunctionOneWay(
             this IRfcContext context, 
             string functionName,
             CancellationToken cancellationToken = default)
@@ -269,10 +269,10 @@ namespace Dbosoft.YaNco
         /// <param name="Input">Input function lifted in either monad.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Unit</returns>
-        public static EitherAsync<RfcErrorInfo, Unit> CallFunctionOneWay<TRInput>(
+        public static EitherAsync<RfcError, Unit> CallFunctionOneWay<TRInput>(
             this IRfcContext context, 
             string functionName, 
-            Func<Either<RfcErrorInfo, IFunction>, Either<RfcErrorInfo, TRInput>> Input,
+            Func<Either<RfcError, IFunction>, Either<RfcError, TRInput>> Input,
             CancellationToken cancellationToken = default)
         {
             return context.CreateFunction(functionName).Use(

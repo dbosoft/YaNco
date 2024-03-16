@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using LanguageExt;
@@ -21,9 +19,9 @@ namespace YaNco.Core.Tests
             var emptyAttributes = new ConnectionAttributes("", "", "", "", "", "", "", "", "", "",
                     "", "", "", "", "", "", "", "", "", "", "", "", "", "");
 
-            connectionMock.Setup(x => x.GetAttributes()).Returns(Prelude.RightAsync<RfcErrorInfo, ConnectionAttributes>(emptyAttributes));
+            connectionMock.Setup(x => x.GetAttributes()).Returns(Prelude.RightAsync<RfcError, ConnectionAttributes>(emptyAttributes));
 
-            connectionBuilder.UseFactory((_, r) => Prelude.RightAsync<RfcErrorInfo, IConnection>(connectionMock.Object));
+            connectionBuilder.UseFactory((_, r) => Prelude.SuccessEff(connectionMock.Object));
             var buildFunc = connectionBuilder.Build();
 
             var options = new ParallelOptions { MaxDegreeOfParallelism = int.MaxValue };

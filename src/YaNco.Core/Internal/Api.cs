@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using JetBrains.Annotations;
-using LanguageExt;
 
 namespace Dbosoft.YaNco.Internal
 {
@@ -277,70 +275,6 @@ namespace Dbosoft.YaNco.Internal
             Interopt.RfcInstallServerFunction(sysId, functionDescription.Ptr, holder.ServerFunction,
                 out errorInfo);
             return holder;
-        }
-
-        private static readonly object AllowStartOfProgramsLock = new object();
-
-        [Obsolete("Use method AllowStartOfPrograms of ConnectionBuilder. This method will be removed in next major release.")]
-        public static void AllowStartOfPrograms(ConnectionHandle connectionHandle, StartProgramDelegate callback, out
-            RfcErrorInfo errorInfo)
-        {
-            lock (AllowStartOfProgramsLock)
-            {
-
-                GetConnectionAttributes(connectionHandle, out var attributes, out errorInfo);
-                if (errorInfo.Code != RfcRc.RFC_OK)
-                    return;
-
-
-                RfcErrorInfo errorInfoLocal = default;
-                //function runtime is not available at this API level => as workaround create a new runtime -> in FunctionBuilder it is 
-                //only used to wrap this API implementation.
-                new FunctionBuilder(new RfcRuntime(), "RFC_START_PROGRAM")
-                    .AddChar("COMMAND", RfcDirection.Import, 512)
-                    .Build()
-                    .Match(funcDescriptionHandle =>
-                    {
-                        if(FunctionRegistration.Instance.IsFunctionRegistered(attributes.SystemId, 
-                               "RFC_START_PROGRAM"))
-                            FunctionRegistration.Instance.Remove(attributes.SystemId, "RFC_START_PROGRAM");
-
-
-                        FunctionRegistration.Instance.Add(attributes.SystemId, "RFC_START_PROGRAM", RegisterServerFunctionHandler(attributes.SystemId,
-                            funcDescriptionHandle as FunctionDescriptionHandle,
-                            (_, funcHandle) =>
-                            {
-                                var functionHandle = funcHandle as FunctionHandle;
-                                Debug.Assert(functionHandle != null, nameof(functionHandle) + " != null");
-
-                                var commandBuffer = new char[513];
-                                var rc = Interopt.RfcGetStringByIndex(functionHandle.Ptr, 0, commandBuffer,
-                                    (uint)commandBuffer.Length - 1, out var commandLength, out var error);
-
-                                if (rc != RfcRc.RFC_OK)
-                                    return Unit.Default;
-
-                                var command = new string(commandBuffer, 0, (int)commandLength);
-                                error = callback(command);
-
-                                if (error.Code == RfcRc.RFC_OK)
-                                    return Unit.Default;
-
-                                return error;
-                            }, out errorInfoLocal));
-                    }, l => errorInfoLocal = l);
-
-                errorInfo = errorInfoLocal;
-            }
-
-        }
-
-
-        [Obsolete("Callback handlers are no longer bound to connection. This method will do nothing and will be removed in next major release.")]
-        // ReSharper disable once UnusedParameter.Global
-        public static void RemoveCallbackHandler(IntPtr connectionHandle)
-        {
-
         }
 
         public static RfcRc GetTableRowCount(TableHandle table, out int count, out RfcErrorInfo errorInfo)

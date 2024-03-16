@@ -51,15 +51,15 @@ namespace CreateSalesOrder
                 return _rfcContext.CallFunction("BAPI_SALESDOCU_CREATEFROMDATA1",
                         Input: f => f
                             // sets the input fields
-                            .SetStructure("SALES_HEADER_IN",s => s
+                            .SetStructure("SALES_HEADER_IN", s => s
                                 .SetField("DOC_TYPE", _customizingSettings.DocumentType ?? "")
                                 .SetField("SALES_ORG", _customizingSettings.SalesOrganization ?? "")
                                 .SetField("DISTR_CHAN", _customizingSettings.DistributionChannel ?? "")
                                 .SetField("DIVISION", _customizingSettings.Division ?? "")
                             )
-                            .SetStructure("SALES_HEADER_INX", s => s 
+                            .SetStructure("SALES_HEADER_INX", s => s
                                 .SetField("UPDATEFLAG", "I") // this enables handling of X structures
-                                .SetField("DOC_TYPE", _customizingSettings.DocumentType != null ? "X": "")
+                                .SetField("DOC_TYPE", _customizingSettings.DocumentType != null ? "X" : "")
                                 .SetField("SALES_ORG", _customizingSettings.SalesOrganization != null ? "X" : "")
                                 .SetField("DISTR_CHAN", _customizingSettings.DistributionChannel != null ? "X" : "")
                                 .SetField("DIVISION", _customizingSettings.Division != null ? "X" : "")
@@ -93,7 +93,7 @@ namespace CreateSalesOrder
                     //alternative to:
                     //.Bind(result => _rfcContext.CommitAndWait().Map(_ => result))
                     .MatchAsync(
-                        LeftAsync:async l=>
+                        LeftAsync: async l =>
                         {
                             await Console.Error.WriteLineAsync($"Failed to create sales document. Error: {l.Message}");
                             return -1;

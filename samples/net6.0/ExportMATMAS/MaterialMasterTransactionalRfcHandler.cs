@@ -1,6 +1,7 @@
 using Dbosoft.YaNco;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Dbosoft.YaNco.Live;
 
 namespace ExportMATMAS;
 
@@ -8,7 +9,7 @@ namespace ExportMATMAS;
 /// <summary>
 /// This is a sample implementation of a transactional RFC handler.
 /// </summary>
-public class MaterialMasterTransactionalRfcHandler : ITransactionalRfcHandler
+public class MaterialMasterTransactionalRfcHandler : ITransactionalRfcHandler<SAPRfcRuntime>
 {
     private readonly TransactionManager<MaterialMasterRecord> _transactionManager;
 
@@ -17,7 +18,7 @@ public class MaterialMasterTransactionalRfcHandler : ITransactionalRfcHandler
         _transactionManager = transactionManager;
     }
 
-    public RfcRc OnCheck(IRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId)
+    public RfcRc OnCheck(SAPRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId)
     {
         Console.WriteLine($"Checking transaction '{transactionId}'");
 
@@ -51,7 +52,7 @@ public class MaterialMasterTransactionalRfcHandler : ITransactionalRfcHandler
         
     }
 
-    public RfcRc OnCommit(IRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId)
+    public RfcRc OnCommit(SAPRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId)
     {
         Console.WriteLine($"Commit transaction '{transactionId}'");
 
@@ -75,7 +76,7 @@ public class MaterialMasterTransactionalRfcHandler : ITransactionalRfcHandler
 
     }
 
-    public RfcRc OnRollback(IRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId)
+    public RfcRc OnRollback(SAPRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId)
     {
         Console.WriteLine($"Rollback transaction '{transactionId}'");
 
@@ -88,7 +89,7 @@ public class MaterialMasterTransactionalRfcHandler : ITransactionalRfcHandler
             });
     }
 
-    public RfcRc OnConfirm(IRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId)
+    public RfcRc OnConfirm(SAPRfcRuntime rfcRuntime, IRfcHandle rfcHandle, string transactionId)
     {
         Console.WriteLine($"Confirm transaction '{transactionId}'");
 

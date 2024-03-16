@@ -12,31 +12,31 @@ namespace Dbosoft.YaNco.TypeMapping
             _converterResolver = converterResolver;
         }
 
-        public Either<RfcErrorInfo, Unit> SetField<T>(T value, FieldMappingContext context)
+        public Either<RfcError, Unit> SetField<T>(T value, FieldMappingContext context)
         {
             return ToAbapValue(value, context.FieldInfo).Bind(abapValue =>
             {
                 switch (abapValue)
                 {
                     case AbapIntValue abapIntValue:
-                        return context.RfcRuntime.SetInt(context.Handle, context.FieldInfo.Name, abapIntValue.Value);
+                        return context.IO.SetInt(context.Handle, context.FieldInfo.Name, abapIntValue.Value);
                     case AbapLongValue abapLongValue:
-                        return context.RfcRuntime.SetLong(context.Handle, context.FieldInfo.Name, abapLongValue.Value);
+                        return context.IO.SetLong(context.Handle, context.FieldInfo.Name, abapLongValue.Value);
                     case AbapByteValue abapByteValue:
-                        return context.RfcRuntime.SetBytes(context.Handle, context.FieldInfo.Name, abapByteValue.Value,
+                        return context.IO.SetBytes(context.Handle, context.FieldInfo.Name, abapByteValue.Value,
                             abapByteValue.Value.LongLength);
                     case AbapStringValue abapStringValue:
                         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
                         switch (context.FieldInfo.Type)
                         {
                             case RfcType.DATE:
-                                return context.RfcRuntime.SetDateString(context.Handle, context.FieldInfo.Name,
+                                return context.IO.SetDateString(context.Handle, context.FieldInfo.Name,
                                     abapStringValue.Value);
                             case RfcType.TIME:
-                                return context.RfcRuntime.SetTimeString(context.Handle, context.FieldInfo.Name,
+                                return context.IO.SetTimeString(context.Handle, context.FieldInfo.Name,
                                     abapStringValue.Value);
                             default:
-                                return context.RfcRuntime.SetString(context.Handle, context.FieldInfo.Name,
+                                return context.IO.SetString(context.Handle, context.FieldInfo.Name,
                                     abapStringValue.Value);
                         }
 
@@ -47,17 +47,17 @@ namespace Dbosoft.YaNco.TypeMapping
 
         }
 
-        public Either<RfcErrorInfo, T> GetField<T>(FieldMappingContext context)
+        public Either<RfcError, T> GetField<T>(FieldMappingContext context)
         {
-            return context.Apply(c =>
+            return context.Apply(_ =>
             {
                 switch (context.FieldInfo.Type)
                 {
                     case RfcType.DATE:
-                        return context.RfcRuntime.GetDateString(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetDateString(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapStringValue(context.FieldInfo, v));
                     case RfcType.TIME:
-                        return context.RfcRuntime.GetTimeString(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetTimeString(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapStringValue(context.FieldInfo, v));
                     case RfcType.CHAR:
                     case RfcType.NUM:
@@ -66,28 +66,28 @@ namespace Dbosoft.YaNco.TypeMapping
                     case RfcType.FLOAT:
                     case RfcType.DECF16:
                     case RfcType.DECF34:
-                        return context.RfcRuntime.GetString(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetString(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapStringValue(context.FieldInfo, v));
                     case RfcType.INT:
                     case RfcType.INT2:
                     case RfcType.INT1:
-                        return context.RfcRuntime.GetInt(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetInt(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapIntValue(context.FieldInfo, v));
                     case RfcType.INT8:
-                        return context.RfcRuntime.GetLong(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetLong(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapLongValue(context.FieldInfo, v));
                     case RfcType.BYTE:
                     case RfcType.XSTRING:
-                        return context.RfcRuntime.GetBytes(context.Handle, context.FieldInfo.Name).Map(v =>
+                        return context.IO.GetBytes(context.Handle, context.FieldInfo.Name).Map(v =>
                             (AbapValue) new AbapByteValue(context.FieldInfo, v));
                     case RfcType.STRUCTURE:
-                        return context.RfcRuntime.GetStructure(context.Handle, context.FieldInfo.Name)
-                            .Map(handle => (IStructure)new Structure(handle, context.RfcRuntime))
+                        return context.IO.GetStructure(context.Handle, context.FieldInfo.Name)
+                            .Map(handle => (IStructure)new Structure(handle, context.IO))
                             .Bind(s => s.ToDictionary())
                             .Map(d => (AbapValue)new AbapStructureValues(context.FieldInfo, d));
                     case RfcType.TABLE:
-                        return context.RfcRuntime.GetTable(context.Handle, context.FieldInfo.Name)
-                            .Map(handle => (ITable)new Table(handle, context.RfcRuntime))
+                        return context.IO.GetTable(context.Handle, context.FieldInfo.Name)
+                            .Map(handle => (ITable)new Table(handle, context.IO))
                             .MapStructure(d => d.ToDictionary())
                             .Map(tr => (AbapValue)new AbapTableValues(context.FieldInfo, tr));
 
@@ -98,7 +98,7 @@ namespace Dbosoft.YaNco.TypeMapping
             }).Bind(FromAbapValue<T>);
         }
 
-        public Either<RfcErrorInfo, T> FromAbapValue<T>(AbapValue abapValue)
+        public Either<RfcError, T> FromAbapValue<T>(AbapValue abapValue)
         {
             if (abapValue is T tv)
                 return tv;
@@ -116,12 +116,12 @@ namespace Dbosoft.YaNco.TypeMapping
             if (value == null)
                 return new RfcErrorInfo(RfcRc.RFC_CONVERSION_FAILURE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "",
                     $"Converting from abap type {abapValue.FieldInfo.Type} to type {typeof(T)} is not supported.",
-                    "", "E", "", "", "", "", "");
+                    "", "E", "", "", "", "", "").ToRfcError();
 
-            return Prelude.Right<RfcErrorInfo, T>(value);
+            return Prelude.Right<RfcError, T>(value);
         }
 
-        public Either<RfcErrorInfo, AbapValue> ToAbapValue<T>(T value, RfcFieldInfo fieldInfo)
+        public Either<RfcError, AbapValue> ToAbapValue<T>(T value, RfcFieldInfo fieldInfo)
         {
             AbapValue abapValue = null;
 
@@ -141,19 +141,19 @@ namespace Dbosoft.YaNco.TypeMapping
             if (abapValue == null)
                 return new RfcErrorInfo(RfcRc.RFC_CONVERSION_FAILURE, RfcErrorGroup.EXTERNAL_APPLICATION_FAILURE, "",
                     $"Converting from type {typeof(T)} to abap type {fieldInfo.Type} is not supported.",
-                    "", "E", "", "", "", "", "");
+                    "", "E", "", "", "", "", "").ToRfcError();
 
             return abapValue;
         }
 
-        public Either<RfcErrorInfo, Unit> SetFieldValue<T>(IRfcRuntime rfcRuntime, IDataContainerHandle handle, T value, Func<Either<RfcErrorInfo, RfcFieldInfo>> func)
+        public Either<RfcError, Unit> SetFieldValue<T>(SAPRfcDataIO rfcRuntime, IDataContainerHandle handle, T value, Func<Either<RfcError, RfcFieldInfo>> func)
         {
             return func().Bind(fieldInfo => 
                 SetField(value, new FieldMappingContext(rfcRuntime, handle, fieldInfo)));
 
         }
 
-        public Either<RfcErrorInfo, T> GetFieldValue<T>(IRfcRuntime rfcRuntime, IDataContainerHandle handle, Func<Either<RfcErrorInfo, RfcFieldInfo>> func)
+        public Either<RfcError, T> GetFieldValue<T>(SAPRfcDataIO rfcRuntime, IDataContainerHandle handle, Func<Either<RfcError, RfcFieldInfo>> func)
         {
             return func().Bind(fieldInfo => 
                 GetField<T>(new FieldMappingContext(rfcRuntime, handle, fieldInfo)));

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
@@ -10,33 +9,33 @@ namespace Dbosoft.YaNco
     {
         private readonly IStructureHandle _handle;
 
-        public Structure(IStructureHandle handle, IRfcRuntime rfcRuntime) : base(handle, rfcRuntime)
+        public Structure(IStructureHandle handle, SAPRfcDataIO io) : base(handle, io)
         {
             _handle = handle;
         }
 
 
-        public Either<RfcErrorInfo, RfcFieldInfo[]> GetFieldInfos()
+        public Either<RfcError, RfcFieldInfo[]> GetFieldInfos()
         {
-            return RfcRuntime.GetTypeDescription(Handle).Use(used => used
+            return IO.GetTypeDescription(Handle).Use(used => used
                 .Bind( handle =>
                 {
-                    return RfcRuntime.GetTypeFieldCount(handle).Bind(fieldCount =>
+                    return IO.GetTypeFieldCount(handle).Bind(fieldCount =>
                     {
-                        return Enumerable.Range(0, fieldCount).Map(i => 
-                            RfcRuntime.GetTypeFieldDescription(handle, i)).Traverse(l=>l);
+                        return Enumerable.Range(0, fieldCount).Map(i =>
+                            IO.GetTypeFieldDescription(handle, i)).Traverse(l=>l);
                     });
 
                 })).Map(r => r.ToArray());
         }
 
-        public Either<RfcErrorInfo, IDictionary<string, AbapValue>> ToDictionary()
+        public Either<RfcError, IDictionary<string, AbapValue>> ToDictionary()
         {
             return GetFieldInfos()
                 .Bind(fields =>
                     fields.Map(fieldInfo =>
-                        from fieldValue in RfcRuntime.GetFieldValue<AbapValue>(Handle, () => fieldInfo)
-                        from fieldName in Prelude.Right(fieldInfo.Name).Bind<RfcErrorInfo>()
+                        from fieldValue in IO.GetFieldValue<AbapValue>(Handle, () => fieldInfo)
+                        from fieldName in Prelude.Right(fieldInfo.Name).Bind<RfcError>()
                         select (fieldName, fieldValue)
                     ).Traverse(l => l))
                 .Map(l => l.ToDictionary(
@@ -46,22 +45,22 @@ namespace Dbosoft.YaNco
 
         }
 
-        public Either<RfcErrorInfo, Unit> SetFromDictionary<T>(IDictionary<string, T> dictionary)
+        public Either<RfcError, Unit> SetFromDictionary<T>(IDictionary<string, T> dictionary)
         {
             return GetFieldInfos()
                 .Bind(fields =>
                     fields.Map(fieldInfo => 
                         !dictionary.ContainsKey(fieldInfo.Name) 
                             ? Unit.Default
-                            : RfcRuntime.SetFieldValue(Handle, dictionary[fieldInfo.Name], () => fieldInfo)
+                            : IO.SetFieldValue(Handle, dictionary[fieldInfo.Name], () => fieldInfo)
                             )
                         .Traverse(l => l))
                 .Map(_ => Unit.Default);
         }
 
-        public Either<RfcErrorInfo, Unit> SetFromString(string content)
+        public Either<RfcError, Unit> SetFromString(string content)
         {
-            return RfcRuntime.SetStructure(_handle, content);
+            return IO.SetStructure(_handle, content);
         }
     }
 }

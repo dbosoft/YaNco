@@ -7,10 +7,19 @@ namespace Dbosoft.YaNco
     public class RfcMappingConfigurer
     {
         private Func<IEnumerable<Type>, IEnumerable<Type>,IFieldMapper>
-            _mappingFactory = RfcRuntime.CreateDefaultFieldMapper;
+            _mappingFactory = CreateDefaultFieldMapper;
 
         private readonly List<Type> _fromRfcMappingTypes = new List<Type>();
         private readonly List<Type> _toRfcMappingTypes = new List<Type>();
+
+
+        public static IFieldMapper CreateDefaultFieldMapper(IEnumerable<Type> fromRfcConverters = null,
+            IEnumerable<Type> toRfcConverters = null)
+        {
+            return new DefaultFieldMapper(
+                new CachingConverterResolver(
+                    DefaultConverterResolver.CreateWithBuildInConverters(fromRfcConverters, toRfcConverters)));
+        }
 
         public RfcMappingConfigurer UseFactory(Func<IEnumerable<Type>, IEnumerable<Type>, IFieldMapper> factory)
         {

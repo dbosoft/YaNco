@@ -6,11 +6,14 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.Live;
 using Dbosoft.YaNco.TypeMapping;
 using KellermanSoftware.CompareNetObjects;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using static Dbosoft.YaNco.SAPRfc<Dbosoft.YaNco.Live.SAPRfcRuntime>;
+
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SAPSystemTests
@@ -56,7 +59,7 @@ namespace SAPSystemTests
             {
                 CallbackCommand = command;
 
-                return RfcErrorInfo.Ok();
+                return RfcError.Ok;
             };
 
 
@@ -72,7 +75,7 @@ namespace SAPSystemTests
                 .ConfigureRuntime(c =>
                     c.WithLogger(new SimpleConsoleLogger()));
 
-            
+
             var connectionFunc = connectionBuilder.Build();
 
             using (var context = new RfcContext(connectionFunc))
@@ -119,6 +122,45 @@ namespace SAPSystemTests
                 Console.WriteLine("Average runtime Test 02: " + totalTest2 / repeats);
 
             }
+
+            // functional style Tests:
+
+            var connectionEffect = new ConnectionBuilder(settings)
+                .ConfigureRuntime(c=>c.WithLogger(new SimpleConsoleLogger()))
+                .BuildIO();
+
+            var call = useConnection(connectionEffect, connection=> 
+                    from userName in callFunction(connection, "BAPI_USER_GET_DETAIL", f=> 
+                            f.SetField("USERNAME", "SAP*"), 
+                           f=> f.GetField<string>("USERNAME"))
+                    select userName);
+
+            var result = await call.Run(SAPRfcRuntime.Default);
+            Console.WriteLine("call_getUsername_with_connection: " + result);
+
+            call = useContext(connectionEffect, context =>
+                from userName in context.CallFunction("BAPI_USER_GET_DETAIL", f =>
+                        f.SetField("USERNAME", "SAP*"),
+                    f => f.GetField<string>("USERNAME"))
+                select userName);
+
+            result = await call.Run(SAPRfcRuntime.Default);
+            Console.WriteLine("call_getUsername_with_context: " + result );
+
+
+            var withFieldMapping = useContext(connectionEffect, context =>
+                from attributes in context.GetConnection().Bind(c => c.GetAttributes().ToAff(l => l))
+                from structure in context.CallFunction("BAPI_USER_GET_DETAIL", f =>
+                        f.SetField("USERNAME", attributes.User),
+                    f => f.MapStructure("address", s=>s.ToDictionary()))
+                from userName in getValue<string>(structure["FULLNAME"])
+                
+                select userName);
+
+            result = await withFieldMapping.Run(SAPRfcRuntime.Default);
+
+            Console.WriteLine("call_getFullName_with_abapValue: " + result);
+
         }
 
         private static async Task RunIntegrationTests(IRfcContext context)
@@ -417,10 +459,10 @@ namespace SAPSystemTests
                 Input: f => f,
                 Output: f => f.MapStructure("ES_DEEP", s =>
                     s.ToDictionary())
-                
+
                 )
-                from connection in context.GetConnection()
-                select (Values: output, Connection: connection))
+                   from connection in context.GetConnection()
+                   select (Values: output, Connection: connection))
                 .Match(
                 r =>
                 {
@@ -505,7 +547,7 @@ namespace SAPSystemTests
 
         }
 
-        private static Either<RfcErrorInfo, IFunction> SetRows(Either<RfcErrorInfo, IFunction> func, in int rows)
+        private static Either<RfcError, IFunction> SetRows(Either<RfcError, IFunction> func, in int rows)
         {
             return rows == 0 ? func : func.SetField("IV_UP_TO", rows);
         }

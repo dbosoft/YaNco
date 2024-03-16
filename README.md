@@ -5,6 +5,10 @@ Stable                     |  Latest                   |
 ---------------------------|---------------------------|
 [![NuGet stable](https://img.shields.io/nuget/v/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco) | [![NuGet pre](https://img.shields.io/nuget/vpre/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco)
 
+# This the README for **UNSTABLE** version v5!
+The latest stable version can be found here: https://github.com/dbosoft/YaNco/tree/support/4.3
+
+
 ## Description
 
 This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_.
@@ -22,6 +26,7 @@ This library provides an alternative SAP .NET Connector based on the _SAP NetWea
 
 The library requires .NET Framework >= 4.7.1 or .NET Core 2.0 or higher. 
 
+
 Supported platforms: Windows, Linux and MacOS.
 
 
@@ -33,7 +38,7 @@ Library can be downloaded here: https://support.microsoft.com/en-us/help/2977003
 
 **SAP Netweaver RFC SDK**
 
-To use and build YaNco you need to obtain _SAP NW RFC SDK 750_ from _[SAP Support Portal](https://launchpad.support.sap.com/#/softwarecenter/template/products/_APP=00200682500000001943&_EVENT=DISPHIER&HEADER=N&FUNCTIONBAR=Y&EVENT=TREE&TMPL=INTRO_SWDC_SP_AD&V=MAINT&REFERER=CATALOG-PATCHES&ROUTENAME=products/By%20Category%20-%20Additional%20Components)_.
+To use YaNco you need to obtain _SAP NW RFC SDK 750_ from _[SAP Support Portal](https://launchpad.support.sap.com/#/softwarecenter/template/products/_APP=00200682500000001943&_EVENT=DISPHIER&HEADER=N&FUNCTIONBAR=Y&EVENT=TREE&TMPL=INTRO_SWDC_SP_AD&V=MAINT&REFERER=CATALOG-PATCHES&ROUTENAME=products/By%20Category%20-%20Additional%20Components)_.
 
 A prerequisite to download is having a **customer or partner account** on _SAP Support Portal_ and if you
 are SAP employee please check [SAP Note 1037575 - Software download authorizations for SAP employees](https://launchpad.support.sap.com/#/notes/1037575).
@@ -54,8 +59,11 @@ The easiest way to get started is by installing [the available NuGet package](ht
 - [Sample app: IDoc Receiver - Export Material Master](https://github.com/dbosoft/YaNco/tree/main/samples/net6.0/ExportMATMAS)
 - [SAPHub - How to build reliable and scaleable SAP integrated microservices with Hosuto and YaNco](https://github.com/dbosoft/SAPHub) 
 
+Please note that most samples have not yet been updated to version 5!
+
 ## Using
 
+### Prepare connection
 In order to call remote enabled ABAP function module (ABAP RFM), first a connection must be opened.
 The connection settings have to be build from a string/string dictionary, for example from a ConfigurationBuilder.
 
@@ -77,7 +85,33 @@ var settings = new Dictionary<string, string>
 
 };
 ```
-With these settings you can now create a ConnectionBuilder instance and use it to open a RfcContext.
+With these settings you can now create a ConnectionBuilder instance and use it to build a connection builder function.
+
+```csharp
+
+var connectionBuilder = new ConnectionBuilder(settings);
+var connFunc = connectionBuilder.Build();
+
+```
+
+The connection builders Build() method returns a function that can be reused to open connections. 
+
+Under the hood the ConnectionBuilder also creates also a SAPRfcRuntime instance. The SAPRfcRuntime abstracts between the SAP Netweaver RFC SDK and YaNco and encapsulates all I/O between YaNco and the RFC SDK.
+
+You can customize the runtime on the ConnectionBuilder with the ConfigureRuntime() method. For example to add a logger:
+
+```csharp
+var connectionBuilder = new ConnectionBuilder(connFunc)
+    .ConfigureRuntime(c => 
+        c.WithLogger(new MyLogger()));
+```
+
+>**Please note:** In versions below 5.0 we used the IRfcRuntime interface implemented by type RfcRuntime. IRfcRuntime and RfcRuntime are now deprecated.  
+The new **SAPRfcRuntime** has a different concept (see below for functional IO patterns). Therefore ConfigureRuntime now configures the runtime settings used to create a new SAPRfcRuntime.
+
+### RfcContext
+
+For classic OO usage the RfcContext is the easiest method call functions from .NET to SAP. You can open a RfcContext directly from the connection function that you build with ConnectionBuilder.Build()
 
 ```csharp
 
@@ -90,17 +124,8 @@ using (var context = new RfcContext(connFunc))
 
 }
 ```
-The connection builders Build() method returns a function that can be reused to open additional connections. The RfcContext will do that internally in case the connection breaks.
 
-Under the hood the ConnectionBuilder also creates also a RfcRuntime instance. The RfcRuntime is a low level API that you will typical never use directly. 
-But you can customize it on the ConnectionBuilder with the ConfigureRuntime() method. For example to add a logger:
-
-```csharp
-var connectionBuilder = new ConnectionBuilder(connFunc)
-    .ConfigureRuntime(c => 
-        c.WithLogger(new MyLogger()));
-```
-
+The RfcContext will automatically open and close the connection and is disposeable.
 
 ### Calling ABAP Function Modules 
 
@@ -203,11 +228,12 @@ For example to set values for a table you pass a IEnumerable to be processed to 
 var userNamesSearch = new string[] {"A*", "B*", "C*"};
 
 var userList = await context.CallFunction("BAPI_USER_GETLIST",
-    Input:f => f.SetTable("SELECTION_RANGE", userNamesSearch , (structure,userName) => structure
-            .SetField("PARAMETER", "USERNAME")
-            .SetField("SIGN", "I")
-            .SetField("OPTION", "CP")
-            .SetField("LOW", userName)
+    Input:f => f.SetTable("SELECTION_RANGE", userNamesSearch , 
+        (structure,userName) => structure
+                .SetField("PARAMETER", "USERNAME")
+                .SetField("SIGN", "I")
+                .SetField("OPTION", "CP")
+                .SetField("LOW", userName)
         ),
 
     Output: f=> f.MapTable("USERLIST", s=>s.GetField<string>("USERNAME"))
@@ -220,6 +246,48 @@ foreach (var userName in userList)
   ```
 
 <br/>  
+
+### Functional programming usage
+
+YaNco is build to be used in [functional programming](https://en.wikipedia.org/wiki/Functional_programming). Functional programming allows you to make your code more reliable and move your code toward declarative and functional code rather than imperative.
+
+In functional code you typical start with your own Runtime instance:
+
+```csharp
+var runtime = SAPRfcRuntime.New();
+var connectionEffect = new ConnectionBuilder<SAPRfcRuntime>(settings)
+    .Build();
+```
+
+Please note the type argument on the `ConnectionBuilder`.  
+The Build method now returns an IO effect (`Aff<RT, IConnection>`) that is not executed immediately, but only when the IO effect is called with runtime. 
+
+```csharp
+var fin = await connectionEffect.Run(runtime);
+fin.IfFail(error => error.Throw());
+```
+
+Using this concept, you can chain multiple effects to build the call to the SAP system: 
+```csharp
+using static Dbosoft.YaNco.SAPRfc<Dbosoft.YaNco.Live.SAPRfcRuntime>;
+
+var call = useConnection(connectionEffect, connection=> 
+    from userName in callFunction(connection, "BAPI_USER_GET_DETAIL", f=> 
+        f.SetField("USERNAME", "SAP*"), 
+        f=> f.GetField<string>("USERNAME"))
+    select userName);
+
+var fin = await call.Run(runtime);
+fin.IfFail(error => error.Throw());
+```
+
+The call from above is without side effects, that means it will not cause any I/O without the runtime.
+
+The static using imports methods of `SAPRfc<RT>` so you can call useConnection and callFunction without any type. 
+You can also declare your own static classes where runtime is a type parameter, so you can replace SAPRfcRuntime with another runtime, e. g. for testing. 
+
+You can find a more general description of this concept in the language.ext wiki: https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects
+
 
 ### Calling functions from SAP to .NET
 
@@ -242,7 +310,7 @@ var connectionBuilder = new ConnectionBuilder(settings)
     };
   ```
 
-Since version 4.3-rc.1 you can register also other functions using following syntax:  
+You can register also other functions using following syntax:  
 
 ```csharp
 var connectionBuilder = new ConnectionBuilder(settings)
