@@ -14,9 +14,9 @@ public readonly struct SAPRfcRuntime
         HasEnvRuntimeSettings
 
 {
-    public static SAPRfcRuntime Default => New(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(
+    public static SAPRfcRuntime Default => New(
         new CancellationTokenSource(),
-        new SAPRfcRuntimeSettings(null, RfcMappingConfigurer.CreateDefaultFieldMapper(null, null), new RfcRuntimeOptions())));
+        new SAPRfcRuntimeSettings(null, RfcMappingConfigurer.CreateDefaultFieldMapper(null, null), new RfcRuntimeOptions()));
 
     private readonly SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> _env;
     /// <summary>
@@ -35,7 +35,11 @@ public readonly struct SAPRfcRuntime
     /// <summary>
     /// Constructor function
     /// </summary>
-    public static SAPRfcRuntime New(SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> env) => new(env);
+    public static SAPRfcRuntime New(CancellationTokenSource cancellationTokenSource, SAPRfcRuntimeSettings settings) =>
+            new(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(cancellationTokenSource, settings));    
+    public static SAPRfcRuntime New() => new(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(
+        new CancellationTokenSource(), Default.Env.Settings
+        ));
 
 
     /// <summary>
@@ -80,5 +84,6 @@ public readonly struct SAPRfcRuntime
 
     public Eff<SAPRfcRuntime, SAPRfcServerIO> RfcServerEff => Prelude.Eff<SAPRfcRuntime, SAPRfcServerIO>(
         rt => rt.ServerIO);
+
 
 }

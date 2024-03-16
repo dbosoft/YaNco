@@ -1,8 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.Live;
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using RfcServerTest;
+using static Dbosoft.YaNco.SAPRfcServer<Dbosoft.YaNco.Live.SAPRfcRuntime>;
+using static LanguageExt.Prelude;
 
 [assembly: ExcludeFromCodeCoverage]
 
@@ -57,11 +60,11 @@ var serverBuilderWithClientConnection = new ServerBuilder(serverSettings)
                 .Input(i => i.GetField<string>("SEND"))
                 .Process(s =>
                 {
-                    return from uIn in Prelude.Eff(() =>
+                    return from uIn in Eff(() =>
                         {
                             Console.WriteLine($"Received message from backend: {s}");
                             cancellationTokenSource.Cancel();
-                            return Prelude.unit;
+                            return unit;
                         })
 
                         from userFromServer in cf.UseRfcContext(context =>
@@ -95,9 +98,67 @@ try
 catch (TaskCanceledException) { }
 
 
-await rfcServer.Stop().ToEither();
+_ = await rfcServer.Stop().ToEither();
 
 Console.WriteLine("Server stopped");
+
+
+// functional style rfc server:
+
+cancellationTokenSource = new CancellationTokenSource();
+
+var runtime = SAPRfcRuntime.New(new CancellationTokenSource(),
+    new SAPRfcRuntimeSettings(
+        new SimpleConsoleLogger(), RfcMappingConfigurer.CreateDefaultFieldMapper(), new RfcRuntimeOptions()));
+
+
+var rfcServerEffect = new ServerBuilder<SAPRfcRuntime>(serverSettings)
+    .WithClientConnection(clientSettings,
+        c => c
+            .WithFunctionHandler("ZYANCO_SERVER_FUNCTION_1",
+                cf => cf
+                    .Input(i => i.GetField<string>("SEND"))
+                    .Process(s =>
+                    {
+                        return from uIn in Eff(() =>
+                        {
+                            Console.WriteLine($"Received message from backend: {s}");
+                            cancellationTokenSource.Cancel();
+                            return unit;
+                        })
+
+                               from userFromServer in cf.UseRfcContext(context =>
+                               {
+                                   return from connection in context.GetConnection()
+                                          from attributes in connection.GetAttributes().ToAff(l => l)
+                                          from userName in context.CallFunction("BAPI_USER_GET_DETAIL",
+                                              Input: f => f.SetField("USERNAME", attributes.User),
+                                              Output: f => f.MapStructure("ADDRESS", s => s.GetField<string>("FULLNAME")))
+                                          select userName;
+
+                               })
+                               select userFromServer;
+
+                    })
+                    .Reply((username, f) => f
+                        .SetField("RECEIVE", $"Hello {username}!")))
+    ).Build();
+
+var call = from uUse in useServer(rfcServerEffect, server =>
+        from uWait in repeatUntil(
+            Schedule.spaced(1000),
+            unitEff, _ => cancellationTokenSource.IsCancellationRequested)
+        from uStop in stopServer(server)
+        select unit)
+           select unit;
+
+Console.WriteLine("Starting functional style server");
+Console.WriteLine("call function ZYANCO_SERVER_FUNCTION_1 from backend");
+
+var fin = await call.Run(runtime);
+
+Console.WriteLine("Server stopped, fin: " + fin);
+
 
 
 cancellationTokenSource = new CancellationTokenSource();
@@ -133,6 +194,9 @@ try
 catch (TaskCanceledException) { }
 
 
-await rfcServer.Stop().ToEither();
+_ = await rfcServer.Stop().ToEither();
 
 Console.WriteLine("Server stopped");
+
+
+

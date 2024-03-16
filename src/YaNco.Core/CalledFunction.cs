@@ -31,12 +31,14 @@ namespace Dbosoft.YaNco
 
         public Eff<RT,TR> UseRfcContext<TR>(Func<IRfcContext<RT>, Eff<RT,TR>> mapFunc)
         {
-            return Prelude.use(_rfcContextFunc(),mapFunc);
+            var func = _rfcContextFunc;
+            return Prelude.use(Prelude.Eff<RT, IRfcContext<RT>>( _ => func()),mapFunc);
         }
 
         public Aff<RT,TR> UseRfcContext<TR>(Func<IRfcContext<RT>, Aff<RT,TR>> mapFunc)
         {
-            return Prelude.use(_rfcContextFunc(), mapFunc);
+            var func = _rfcContextFunc;
+            return Prelude.use(Prelude.Eff<RT, IRfcContext<RT>>(_ => func()), mapFunc);
         }
 
 

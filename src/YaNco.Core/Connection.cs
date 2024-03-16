@@ -23,8 +23,8 @@ namespace Dbosoft.YaNco
 
 
         [Obsolete("RfcRuntime is obsolete")]
-        public IRfcRuntime RfcRuntime => new RfcRuntime(SAPRfcRuntime.New(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(
-            _runtime.Env.Source, _runtime.Env.Settings)));
+        public IRfcRuntime RfcRuntime => new RfcRuntime(SAPRfcRuntime.New(
+            _runtime.Env.Source, _runtime.Env.Settings));
 
         public T GetRuntimeSettings<T>() where T : SAPRfcRuntimeSettings
         {

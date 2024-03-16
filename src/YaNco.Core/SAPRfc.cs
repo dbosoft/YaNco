@@ -7,16 +7,6 @@ namespace Dbosoft.YaNco;
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006
 
-public static class SAPRfcServer<RT>
-    where RT : struct, HasSAPRfcServer<RT>
-{
-    public static Eff<RT, RfcServerAttributes> getServerAttributes(IRfcHandle handle)
-    {
-        return default(RT).RfcServerEff.Bind(io => io.GetServerCallContext(handle).ToEff(l => l));
-    }
-}
-
-
 public static class SAPRfc<RT> where RT : struct, HasCancel<RT>, HasSAPRfcData<RT>
 {
     public static Aff<RT, TR> useConnection<TR>(Aff<RT, IConnection> connectionEffect, Func<IConnection, Aff<RT, TR>> mapFunc)

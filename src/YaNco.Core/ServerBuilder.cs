@@ -27,7 +27,8 @@ namespace Dbosoft.YaNco
 
         public new EitherAsync<RfcError, IRfcServer<SAPRfcRuntime>> Build()
         {
-            var runtime = CreateRuntime(new CancellationTokenSource(), SAPRfcRuntime.New);
+            var runtime = CreateRuntime(new CancellationTokenSource(), ( env) => 
+                SAPRfcRuntime.New(env.Source, env.Settings));
             return base.Build().ToEither(runtime);
         }
     }

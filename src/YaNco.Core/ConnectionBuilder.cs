@@ -18,7 +18,7 @@ namespace Dbosoft.YaNco
 
             return () =>
             {
-                var runtime = CreateRuntime(new CancellationTokenSource(), SAPRfcRuntime.New);
+                var runtime = CreateRuntime(new CancellationTokenSource(), env=> SAPRfcRuntime.New(env.Source, env.Settings));
                 return baseEffect.ToEither(runtime);
             };
         }
