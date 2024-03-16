@@ -10,7 +10,7 @@ using LanguageExt;
 namespace Dbosoft.YaNco
 {
     [ExcludeFromCodeCoverage]
-    [Obsolete("RfcRuntime is obsolete")]
+    [Obsolete(Deprecations.RfcRuntime)]
     public class RfcRuntime : RfcRuntime<SAPRfcRuntime>
     {
         public RfcRuntime(SAPRfcRuntime runtime) : base(runtime)
@@ -19,7 +19,7 @@ namespace Dbosoft.YaNco
     }
 
     [ExcludeFromCodeCoverage]
-    [Obsolete("RfcRuntime is obsolete")]
+    [Obsolete(Deprecations.RfcRuntime)]
     public class RfcRuntime<RT> : IRfcRuntime
         where RT : struct, 
         HasSAPRfcServer<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, 

@@ -114,7 +114,7 @@ namespace Dbosoft.YaNco
         /// <summary>
         /// Runtime used for the connection
         /// </summary>
-        [Obsolete("RfcRuntime is deprecated and will be removed in next major release.")]
+        [Obsolete(Deprecations.RfcRuntime)]
         IRfcRuntime RfcRuntime { get;  }
 
         T GetRuntimeSettings<T>() where T : SAPRfcRuntimeSettings;

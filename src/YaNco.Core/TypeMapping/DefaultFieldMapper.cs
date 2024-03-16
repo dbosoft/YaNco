@@ -49,7 +49,7 @@ namespace Dbosoft.YaNco.TypeMapping
 
         public Either<RfcError, T> GetField<T>(FieldMappingContext context)
         {
-            return context.Apply(c =>
+            return context.Apply(_ =>
             {
                 switch (context.FieldInfo.Type)
                 {
@@ -146,14 +146,14 @@ namespace Dbosoft.YaNco.TypeMapping
             return abapValue;
         }
 
-        public Either<RfcError, Unit> SetFieldValue<T>(IRfcRuntime rfcRuntime, IDataContainerHandle handle, T value, Func<Either<RfcError, RfcFieldInfo>> func)
+        public Either<RfcError, Unit> SetFieldValue<T>(SAPRfcDataIO rfcRuntime, IDataContainerHandle handle, T value, Func<Either<RfcError, RfcFieldInfo>> func)
         {
             return func().Bind(fieldInfo => 
                 SetField(value, new FieldMappingContext(rfcRuntime, handle, fieldInfo)));
 
         }
 
-        public Either<RfcError, T> GetFieldValue<T>(IRfcRuntime rfcRuntime, IDataContainerHandle handle, Func<Either<RfcError, RfcFieldInfo>> func)
+        public Either<RfcError, T> GetFieldValue<T>(SAPRfcDataIO rfcRuntime, IDataContainerHandle handle, Func<Either<RfcError, RfcFieldInfo>> func)
         {
             return func().Bind(fieldInfo => 
                 GetField<T>(new FieldMappingContext(rfcRuntime, handle, fieldInfo)));

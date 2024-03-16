@@ -135,7 +135,7 @@ namespace Dbosoft.YaNco
     }
 
 
-    [Obsolete("Use SAPRfcIO instead. This interface will be removed in next major release.")]
+    [Obsolete(Deprecations.RfcRuntime)]
     public interface IRfcRuntime : 
         SAPRfcServerIO, SAPRfcConnectionIO, SAPRfcFunctionIO, SAPRfcDataIO
     {
@@ -144,6 +144,4 @@ namespace Dbosoft.YaNco
 
 
     }
-
-
 }

@@ -22,7 +22,7 @@ namespace Dbosoft.YaNco
         public bool Disposed { get; private set; }
 
 
-        [Obsolete("RfcRuntime is obsolete")]
+        [Obsolete(Deprecations.RfcRuntime)]
         public IRfcRuntime RfcRuntime => new RfcRuntime(SAPRfcRuntime.New(
             _runtime.Env.Source, _runtime.Env.Settings));
 
