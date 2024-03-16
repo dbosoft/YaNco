@@ -123,6 +123,11 @@ namespace Dbosoft.YaNco
                         select proccessed;
 
                     var res = effect.ToEither(runtime);
+
+                    if (res.IsBottom)
+                        return (handle, RfcError.New($"connection message {msg.GetType()} returned a bottom state. " +
+                                                     $"This typical occurs in Unit testing if not all required methods have been setup. Message details: {msg}"));
+
                     return (handle,res);
                     
                 });
@@ -237,52 +242,31 @@ namespace Dbosoft.YaNco
                 .ToEither(_runtime).ToAsync();
         }
 
-        private class AgentMessage
+        private record AgentMessage
         {
 
         }
 
-        private class CreateStructureMessage : AgentMessage
+        private record CreateStructureMessage(string StructureName) : AgentMessage
         {
-            public readonly string StructureName;
-            public CreateStructureMessage(string structureName)
-            {
-                StructureName = structureName;
-            }
-
+            public readonly string StructureName = StructureName;
         }
 
-        private class CreateFunctionMessage : AgentMessage
+        private record CreateFunctionMessage(string FunctionName) : AgentMessage
         {
-            public readonly string FunctionName;
-            public CreateFunctionMessage(string functionName)
-            {
-                FunctionName = functionName;
-            }
-
+            public readonly string FunctionName = FunctionName;
         }
 
-        private class InvokeFunctionMessage : AgentMessage
+        private record InvokeFunctionMessage(IFunction Function, CancellationToken CancellationToken) : AgentMessage
         {
-            public CancellationToken CancellationToken { get; }
-            public readonly IFunction Function;
-
-            public InvokeFunctionMessage(IFunction function, CancellationToken cancellationToken)
-            {
-                CancellationToken = cancellationToken;
-                Function = function;
-            }
+            public CancellationToken CancellationToken { get; } = CancellationToken;
+            public readonly IFunction Function = Function;
         }
 
 
-        private class DisposeMessage : AgentMessage
+        private record DisposeMessage(RfcError ErrorInfo) : AgentMessage
         {
-            public readonly RfcError ErrorInfo;
-
-            public DisposeMessage(RfcError errorInfo)
-            {
-                ErrorInfo = errorInfo;
-            }
+            public readonly RfcError ErrorInfo = ErrorInfo;
         }
 
         public void Dispose()
