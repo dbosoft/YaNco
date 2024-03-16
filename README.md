@@ -96,9 +96,9 @@ var connFunc = connectionBuilder.Build();
 
 The connection builders Build() method returns a function that can be reused to open connections. 
 
-Under the hood the ConnectionBuilder also creates also a SAPRfcRuntime instance. The SAPRfcRuntime abstracts the connection from IO with 
+Under the hood the ConnectionBuilder also creates also a SAPRfcRuntime instance. The SAPRfcRuntime abstracts between the SAP Netweaver RFC SDK and YaNco and encapsulates all I/O between YaNco and the RFC SDK.
 
-But you can customize it on the ConnectionBuilder with the ConfigureRuntime() method. For example to add a logger:
+You can customize the runtime on the ConnectionBuilder with the ConfigureRuntime() method. For example to add a logger:
 
 ```csharp
 var connectionBuilder = new ConnectionBuilder(connFunc)
@@ -106,9 +106,8 @@ var connectionBuilder = new ConnectionBuilder(connFunc)
         c.WithLogger(new MyLogger()));
 ```
 
->**Please note:** In versions below 5.0 we used the IRfcRuntime interface for runtime replacement by dependency injection. IRfcRuntime is now deprecated.  
-The new SAPRfcRuntime can be replaced, too, see below for functional IO patterns.
-ConfigureRuntime now configures the runtime settings instead of IRfcRuntime.
+>**Please note:** In versions below 5.0 we used the IRfcRuntime interface implemented by type RfcRuntime. IRfcRuntime and RfcRuntime are now deprecated.  
+The new **SAPRfcRuntime** has a different concept (see below for functional IO patterns). Therefore ConfigureRuntime now configures the runtime settings used to create a new SAPRfcRuntime.
 
 ### RfcContext
 
