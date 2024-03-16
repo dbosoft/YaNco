@@ -96,32 +96,32 @@ namespace SAPSystemTests
             }
 
 
-            //using (var context = new RfcContext(connectionFunc))
-            //{
-            //    long totalTest1 = 0;
-            //    long totalTest2 = 0;
+            using (var context = new RfcContext(connectionFunc))
+            {
+                long totalTest1 = 0;
+                long totalTest2 = 0;
 
-            //    //second call back test (should still be called)
-            //    await RunCallbackTest(context);
+                //second call back test (should still be called)
+                await RunCallbackTest(context);
 
 
-            //    for (var run = 0; run < repeats; run++)
-            //    {
-            //        Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 01");
-            //        totalTest1 += await RunPerformanceTest01(context, rows);
-            //        Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 02");
-            //        totalTest2 += await RunPerformanceTest02(context, rows);
+                for (var run = 0; run < repeats; run++)
+                {
+                    Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 01");
+                    totalTest1 += await RunPerformanceTest01(context, rows);
+                    Console.WriteLine($"starting Test Run {run + 1} of {repeats}\tTest 02");
+                    totalTest2 += await RunPerformanceTest02(context, rows);
 
-            //        GC.Collect();
+                    GC.Collect();
 
-            //    }
+                }
 
-            //    Console.WriteLine("Total runtime Test 01: " + totalTest1);
-            //    Console.WriteLine("Total runtime Test 02: " + totalTest2);
-            //    Console.WriteLine("Average runtime Test 01: " + totalTest1 / repeats);
-            //    Console.WriteLine("Average runtime Test 02: " + totalTest2 / repeats);
+                Console.WriteLine("Total runtime Test 01: " + totalTest1);
+                Console.WriteLine("Total runtime Test 02: " + totalTest2);
+                Console.WriteLine("Average runtime Test 01: " + totalTest1 / repeats);
+                Console.WriteLine("Average runtime Test 02: " + totalTest2 / repeats);
 
-            //}
+            }
 
             // functional style Tests:
 

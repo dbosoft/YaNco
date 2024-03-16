@@ -158,45 +158,68 @@ namespace YaNco.Core.Tests
 
         }
 
-        //[Fact]
-        //public async Task Rollback_is_called()
-        //{
+        [Fact]
+        public async Task Rollback_is_called()
+        {
 
-        //    var rfcRuntimeMock = new Mock<IRfcRuntime>()
-        //        .SetupOpenConnection(out var connHandle)
-        //        .SetupFunction("BAPI_TRANSACTION_ROLLBACK", connHandle, (r, h) => { });
+            var connectionIO = new Mock<SAPRfcConnectionIO>();
+            connectionIO.SetupOpenConnection(out var connHandle);
+            var functionIO = new Mock<SAPRfcFunctionIO>();
 
-        //    await (await rfcRuntimeMock.CreateConnection())
-        //        .Rollback()
-        //        .IfLeft(l => throw new Exception(l.Message));
+            functionIO.SetupFunction("BAPI_TRANSACTION_ROLLBACK", connHandle, f=>{});
+
+            var runtime = TestSAPRfcRuntime.New(settings =>
+            {
+                settings.RfcConnectionIO = connectionIO.Object;
+                settings.RfcFunctionIO = functionIO.Object;
+                settings.RfcDataIO = new Mock<SAPRfcDataIO>().Object;
+            });
+
+            var call = from conn in useConnection(NewConnection()
+                    , rollback)
+                select conn;
+
+            var fin = await call.Run(runtime);
+
+            connectionIO.VerifyAll();
+            functionIO.VerifyAll();
+        }
 
 
-        //    rfcRuntimeMock.VerifyAll();
+        [Fact]
+        public async Task Cancel_function_is_cancelled()
+        {
 
-        //}
+            var connectionIO = new Mock<SAPRfcConnectionIO>();
+            connectionIO.SetupOpenConnection(out var connHandle);
+            connectionIO.Setup(x => x.CancelConnection(connHandle.Object)).Returns(Prelude.Right(Prelude.unit));
+            var functionIO = new Mock<SAPRfcFunctionIO>();
 
+            functionIO.SetupFunction("MOCK", connHandle, f => { }, true);
 
-        //[Fact]
-        //public async Task Cancel_function_is_cancelled()
-        //{
-        //    var rfcRuntimeMock = new Mock<IRfcRuntime>()
-        //        .SetupOpenConnection(out var connHandle)
-        //        .SetupFunction("MOCK", connHandle, (r, h) => { }, true);
+            var runtime = TestSAPRfcRuntime.New(settings =>
+            {
+                settings.RfcConnectionIO = connectionIO.Object;
+                settings.RfcFunctionIO = functionIO.Object;
+                settings.RfcDataIO = new Mock<SAPRfcDataIO>().Object;
+            });
 
-        //    rfcRuntimeMock.Setup(r => r.CancelConnection(connHandle.Object))
-        //        .Returns(Prelude.Right(new Unit()));
+            var call = from conn in useConnection(NewConnection(), c =>
 
-        //    var conn = await rfcRuntimeMock.CreateConnection()
-        //        .Map(c =>
-        //            from fd in c.CreateFunction("MOCK")
-        //            from _ in c.InvokeFunction(fd)
-        //            from __ in c.Cancel()
-        //            select c);
+                    from fd in createFunction(c, "MOCK")
+                    from func in Prelude.fork(invokeFunction(c, fd))
+                    from _ in Prelude.cancel<TestSAPRfcRuntime>()
+                    from __ in func.ToAff()
+                    select c)
+                select conn;
 
-        //    await conn.IfRight(c => Assert.True(c.Disposed));
+            var fin = await call.Run(runtime);
+            fin.IfSucc(c => Assert.True(c.Disposed));
 
-        //    rfcRuntimeMock.VerifyAll();
-        //}
+            connectionIO.VerifyAll();
+            functionIO.VerifyAll();
+
+        }
 
     }
 }

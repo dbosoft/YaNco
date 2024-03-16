@@ -29,7 +29,7 @@ namespace Dbosoft.YaNco
                                 "", "Rfc Server already destroyed", "", "E", "", "", "", "", "").ToRfcError());
                     var effect = from io in default(RT).RfcServerEff
                         from logger in default(RT).RfcLoggerEff 
-                        from processed in Prelude.Aff(async () =>
+                        from processed in Unit.Default.Apply(_ =>
                         {
                             try
                             {
@@ -37,24 +37,23 @@ namespace Dbosoft.YaNco
                                 {
                                     case LaunchServerMessage _:
                                     {
-                                        var result = await
-                                            GetClientConnection().ToEither(runtime)
+                                        var result = GetClientConnection()
                                             .Map(c =>
                                             {
                                                 c.Dispose();
                                                 return Unit.Default;
                                             })
                                             .Bind(_ =>
-                                                io.LaunchServer(handle).ToAsync().Map(u => (object)u));
-                                        return (handle, result);
+                                                io.LaunchServer(handle).ToEff(l=>l).Map(u => (object)u));
+                                        return result;
 
                                     }
 
                                     case ShutdownServerMessage shutdownServerMessage:
                                     {
                                         var result = io.ShutdownServer(
-                                            handle, shutdownServerMessage.Timeout).Map(u => (object)u);
-                                        return (handle, result);
+                                            handle, shutdownServerMessage.Timeout).Map(u => (object)u).ToEff(l => l);
+                                        return result;
 
                                     }
 
@@ -68,29 +67,26 @@ namespace Dbosoft.YaNco
                                         }
 
                                         _references = Seq<IDisposable>.Empty;
-
-                                        return (null, Prelude.Left(disposeMessage.ErrorInfo));
+                                        handle = null;
+                                        return Prelude.FailEff<object>(disposeMessage.ErrorInfo);
                                     }
                                 }
                             }
                             catch (Exception ex)
                             {
                                 logger.IfSome(l => l.LogException(ex));
-                                return (null, Prelude.Left(RfcErrorInfo.Error(ex.Message)));
+                                return Prelude.FailEff<object>(RfcError.Error(ex.Message));
                             }
 
                             logger.IfSome(l => l.LogError(
                                 $"Invalid rfc server message {msg.GetType()}"));
-                            return (null, Prelude.Left(RfcErrorInfo.Error($"Invalid rfc server message {msg.GetType().Name}")));
+                            return Prelude.FailEff<object>(RfcError.Error($"Invalid rfc server message {msg.GetType().Name}"));
 
                         })
                         select processed;
-                    var fin  = await effect.Run(runtime);
 
-                    var res = fin.Match(
-                        Fail: e => (handle, Prelude.Left(RfcError.New(e))),
-                        Succ: r => r);
-                    return res;
+                    var res = await effect.ToEither(runtime);
+                    return (handle,res);
 
 
                 });

@@ -5,8 +5,8 @@ Stable                     |  Latest                   |
 ---------------------------|---------------------------|
 [![NuGet stable](https://img.shields.io/nuget/v/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco) | [![NuGet pre](https://img.shields.io/nuget/vpre/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco)
 
-# This the README for **BETA** version v5!
-For the latest stable version please see here: https://github.com/dbosoft/YaNco/tree/support/4.3
+# This the README for **UNSTABLE** version v5!
+The latest stable version can be found here: https://github.com/dbosoft/YaNco/tree/support/4.3
 
 
 ## Description
@@ -25,6 +25,7 @@ This library provides an alternative SAP .NET Connector based on the _SAP NetWea
 **.NET**
 
 The library requires .NET Framework >= 4.7.1 or .NET Core 2.0 or higher. 
+
 
 Supported platforms: Windows, Linux and MacOS.
 
@@ -57,6 +58,8 @@ The easiest way to get started is by installing [the available NuGet package](ht
 - [Sample app: Command line tool to create sales orders](https://github.com/dbosoft/YaNco/tree/main/samples/netcore3.1/CreateSalesOrder)
 - [Sample app: IDoc Receiver - Export Material Master](https://github.com/dbosoft/YaNco/tree/main/samples/net6.0/ExportMATMAS)
 - [SAPHub - How to build reliable and scaleable SAP integrated microservices with Hosuto and YaNco](https://github.com/dbosoft/SAPHub) 
+
+Please note that most samples have not yet been updated to version 5!
 
 ## Using
 
@@ -103,8 +106,9 @@ var connectionBuilder = new ConnectionBuilder(connFunc)
         c.WithLogger(new MyLogger()));
 ```
 
-**Please note:** In versions below 5.0 we used the IRfcRuntime interface for runtime replacement by dependency injection. IRfcRuntime is now deprecated.  
+>**Please note:** In versions below 5.0 we used the IRfcRuntime interface for runtime replacement by dependency injection. IRfcRuntime is now deprecated.  
 The new SAPRfcRuntime can be replaced, too, see below for functional IO patterns.
+ConfigureRuntime now configures the runtime settings instead of IRfcRuntime.
 
 ### RfcContext
 
@@ -278,11 +282,12 @@ var fin = await call.Run(runtime);
 fin.IfFail(error => error.Throw());
 ```
 
-The call from above is without side effects, that means it will not case any I/O without the runtime.
+The call from above is without side effects, that means it will not cause any I/O without the runtime.
 
 The static using imports methods of `SAPRfc<RT>` so you can call useConnection and callFunction without any type. 
 You can also declare your own static classes where runtime is a type parameter, so you can replace SAPRfcRuntime with another runtime, e. g. for testing. 
 
+You can find a more general description of this concept in the language.ext wiki: https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects
 
 
 ### Calling functions from SAP to .NET
@@ -306,7 +311,7 @@ var connectionBuilder = new ConnectionBuilder(settings)
     };
   ```
 
-Since version 4.3-rc.1 you can register also other functions using following syntax:  
+You can register also other functions using following syntax:  
 
 ```csharp
 var connectionBuilder = new ConnectionBuilder(settings)

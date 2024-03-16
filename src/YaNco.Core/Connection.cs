@@ -49,7 +49,7 @@ namespace Dbosoft.YaNco
                         from functionsIO in default(RT).RfcFunctionsEff
                         from dataIO in default(RT).RfcDataEff
                         from logger in default(RT).RfcLoggerEff
-                        from proccessed in Prelude.Eff( () =>
+                        from proccessed in Unit.Default.Apply( _ =>
                         {
                             if (!(msg is DisposeMessage))
                             {
@@ -65,9 +65,9 @@ namespace Dbosoft.YaNco
                                         var result = functionsIO
                                             .GetFunctionDescription(handle, createFunctionMessage.FunctionName).Use(
                                                 used => used.Bind(functionsIO.CreateFunction)).Map(f =>
-                                                (object)new Function(f, dataIO, functionsIO));
+                                                (object)new Function(f, dataIO, functionsIO)).ToEff(l => l);
 
-                                        return (handle, result);
+                                        return result;
 
                                     }
 
@@ -77,28 +77,33 @@ namespace Dbosoft.YaNco
                                             .GetTypeDescription(handle, createStructureMessage.StructureName).Use(
                                                 used =>
                                                     used.Bind(dataIO.CreateStructure))
-                                            .Map(h => (object)new Structure(h, dataIO));
+                                            .Map(h => (object)new Structure(h, dataIO)).ToEff(l => l);
 
-                                        return (handle, result);
+                                        return result;
 
                                     }
 
                                     case InvokeFunctionMessage invokeFunctionMessage:
                                     {
-                                        using var callContext = new FunctionCallContext();
-                                        StartWaitForFunctionCancellation(callContext,
-                                            invokeFunctionMessage.CancellationToken);
-                                        var result = functionsIO.Invoke(handle, invokeFunctionMessage.Function.Handle)
-                                            .Map(u => (object)u);
-                                        return (handle, result);
-                                    }
+
+                                        var result = Prelude.use(
+                                            Prelude.Eff<RT, FunctionCallContext>( _ =>new FunctionCallContext()), cc =>
+                                        {
+                                            StartWaitForFunctionCancellation(cc,
+                                                invokeFunctionMessage.CancellationToken);
+                                            return functionsIO.Invoke(handle, invokeFunctionMessage.Function.Handle)
+                                                .Map(u => (object)u).ToEff(l => l);
+
+                                        });
+                                        return result;
+                                        }
 
 
                                     case DisposeMessage disposeMessage:
                                     {
                                         handle.Dispose();
-
-                                        return (null, Prelude.Left(disposeMessage.ErrorInfo));
+                                        handle = null;
+                                        return Prelude.FailEff<object>(disposeMessage.ErrorInfo);
                                     }
                                 }
 
@@ -106,22 +111,19 @@ namespace Dbosoft.YaNco
                             catch (Exception ex)
                             {
                                 logger.IfSome(l => l.LogException(ex));
-                                return (null, Prelude.Left(RfcError.Error(ex.Message)));
+                                return Prelude.FailEff<object>(RfcError.Error(ex.Message));
                             }
 
                             logger.IfSome(l => l.LogError(
                                 $"Invalid rfc connection message {msg.GetType()}"));
-                            return (null,
-                                Prelude.Left(RfcError.Error($"Invalid rfc connection message {msg.GetType().Name}")));
+                            return Prelude.FailEff<object>(RfcError.Error($"Invalid rfc connection message {msg.GetType().Name}"));
 
 
                         })
                         select proccessed;
 
-                    var res = effect.Run(runtime).Match(
-                        Fail: e => (handle, Prelude.Left(RfcError.New(e))),
-                        Succ: r => r);
-                    return res;
+                    var res = effect.ToEither(runtime);
+                    return (handle,res);
                     
                 });
         }

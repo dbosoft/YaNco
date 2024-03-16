@@ -82,9 +82,4 @@ public readonly struct TestSAPRfcRuntime
     public Eff<TestSAPRfcRuntime, SAPRfcServerIO> RfcServerEff => Prelude.Eff<TestSAPRfcRuntime, SAPRfcServerIO>(
         rt => rt.ServerIO);
 
-    public TestSAPRfcRuntime WithCancelToken(CancellationToken token)
-    {
-        return New(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(Env.Source, token,
-             Env.Settings));
-    }
 }
