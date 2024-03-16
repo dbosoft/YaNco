@@ -99,9 +99,13 @@ namespace YaNco.Core.Tests
             {
                 await rfcContext.GetConnection().IfLeft(l => l.Throw());
 
-                var runtime = await rfcContext.GetSAPRfcRuntime()
-                    .IfLeft(default(SAPRfcRuntime));
-                Assert.Equal(fieldMapper.Object,runtime.Env.Settings.FieldMapper);
+                var actFieldMapper = await rfcContext.RunIO( () =>
+                           from rt in Prelude.runtime<SAPRfcRuntime>()
+                           select rt.Env.Settings.FieldMapper
+                        )
+                    .IfLeft(new DefaultFieldMapper(null));
+
+                Assert.Equal(fieldMapper.Object, actFieldMapper);
             }
 
             connectionIO.VerifyAll();
