@@ -1,18 +1,17 @@
 ﻿using System;
 
-namespace Dbosoft.YaNco.Internal
+namespace Dbosoft.YaNco.Internal;
+
+public class FunctionDescriptionHandle : IFunctionDescriptionHandle
 {
-    public class FunctionDescriptionHandle : IFunctionDescriptionHandle
+    internal FunctionDescriptionHandle(IntPtr ptr)
     {
-        internal FunctionDescriptionHandle(IntPtr ptr)
-        {
-            Ptr = ptr;
-        }
+        Ptr = ptr;
+    }
 
-        internal IntPtr Ptr { get; }
+    internal IntPtr Ptr { get; }
 
-        public void Dispose()
-        {
-        }
+    public void Dispose()
+    {
     }
 }

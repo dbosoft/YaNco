@@ -59,7 +59,7 @@ public abstract class RfcBuilderBase<TBuilder, RT> where RT : struct,
     }
 
 
-    private Action<RfcRuntimeConfigurer<RT>> _configureRuntime = (c) => { };
+    private Action<RfcRuntimeConfigurer<RT>> _configureRuntime = _ => { };
 
     /// <summary>
     /// Registers a action to configure the <see cref="IRfcRuntime"/>

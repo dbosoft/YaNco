@@ -1,27 +1,26 @@
 ﻿using System;
 
-namespace Dbosoft.YaNco.Internal
+namespace Dbosoft.YaNco.Internal;
+
+public class TableHandle : ITableHandle, IDataContainerHandle
 {
-    public class TableHandle : ITableHandle, IDataContainerHandle
+    private readonly bool _destroyable;
+
+    internal TableHandle(IntPtr ptr, bool destroyable)
     {
-        private readonly bool _destroyable;
+        _destroyable = destroyable;
+        Ptr = ptr;
+    }
 
-        internal TableHandle(IntPtr ptr, bool destroyable)
-        {
-            _destroyable = destroyable;
-            Ptr = ptr;
-        }
+    public IntPtr Ptr { get; private set; }
 
-        public IntPtr Ptr { get; private set; }
+    public void Dispose()
+    {
+        if (Ptr == IntPtr.Zero) return;
 
-        public void Dispose()
-        {
-            if (Ptr == IntPtr.Zero) return;
+        if (_destroyable)
+            Interopt.RfcDestroyTable(Ptr, out _);
 
-            if (_destroyable)
-                Interopt.RfcDestroyTable(Ptr, out _);
-
-            Ptr = IntPtr.Zero;
-        }
+        Ptr = IntPtr.Zero;
     }
 }

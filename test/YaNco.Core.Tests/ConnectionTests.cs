@@ -67,7 +67,7 @@ namespace YaNco.Core.Tests
                       from func in createFunction(conn, "RFC_PING" )
                 select func;
 
-            var fin = await call.Run(runtime);
+            _ = await call.Run(runtime);
             connectionIO.VerifyAll();
             functionIO.VerifyAll();
 
@@ -83,7 +83,7 @@ namespace YaNco.Core.Tests
             var functionIO = new Mock<SAPRfcFunctionIO>();
             var dataIO = new Mock<SAPRfcDataIO>();
 
-            functionIO.SetupFunction("BAPI_TRANSACTION_COMMIT", connHandle, (h) =>
+            functionIO.SetupFunction("BAPI_TRANSACTION_COMMIT", connHandle, h =>
             {
                 var structureHandle = new Mock<IStructureHandle>();
 
@@ -106,7 +106,7 @@ namespace YaNco.Core.Tests
                     , commit )
                 select conn;
 
-            var fin = await call.Run(runtime);
+            _ = await call.Run(runtime);
 
             connectionIO.VerifyAll();
             functionIO.VerifyAll();
@@ -122,7 +122,7 @@ namespace YaNco.Core.Tests
             var functionIO = new Mock<SAPRfcFunctionIO>();
             var dataIO = new Mock<SAPRfcDataIO>();
 
-            functionIO.SetupFunction("BAPI_TRANSACTION_COMMIT", connHandle, (h) =>
+            functionIO.SetupFunction("BAPI_TRANSACTION_COMMIT", connHandle, h =>
             {
                 var structureHandle = new Mock<IStructureHandle>();
                 dataIO.Setup(x => x.SetFieldValue(h, "X",
@@ -149,7 +149,7 @@ namespace YaNco.Core.Tests
                     , commitAndWait)
                 select conn;
 
-            var fin = await call.Run(runtime);
+            _ = await call.Run(runtime);
 
             connectionIO.VerifyAll();
             functionIO.VerifyAll();
@@ -166,7 +166,7 @@ namespace YaNco.Core.Tests
             connectionIO.SetupOpenConnection(out var connHandle);
             var functionIO = new Mock<SAPRfcFunctionIO>();
 
-            functionIO.SetupFunction("BAPI_TRANSACTION_ROLLBACK", connHandle, f=>{});
+            functionIO.SetupFunction("BAPI_TRANSACTION_ROLLBACK", connHandle, _=>{});
 
             var runtime = TestSAPRfcRuntime.New(settings =>
             {
@@ -179,7 +179,7 @@ namespace YaNco.Core.Tests
                     , rollback)
                 select conn;
 
-            var fin = await call.Run(runtime);
+            _ = await call.Run(runtime);
 
             connectionIO.VerifyAll();
             functionIO.VerifyAll();

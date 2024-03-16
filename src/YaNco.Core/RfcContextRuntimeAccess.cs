@@ -1,9 +1,11 @@
 ﻿using System;
 using Dbosoft.YaNco.Live;
+using JetBrains.Annotations;
 using LanguageExt;
 
 namespace Dbosoft.YaNco;
 
+[PublicAPI]
 public static class RfcContextRuntimeAccess
 {
     /// <summary>

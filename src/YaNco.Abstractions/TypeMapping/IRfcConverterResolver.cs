@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Dbosoft.YaNco.TypeMapping
+namespace Dbosoft.YaNco.TypeMapping;
+
+public interface IRfcConverterResolver
 {
-    public interface IRfcConverterResolver
-    {
-        IEnumerable<IToAbapValueConverter<T>> GetToRfcConverters<T>(RfcType rfcType);
-        IEnumerable<IFromAbapValueConverter<T>> GetFromRfcConverters<T>(RfcType rfcType, Type abapValueType);
-    }
+    IEnumerable<IToAbapValueConverter<T>> GetToRfcConverters<T>(RfcType rfcType);
+    IEnumerable<IFromAbapValueConverter<T>> GetFromRfcConverters<T>(RfcType rfcType, Type abapValueType);
 }

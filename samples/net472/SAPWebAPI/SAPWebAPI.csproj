@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- ReSharper disable once VulnerablePackage -->
     <PackageReference Include="Microsoft.AspNetCore" Version="2.1.7" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />

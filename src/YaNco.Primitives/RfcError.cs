@@ -1,8 +1,10 @@
-﻿using LanguageExt;
+﻿using JetBrains.Annotations;
+using LanguageExt;
 using LanguageExt.Common;
 
 namespace Dbosoft.YaNco;
 
+[PublicAPI]
 public record RfcError(RfcErrorInfo RfcErrorInfo, Option<Error> Inner = new()) : Expected(RfcErrorInfo.Message, (int)RfcErrorInfo.Code, Inner)
 {
     public RfcRc Rc => RfcErrorInfo.Code;
@@ -30,7 +32,7 @@ public record RfcError(RfcErrorInfo RfcErrorInfo, Option<Error> Inner = new()) :
     public static RfcError EmptyResult => RfcErrorInfo.EmptyResult().ToRfcError();
 
     public static RfcError Error(string message, RfcRc rc = RfcRc.RFC_ILLEGAL_STATE) =>
-        YaNco.RfcErrorInfo.Error(message, rc).ToRfcError();
+        RfcErrorInfo.Error(message, rc).ToRfcError();
 
     public static RfcError Error(RfcRc rc = RfcRc.RFC_ILLEGAL_STATE) => RfcErrorInfo.Error(rc).ToRfcError();
 

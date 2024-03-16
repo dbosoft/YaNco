@@ -1,6 +1,7 @@
 using Dbosoft.YaNco;
 using LanguageExt;
 // ReSharper disable InconsistentNaming
+// ReSharper disable StringLiteralTypo
 
 namespace ExportMATMAS;
 
@@ -98,7 +99,7 @@ public static class SAPIDocServer<RT> where RT :
     {
         //to convert the segment we create a temporary structure of the segment definition type
         //and "move" the segment data into it. 
-        return connection.CreateStructure(_segment2Type[data.Segment]).Use(structure =>
+        return connection.CreateStructure(MatmasTypes.Segment2Type[data.Segment]).Use(structure =>
         {
             return from _ in structure.Bind(s => s.SetFromString(data.Data).ToAsync())
                 from res in structure.Bind(s => mapFunc(s).ToAsync())
@@ -111,13 +112,13 @@ public static class SAPIDocServer<RT> where RT :
         Seq<IDocDataRecord> data, Func<IStructure, Either<RfcError, T>> mapFunc)
     {
         return data.Map(segment => MapSegment(connection, segment, mapFunc))
-            .Traverse(l => l);
+            .TraverseSerial(l => l);
     }
 
     private static EitherAsync<RfcError, IDocDataRecord> FindRequiredSegment(
         string typeName, Seq<IDocDataRecord> records)
     {
-        var segmentName = _type2Segment[typeName];
+        var segmentName = MatmasTypes.Type2Segment[typeName];
         return records.Find(x => x.Segment == segmentName)
             .ToEither(RfcError.Error($"Segment {segmentName} not found"))
             .ToAsync();
@@ -126,25 +127,10 @@ public static class SAPIDocServer<RT> where RT :
     private static Seq<IDocDataRecord> FindSegments(
         string typeName, Seq<IDocDataRecord> records)
     {
-        var segmentName = _type2Segment[typeName];
+        var segmentName = MatmasTypes.Type2Segment[typeName];
         return records.Filter(x => x.Segment == segmentName);
     }
 
     // for a known IDoc type you used fixed segment to type mapping
     // a more generic way would be looking up segment names from RFM IDOCTYPE_READ_COMPLETE
-
-    private static HashMap<string, string> _segment2Type = new(new[]
-    {
-        ("E2MARAM009", "E1MARAM"), // client data, MATMAS05
-        ("E2MARCM008", "E1MARCM"), // plant data, MATMAS05
-        ("E2MAKTM001", "E1MAKTM"), // descriptions, MATMAS05
-    });
-
-    private static HashMap<string, string> _type2Segment = new(new[]
-    {
-        ("E1MARAM", "E2MARAM009" ),
-        ("E1MARCM", "E2MARCM008"),
-        ("E1MAKTM", "E2MAKTM001")
-    });
-
 }

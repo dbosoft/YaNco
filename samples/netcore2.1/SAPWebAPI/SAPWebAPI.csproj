@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- ReSharper disable once VulnerablePackage -->
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />

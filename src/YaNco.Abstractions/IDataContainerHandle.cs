@@ -1,8 +1,7 @@
 ﻿using System;
 
-namespace Dbosoft.YaNco
+namespace Dbosoft.YaNco;
+
+public interface IDataContainerHandle: IDisposable
 {
-    public interface IDataContainerHandle: IDisposable
-    {
-    }
 }

@@ -13,7 +13,7 @@ public enum TransactionState
     Created,
     Executed,
     Committed,
-    RolledBack,
+    RolledBack
 
 }
 // ReSharper restore InconsistentNaming

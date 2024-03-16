@@ -21,7 +21,7 @@ namespace YaNco.Core.Tests
 
             connectionMock.Setup(x => x.GetAttributes()).Returns(Prelude.RightAsync<RfcError, ConnectionAttributes>(emptyAttributes));
 
-            connectionBuilder.UseFactory((_, r) => Prelude.SuccessEff(connectionMock.Object));
+            connectionBuilder.UseFactory((_, _) => Prelude.SuccessEff(connectionMock.Object));
             var buildFunc = connectionBuilder.Build();
 
             var options = new ParallelOptions { MaxDegreeOfParallelism = int.MaxValue };

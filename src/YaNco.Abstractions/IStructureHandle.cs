@@ -1,7 +1,6 @@
-﻿namespace Dbosoft.YaNco
-{
-    public interface IStructureHandle : IDataContainerHandle
-    {
+﻿namespace Dbosoft.YaNco;
 
-    }
+public interface IStructureHandle : IDataContainerHandle
+{
+
 }

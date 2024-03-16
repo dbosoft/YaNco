@@ -10,7 +10,7 @@ namespace YaNco.Core.Tests.RfcMock
     [ExcludeFromCodeCoverage]
     public class TableMockBuilder
     {
-        public List<Mock<IStructure>> Structures { get; private set; } = new List<Mock<IStructure>>();
+        public List<Mock<IStructure>> Structures { get; } = new();
         public Mock<ITable> Table { get; }
 
         public TableMockBuilder(Mock<ITable> tableMock)

@@ -9,6 +9,7 @@ namespace Dbosoft.YaNco;
 /// <summary>
 /// This class is used to configure a SAP RFC server
 /// </summary>
+[PublicAPI]
 public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     where RT : struct, HasSAPRfcServer<RT>,
     HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvRuntimeSettings
@@ -17,7 +18,7 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
 {
     private readonly IDictionary<string, string> _serverParam;
     [CanBeNull] private IDictionary<string, string> _clientParam;
-    private Action<RfcServerClientConfigurer<RT>> _configureServerClient = (c) => { };
+    private Action<RfcServerClientConfigurer<RT>> _configureServerClient = _ => { };
     private readonly IFunctionRegistration _functionRegistration = new ScopedFunctionRegistration();
 
     private Func<IDictionary<string, string>, RT, Eff<RT, IRfcServer<RT>>>
@@ -106,19 +107,23 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
         if (_buildServer != null)
             return Prelude.SuccessAff(_buildServer);
 
-        //build connection from client build if necessary
-        if (_connectionEffect == null && _clientParam != null)
+        switch (_connectionEffect)
         {
-            var clientBuilder = new ConnectionBuilder<RT>(_clientParam);
+            //build connection from client build if necessary
+            case null when _clientParam != null:
+            {
+                var clientBuilder = new ConnectionBuilder<RT>(_clientParam);
 
-            //take control of registration made by clients
-            clientBuilder.WithFunctionRegistration(_functionRegistration);
-            //take runtime of client
-            //clientBuilder.ConfigureRuntime(cfg => cfg.UseFactory((l, m, o) => runtime));
+                //take control of registration made by clients
+                clientBuilder.WithFunctionRegistration(_functionRegistration);
+                //take runtime of client
+                //clientBuilder.ConfigureRuntime(cfg => cfg.UseFactory((l, m, o) => runtime));
 
-            _configureServerClient(new RfcServerClientConfigurer<RT>(clientBuilder));
+                _configureServerClient(new RfcServerClientConfigurer<RT>(clientBuilder));
 
-            WithClientConnection(clientBuilder.Build());
+                WithClientConnection(clientBuilder.Build());
+                break;
+            }
         }
 
         return
@@ -151,7 +156,7 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
                 })
 
                 // add function handlers
-                .Bind(server => RegisterFunctionHandlers(server, rt))
+                .Bind(RegisterFunctionHandlers)
                 .Map(server =>
                 {
                     server.AddReferences(new[] { _functionRegistration });
@@ -163,7 +168,7 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     }
 
 
-    private Eff<RT,IRfcServer<RT>> RegisterFunctionHandlers(IRfcServer<RT> server, RT runtime)
+    private Eff<RT,IRfcServer<RT>> RegisterFunctionHandlers(IRfcServer<RT> server)
     {
         return FunctionHandlers.Map(reg =>
         {

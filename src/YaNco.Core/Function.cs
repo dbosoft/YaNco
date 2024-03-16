@@ -1,23 +1,22 @@
 ﻿using LanguageExt;
 
-namespace Dbosoft.YaNco
+namespace Dbosoft.YaNco;
+
+internal class Function : DataContainer, IFunction
 {
-    internal class Function : DataContainer, IFunction
+    private readonly SAPRfcFunctionIO _functionIO;
+    public IFunctionHandle Handle { get; }
+
+    internal Function(IFunctionHandle handle, SAPRfcDataIO io, SAPRfcFunctionIO functionIO) : base(handle, io)
     {
-        private readonly SAPRfcFunctionIO _functionIO;
-        public IFunctionHandle Handle { get; private set; }
+        _functionIO = functionIO;
+        Handle = handle;
+    }
 
-        internal Function(IFunctionHandle handle, SAPRfcDataIO io, SAPRfcFunctionIO functionIO) : base(handle, io)
-        {
-            _functionIO = functionIO;
-            Handle = handle;
-        }
+    protected override Either<RfcError, RfcFieldInfo> GetFieldInfo(string name)
+    {
+        return _functionIO.GetFunctionDescription(Handle).Use(used => used
+            .Bind(handle => _functionIO.GetFunctionParameterDescription(handle, name)).Map(r => (RfcFieldInfo) r));
 
-        protected override Either<RfcError, RfcFieldInfo> GetFieldInfo(string name)
-        {
-            return _functionIO.GetFunctionDescription(Handle).Use(used => used
-                .Bind(handle => _functionIO.GetFunctionParameterDescription(handle, name)).Map(r => (RfcFieldInfo) r));
-
-        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Dbosoft.YaNco.TypeMapping;
+using JetBrains.Annotations;
 using LanguageExt;
 using LanguageExt.Effects.Traits;
 
@@ -7,6 +8,7 @@ namespace Dbosoft.YaNco;
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006
 
+[PublicAPI]
 public static class SAPRfc<RT> where RT : struct, HasCancel<RT>, HasSAPRfcData<RT>
 {
     public static Aff<RT, TR> useConnection<TR>(Aff<RT, IConnection> connectionEffect, Func<IConnection, Aff<RT, TR>> mapFunc)

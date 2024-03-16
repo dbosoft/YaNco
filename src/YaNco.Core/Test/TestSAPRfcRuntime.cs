@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
 
 namespace Dbosoft.YaNco.Test;
@@ -11,6 +12,7 @@ public readonly struct TestSAPRfcRuntime
         HasSAPRfcFunctions<TestSAPRfcRuntime>,
         HasSAPRfcConnection<TestSAPRfcRuntime>,
         HasSAPRfcServer<TestSAPRfcRuntime>,
+        HasFieldMapper<TestSAPRfcRuntime>,
         HasEnvRuntimeSettings
 {
     private readonly SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> _env;
@@ -82,4 +84,6 @@ public readonly struct TestSAPRfcRuntime
     public Eff<TestSAPRfcRuntime, SAPRfcServerIO> RfcServerEff => Prelude.Eff<TestSAPRfcRuntime, SAPRfcServerIO>(
         rt => rt.ServerIO);
 
+    public Eff<TestSAPRfcRuntime, IFieldMapper> FieldMapperEff => Prelude.Eff<TestSAPRfcRuntime, IFieldMapper>(
+               rt => rt.Env.Settings.FieldMapper);
 }

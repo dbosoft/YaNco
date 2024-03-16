@@ -4,7 +4,7 @@ using LanguageExt;
 
 namespace Dbosoft.YaNco.Live;
 
-public struct LiveSAPRfcConnectionIO : SAPRfcConnectionIO
+public readonly struct LiveSAPRfcConnectionIO : SAPRfcConnectionIO
 {
     private readonly Option<ILogger> _logger;
 
