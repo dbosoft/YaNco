@@ -27,15 +27,12 @@ public class IntValueConverter<T>: IToAbapValueConverter<T>
     private static bool IsSupportedRfcType(RfcType rfcType)
     {
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-        switch (rfcType)
+        return rfcType switch
         {
-            case RfcType.INT:
-            case RfcType.INT2:
-            case RfcType.INT1:
-                return true;
-            default:
-                return false;
-        }
-
+            RfcType.INT => true,
+            RfcType.INT2 => true,
+            RfcType.INT1 => true,
+            _ => false
+        };
     }
 }

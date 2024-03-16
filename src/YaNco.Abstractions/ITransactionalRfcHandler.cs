@@ -1,11 +1,13 @@
-﻿namespace Dbosoft.YaNco;
+﻿using LanguageExt;
+
+namespace Dbosoft.YaNco;
 
 // ReSharper disable once TypeParameterCanBeVariant
 public interface ITransactionalRfcHandler<RT>
     where RT : struct
 {
-    RfcRc OnCheck(RT runtime, IRfcHandle rfcHandle, string transactionId);
-    RfcRc OnCommit(RT runtime, IRfcHandle rfcHandle, string transactionId);
-    RfcRc OnRollback(RT runtime, IRfcHandle rfcHandle, string transactionId);
-    RfcRc OnConfirm(RT runtime, IRfcHandle rfcHandle, string transactionId);
+    Eff<RT,RfcRc> OnCheck(IRfcHandle rfcHandle, string transactionId);
+    Eff<RT, RfcRc> OnCommit(IRfcHandle rfcHandle, string transactionId);
+    Eff<RT, RfcRc> OnRollback(IRfcHandle rfcHandle, string transactionId);
+    Eff<RT, RfcRc> OnConfirm(IRfcHandle rfcHandle, string transactionId);
 }

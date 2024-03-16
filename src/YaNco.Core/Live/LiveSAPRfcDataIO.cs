@@ -5,6 +5,9 @@ using System;
 
 namespace Dbosoft.YaNco.Live;
 
+/// <summary>
+/// This is the implementation of the SAPRfcDataIO interface for live connections.
+/// </summary>
 public readonly struct LiveSAPRfcDataIO : SAPRfcDataIO
 {
     public Option<ILogger> Logger { get; }

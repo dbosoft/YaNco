@@ -58,7 +58,7 @@ public class SAPIDocServer : BackgroundService
 
 
         using var rfcServer = await new ServerBuilder(serverSettings)
-            .WithTransactionalRfc(new MaterialMasterTransactionalRfcHandler(_transactionManager))
+            .WithTransactionalRfc(new MaterialMasterTransactionalRfcHandler<SAPRfcRuntime>(_transactionManager))
             .WithClientConnection(clientSettings,
                 c => c
                     .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS", ProcessInboundIDoc))

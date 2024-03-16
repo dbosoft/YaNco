@@ -5,6 +5,9 @@ using LanguageExt;
 
 namespace Dbosoft.YaNco.Live;
 
+/// <summary>
+/// This is the default runtime that uses the live IO implementations for SAP RFC
+/// </summary>
 public readonly struct SAPRfcRuntime
         
     : HasSAPRfcLogger<SAPRfcRuntime>,
@@ -16,11 +19,16 @@ public readonly struct SAPRfcRuntime
         HasEnvRuntimeSettings
 
 {
+
+    /// <summary>
+    /// Static default runtime that can be used to create a runtime with default settings
+    /// </summary>
     public static SAPRfcRuntime Default => New(
         new CancellationTokenSource(),
         new SAPRfcRuntimeSettings(null, RfcMappingConfigurer.CreateDefaultFieldMapper(), new RfcRuntimeOptions()));
 
     private readonly SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> _env;
+
     /// <summary>
     /// Constructor
     /// </summary>
@@ -39,8 +47,14 @@ public readonly struct SAPRfcRuntime
     /// </summary>
     public static SAPRfcRuntime New(CancellationTokenSource cancellationTokenSource, SAPRfcRuntimeSettings settings) =>
             new(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(cancellationTokenSource, settings));    
+    
+    
+    /// <summary>
+    /// Creates a new runtime by using the default settings for the environment
+    /// </summary>
     public static SAPRfcRuntime New() => new(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(
-        new CancellationTokenSource(), Default.Env.Settings
+        new CancellationTokenSource(), new SAPRfcRuntimeSettings(Default.Env.Settings.Logger, 
+            Default.Env.Settings.FieldMapper, Default.Env.Settings.TableOptions)
         ));
 
 
@@ -65,6 +79,7 @@ public readonly struct SAPRfcRuntime
     public CancellationTokenSource CancellationTokenSource =>
         Env.Source;
 
+    
     public Option<ILogger> Logger => Env.Settings.Logger == null? Option<ILogger>.None : Prelude.Some(Env.Settings.Logger);
 
     private SAPRfcDataIO DataIO => Env.Settings.RfcDataIO ?? new LiveSAPRfcDataIO(Logger, Env.Settings.FieldMapper, Env.Settings.TableOptions);
@@ -86,7 +101,6 @@ public readonly struct SAPRfcRuntime
 
     public Eff<SAPRfcRuntime, SAPRfcServerIO> RfcServerEff => Prelude.Eff<SAPRfcRuntime, SAPRfcServerIO>(
         rt => rt.ServerIO);
-
 
     public Eff<SAPRfcRuntime, IFieldMapper> FieldMapperEff => Prelude.Eff < SAPRfcRuntime, IFieldMapper>(
                rt => rt.Env.Settings.FieldMapper);

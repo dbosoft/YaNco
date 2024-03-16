@@ -4,6 +4,9 @@ using LanguageExt;
 
 namespace Dbosoft.YaNco.Live;
 
+/// <summary>
+/// This is the implementation of the SAPRfcConnectionIO interface for live connections.
+/// </summary>
 public readonly struct LiveSAPRfcConnectionIO : SAPRfcConnectionIO
 {
     private readonly Option<ILogger> _logger;

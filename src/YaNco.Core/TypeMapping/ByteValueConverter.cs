@@ -35,14 +35,11 @@ public class ByteValueConverter: IToAbapValueConverter<byte[]>, IFromAbapValueCo
     private static bool IsSupportedRfcType(RfcType rfcType)
     {
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-        switch (rfcType)
+        return rfcType switch
         {
-            case RfcType.BYTE:
-            case RfcType.XSTRING:
-                return true;
-            default:
-                return false;
-        }
-
+            RfcType.BYTE => true,
+            RfcType.XSTRING => true,
+            _ => false
+        };
     }
 }

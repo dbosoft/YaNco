@@ -3,6 +3,9 @@ using LanguageExt;
 
 namespace Dbosoft.YaNco.TypeMapping;
 
+/// <summary>
+/// THis is the default field mapper that is used by to map fields from and to SAP RFC
+/// </summary>
 public class DefaultFieldMapper : IFieldMapper
 {
     private readonly IRfcConverterResolver _converterResolver;
@@ -45,50 +48,50 @@ public class DefaultFieldMapper : IFieldMapper
         return context.Apply(_ =>
         {
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-            switch (context.FieldInfo.Type)
+            // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
+            return context.FieldInfo.Type switch
             {
-                case RfcType.DATE:
-                    return context.IO.GetDateString(context.Handle, context.FieldInfo.Name).Map(v =>
-                        (AbapValue) new AbapStringValue(context.FieldInfo, v));
-                case RfcType.TIME:
-                    return context.IO.GetTimeString(context.Handle, context.FieldInfo.Name).Map(v =>
-                        (AbapValue) new AbapStringValue(context.FieldInfo, v));
-                case RfcType.CHAR:
-                case RfcType.NUM:
-                case RfcType.STRING:
-                case RfcType.BCD:
-                case RfcType.FLOAT:
-                case RfcType.DECF16:
-                case RfcType.DECF34:
-                    return context.IO.GetString(context.Handle, context.FieldInfo.Name).Map(v =>
-                        (AbapValue) new AbapStringValue(context.FieldInfo, v));
-                case RfcType.INT:
-                case RfcType.INT2:
-                case RfcType.INT1:
-                    return context.IO.GetInt(context.Handle, context.FieldInfo.Name).Map(v =>
-                        (AbapValue) new AbapIntValue(context.FieldInfo, v));
-                case RfcType.INT8:
-                    return context.IO.GetLong(context.Handle, context.FieldInfo.Name).Map(v =>
-                        (AbapValue) new AbapLongValue(context.FieldInfo, v));
-                case RfcType.BYTE:
-                case RfcType.XSTRING:
-                    return context.IO.GetBytes(context.Handle, context.FieldInfo.Name).Map(v =>
-                        (AbapValue) new AbapByteValue(context.FieldInfo, v));
-                case RfcType.STRUCTURE:
-                    return context.IO.GetStructure(context.Handle, context.FieldInfo.Name)
-                        .Map(handle => (IStructure)new Structure(handle, context.IO))
-                        .Bind(s => s.ToDictionary())
-                        .Map(d => (AbapValue)new AbapStructureValues(context.FieldInfo, d));
-                case RfcType.TABLE:
-                    return context.IO.GetTable(context.Handle, context.FieldInfo.Name)
-                        .Map(handle => (ITable)new Table(handle, context.IO))
-                        .MapStructure(d => d.ToDictionary())
-                        .Map(tr => (AbapValue)new AbapTableValues(context.FieldInfo, tr));
-
-                default:
-                    throw new NotSupportedException(
-                        $"Reading a field of RfcType {context.FieldInfo.Type} is not supported for this method.");
-            }
+                RfcType.DATE => context.IO.GetDateString(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapStringValue(context.FieldInfo, v)),
+                RfcType.TIME => context.IO.GetTimeString(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapStringValue(context.FieldInfo, v)),
+                RfcType.CHAR => context.IO.GetString(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapStringValue(context.FieldInfo, v)),
+                RfcType.NUM => context.IO.GetString(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapStringValue(context.FieldInfo, v)),
+                RfcType.STRING => context.IO.GetString(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapStringValue(context.FieldInfo, v)),
+                RfcType.BCD => context.IO.GetString(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapStringValue(context.FieldInfo, v)),
+                RfcType.FLOAT => context.IO.GetString(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapStringValue(context.FieldInfo, v)),
+                RfcType.DECF16 => context.IO.GetString(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapStringValue(context.FieldInfo, v)),
+                RfcType.DECF34 => context.IO.GetString(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapStringValue(context.FieldInfo, v)),
+                RfcType.INT => context.IO.GetInt(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapIntValue(context.FieldInfo, v)),
+                RfcType.INT2 => context.IO.GetInt(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapIntValue(context.FieldInfo, v)),
+                RfcType.INT1 => context.IO.GetInt(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapIntValue(context.FieldInfo, v)),
+                RfcType.INT8 => context.IO.GetLong(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapLongValue(context.FieldInfo, v)),
+                RfcType.BYTE => context.IO.GetBytes(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapByteValue(context.FieldInfo, v)),
+                RfcType.XSTRING => context.IO.GetBytes(context.Handle, context.FieldInfo.Name)
+                    .Map(v => (AbapValue)new AbapByteValue(context.FieldInfo, v)),
+                RfcType.STRUCTURE => context.IO.GetStructure(context.Handle, context.FieldInfo.Name)
+                    .Map(handle => (IStructure)new Structure(handle, context.IO))
+                    .Bind(s => s.ToDictionary())
+                    .Map(d => (AbapValue)new AbapStructureValues(context.FieldInfo, d)),
+                RfcType.TABLE => context.IO.GetTable(context.Handle, context.FieldInfo.Name)
+                    .Map(handle => (ITable)new Table(handle, context.IO))
+                    .MapStructure(d => d.ToDictionary())
+                    .Map(tr => (AbapValue)new AbapTableValues(context.FieldInfo, tr)),
+                _ => throw new NotSupportedException(
+                    $"Reading a field of RfcType {context.FieldInfo.Type} is not supported for this method.")
+            };
         }).Bind(FromAbapValue<T>);
     }
 

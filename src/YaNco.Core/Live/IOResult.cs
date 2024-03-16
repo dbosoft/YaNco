@@ -2,6 +2,9 @@
 
 namespace Dbosoft.YaNco.Live;
 
+/// <summary>
+/// This is a helper type to handle the result of an RFC call.
+/// </summary>
 public static class IOResult
 {
     public static Either<RfcError, TResult> ResultOrError<TResult>(

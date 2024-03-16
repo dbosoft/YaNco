@@ -37,19 +37,16 @@ public class StringValueConverter<T> : IToAbapValueConverter<T>
     private static bool IsSupportedRfcType(RfcType rfcType)
     {
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-        switch (rfcType)
+        return rfcType switch
         {
-            case RfcType.CHAR:
-            case RfcType.NUM:
-            case RfcType.BCD:
-            case RfcType.FLOAT:
-            case RfcType.DECF16:
-            case RfcType.DECF34:
-            case RfcType.STRING:
-                return true;
-            default:
-                return false;
-        }
-
+            RfcType.CHAR => true,
+            RfcType.NUM => true,
+            RfcType.BCD => true,
+            RfcType.FLOAT => true,
+            RfcType.DECF16 => true,
+            RfcType.DECF34 => true,
+            RfcType.STRING => true,
+            _ => false
+        };
     }
 }

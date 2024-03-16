@@ -5,6 +5,11 @@ using LanguageExt;
 
 namespace Dbosoft.YaNco;
 
+/// <summary>
+/// Base class for building a RFC clients or servers.
+/// </summary>
+/// <typeparam name="TBuilder">The builder type for chaining</typeparam>
+/// <typeparam name="RT">Runtime type</typeparam>
 public abstract class RfcBuilderBase<TBuilder, RT> where RT : struct, 
     HasSAPRfcFunctions<RT>, HasSAPRfcServer<RT>, 
     HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>
@@ -37,16 +42,15 @@ public abstract class RfcBuilderBase<TBuilder, RT> where RT : struct,
     }
 
     /// <summary>
-    /// This method registers a function handler from a <see cref="IFunctionBuilder"/>
+    /// This method registers a function handler from a <see cref="IFunctionBuilder{RT}"/>
     /// </summary>
     /// <param name="functionName">Name of function</param>
     /// <param name="configureBuilder">action to configure function builder</param>
     /// <param name="calledFunc">function handler</param>
     /// <returns>current instance for chaining</returns>
     /// <remarks>
-    /// The metadata of the function is build in the <see cref="IFunctionBuilder"/>. This allows to register
+    /// The metadata of the function is build in the <see cref="IFunctionBuilder{RT}"/>. This allows to register
     /// any kind of function. 
-    /// To register a known function use the signature with function name <seealso cref="WithFunctionHandler(string,System.Func{Dbosoft.YaNco.CalledFunction,LanguageExt.Either{Dbosoft.YaNco.RfcError,LanguageExt.Unit}})"/>
     /// Function handlers are registered process wide (in the SAP NW RFC Library) and mapped to backend system id. 
     /// Multiple registrations of same function and same backend id will therefore have no effect.
     /// </remarks>
@@ -61,14 +65,6 @@ public abstract class RfcBuilderBase<TBuilder, RT> where RT : struct,
 
     private Action<RfcRuntimeConfigurer<RT>> _configureRuntime = _ => { };
 
-    /// <summary>
-    /// Registers a action to configure the <see cref="IRfcRuntime"/>
-    /// </summary>
-    /// <param name="configure">action with <see cref="RfcRuntimeConfigurer"/></param>
-    /// <returns>current instance for chaining.</returns>
-    /// <remarks>
-    /// Multiple calls of this method will override the previous configuration action. 
-    /// </remarks>
     protected TBuilder ConfigureRuntimeInternal(Action<RfcRuntimeConfigurer<RT>> configure)
     {
         lock (RfcBuilderSync.SyncObject)

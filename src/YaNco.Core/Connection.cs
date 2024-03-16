@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.Functional;
@@ -120,7 +121,8 @@ public class Connection<RT> : IConnection
 
                 var res = effect.ToEither(runtime);
 
-                if (res.IsBottom)
+                
+                if (!Debugger.IsAttached && res.IsBottom)
                     return (handle, RfcError.New($"connection message {msg.GetType()} returned a bottom state. " +
                                                  $"This typical occurs in Unit testing if not all required methods have been setup. Message details: {msg}"));
 
