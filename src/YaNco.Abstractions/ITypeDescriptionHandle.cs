@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Dbosoft.YaNco
-{
-    public interface ITypeDescriptionHandle : IDisposable
-    {
+namespace Dbosoft.YaNco;
 
-    }
+public interface ITypeDescriptionHandle : IDisposable
+{
+
 }

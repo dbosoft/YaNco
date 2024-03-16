@@ -166,7 +166,7 @@ namespace YaNco.Core.Tests
             connectionIO.SetupOpenConnection(out var connHandle);
             var functionIO = new Mock<SAPRfcFunctionIO>();
 
-            functionIO.SetupFunction("BAPI_TRANSACTION_ROLLBACK", connHandle, f=>{});
+            functionIO.SetupFunction("BAPI_TRANSACTION_ROLLBACK", connHandle, _=>{});
 
             var runtime = TestSAPRfcRuntime.New(settings =>
             {

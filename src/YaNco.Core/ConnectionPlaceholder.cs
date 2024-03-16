@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Dbosoft.YaNco.Live;
 using LanguageExt;
 
@@ -11,11 +12,6 @@ internal class ConnectionPlaceholder : IConnection
         RfcErrorGroup.COMMUNICATION_FAILURE, "",
         "no client connection",
         "", "", "", "", "", "", "").ToRfcError();
-
-    public ConnectionPlaceholder()
-    {
-
-    }
 
     public void Dispose()
     {
@@ -73,10 +69,6 @@ internal class ConnectionPlaceholder : IConnection
         return ErrorResponse;
     }
 
-    public EitherAsync<RfcError, Unit> AllowStartOfPrograms(StartProgramDelegate callback)
-    {
-        return ErrorResponse;
-    }
 
     public EitherAsync<RfcError, Unit> Cancel()
     {
@@ -89,12 +81,9 @@ internal class ConnectionPlaceholder : IConnection
     }
 
     public bool Disposed { get; private set; }
-#pragma warning disable CS0618 // Type or member is obsolete
+
+    [Obsolete(Deprecations.RfcRuntime)]
     public IRfcRuntime RfcRuntime { get; } = new RfcRuntime(SAPRfcRuntime.Default);
     public HasEnvRuntimeSettings ConnectionRuntime { get; } = SAPRfcRuntime.Default;
-#pragma warning restore CS0618 // Type or member is obsolete
-    public T GetRuntimeSettings<T>() where T : SAPRfcRuntimeSettings
-    {
-        return SAPRfcRuntime.Default.Env.Settings as T;
-    }
+
 }

@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Dbosoft.YaNco
-{
-    public interface IConnectionHandle: IDisposable
-    {
+namespace Dbosoft.YaNco;
 
-    }
+public interface IConnectionHandle: IDisposable
+{
+
 }

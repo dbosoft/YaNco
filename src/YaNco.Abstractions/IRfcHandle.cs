@@ -1,6 +1,5 @@
-﻿namespace Dbosoft.YaNco
+﻿namespace Dbosoft.YaNco;
+
+public interface IRfcHandle
 {
-    public interface IRfcHandle
-    {
-    }
 }

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Dbosoft.YaNco
+namespace Dbosoft.YaNco;
+
+public interface IFunction : IDataContainer
 {
-    public interface IFunction : IDataContainer, IDisposable
-    {
-        [Browsable(false)]
-        IFunctionHandle Handle { get; }   
-    }
+    [Browsable(false)]
+    IFunctionHandle Handle { get; }   
 }

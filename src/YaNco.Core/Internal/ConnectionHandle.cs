@@ -1,22 +1,21 @@
 ﻿using System;
 
-namespace Dbosoft.YaNco.Internal
+namespace Dbosoft.YaNco.Internal;
+
+public class ConnectionHandle : RfcHandle, IConnectionHandle
 {
-    public class ConnectionHandle : RfcHandle, IConnectionHandle
+
+    internal ConnectionHandle(IntPtr ptr) : base(ptr)
     {
+        Ptr = ptr;
+    }
 
-        internal ConnectionHandle(IntPtr ptr) : base(ptr)
-        {
-            Ptr = ptr;
-        }
+    public void Dispose()
+    {
+        if (Ptr == IntPtr.Zero) return;
 
-        public void Dispose()
-        {
-            if (Ptr == IntPtr.Zero) return;
-
-            Interopt.RfcCloseConnection(Ptr, out _);
+        Interopt.RfcCloseConnection(Ptr, out _);
             
-            Ptr = IntPtr.Zero;
-        }
+        Ptr = IntPtr.Zero;
     }
 }

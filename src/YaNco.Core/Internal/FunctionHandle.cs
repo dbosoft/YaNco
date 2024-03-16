@@ -1,22 +1,21 @@
 ﻿using System;
 
-namespace Dbosoft.YaNco.Internal
+namespace Dbosoft.YaNco.Internal;
+
+public class FunctionHandle : IFunctionHandle, IDataContainerHandle
 {
-    public class FunctionHandle : IFunctionHandle, IDataContainerHandle
+    internal FunctionHandle(IntPtr ptr)
     {
-        internal FunctionHandle(IntPtr ptr)
-        {
-            Ptr = ptr;
-        }
+        Ptr = ptr;
+    }
 
-        public IntPtr Ptr { get; private set; }
+    public IntPtr Ptr { get; private set; }
 
-        public void Dispose()
-        {
-            if (Ptr == IntPtr.Zero) return;
+    public void Dispose()
+    {
+        if (Ptr == IntPtr.Zero) return;
 
-            Interopt.RfcDestroyFunction(Ptr, out _);
-            Ptr = IntPtr.Zero;
-        }
+        Interopt.RfcDestroyFunction(Ptr, out _);
+        Ptr = IntPtr.Zero;
     }
 }

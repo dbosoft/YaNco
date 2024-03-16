@@ -87,7 +87,7 @@ namespace YaNco.Core.Tests
             connectionIO.SetupOpenConnection(out _);
             var fieldMapper = new Mock<IFieldMapper>();
             var connFunc = new ConnectionBuilder(new Dictionary<string, string>())
-                .ConfigureRuntime(c => c.UseSettingsFactory((l, m, o) =>
+                .ConfigureRuntime(c => c.UseSettingsFactory((l, _, o) =>
                     new SAPRfcRuntimeSettings(l, fieldMapper.Object, o)
                     {
                         RfcConnectionIO = connectionIO.Object,

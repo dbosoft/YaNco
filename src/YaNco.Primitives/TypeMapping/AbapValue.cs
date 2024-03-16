@@ -1,12 +1,11 @@
-﻿namespace Dbosoft.YaNco.TypeMapping
-{
-    public class AbapValue
-    {
-        public readonly RfcFieldInfo FieldInfo;
+﻿namespace Dbosoft.YaNco.TypeMapping;
 
-        protected AbapValue(RfcFieldInfo fieldInfo)
-        {
-            FieldInfo = fieldInfo;
-        }
+public class AbapValue
+{
+    public readonly RfcFieldInfo FieldInfo;
+
+    protected AbapValue(RfcFieldInfo fieldInfo)
+    {
+        FieldInfo = fieldInfo;
     }
 }

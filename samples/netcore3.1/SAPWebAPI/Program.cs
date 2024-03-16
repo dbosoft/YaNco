@@ -3,23 +3,22 @@ using Microsoft.Extensions.Hosting;
 using System.Diagnostics.CodeAnalysis;
 using Dbosoft.YaNco.Hosting;
 
-namespace SAPWebAPI
+namespace SAPWebAPI;
+
+[ExcludeFromCodeCoverage]
+public class Program
 {
-    [ExcludeFromCodeCoverage]
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            RfcLibraryHelper.EnsurePathVariable();
+        RfcLibraryHelper.EnsurePathVariable();
 
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        CreateHostBuilder(args).Build().Run();
     }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
 }

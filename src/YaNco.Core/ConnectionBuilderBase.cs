@@ -151,7 +151,7 @@ public class ConnectionBuilderBase<TBuilder, RT> : RfcBuilderBase<TBuilder, RT>
                             return Unit.Default;
                         })
                     select uAdd;
-            }).TraverseSerial(l => l).Map(eu => connection)
+            }).TraverseSerial(l => l).Map(_ => connection)
             select attach;
     }
 

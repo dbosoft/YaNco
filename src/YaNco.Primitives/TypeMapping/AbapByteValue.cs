@@ -1,13 +1,12 @@
-﻿namespace Dbosoft.YaNco.TypeMapping
-{
-    public class AbapByteValue : AbapValue
-    {
-        public readonly byte[] Value;
+﻿namespace Dbosoft.YaNco.TypeMapping;
 
-        public AbapByteValue(RfcFieldInfo fieldInfo, byte[] value) :
-            base(fieldInfo)
-        {
-            Value = value;
-        }
+public class AbapByteValue : AbapValue
+{
+    public readonly byte[] Value;
+
+    public AbapByteValue(RfcFieldInfo fieldInfo, byte[] value) :
+        base(fieldInfo)
+    {
+        Value = value;
     }
 }

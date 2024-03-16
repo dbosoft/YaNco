@@ -17,7 +17,7 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
 {
     private readonly IDictionary<string, string> _serverParam;
     [CanBeNull] private IDictionary<string, string> _clientParam;
-    private Action<RfcServerClientConfigurer<RT>> _configureServerClient = (c) => { };
+    private Action<RfcServerClientConfigurer<RT>> _configureServerClient = (_) => { };
     private readonly IFunctionRegistration _functionRegistration = new ScopedFunctionRegistration();
 
     private Func<IDictionary<string, string>, RT, Eff<RT, IRfcServer<RT>>>

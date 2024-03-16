@@ -84,7 +84,7 @@ namespace YaNco.Core.Tests.RfcMock
 
         public static Mock<TMock> SetupEmptyTable<TMock>(this Mock<TMock> self, string tableName) where TMock: class, IDataContainer
         {
-            return self.SetupTable(tableName, builder => {});
+            return self.SetupTable(tableName, _ => {});
         }
 
         public static Mock<TMock> SetupTable<TMock>(this Mock<TMock> self, string tableName, IEnumerable<IDictionary<string,object>> tableData) where TMock: class, IDataContainer

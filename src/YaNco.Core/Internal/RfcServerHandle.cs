@@ -1,22 +1,21 @@
 ﻿using System;
 
-namespace Dbosoft.YaNco.Internal
+namespace Dbosoft.YaNco.Internal;
+
+public class RfcServerHandle : IRfcServerHandle
 {
-    public class RfcServerHandle : IRfcServerHandle
+    internal RfcServerHandle(IntPtr ptr)
     {
-        internal RfcServerHandle(IntPtr ptr)
-        {
-            Ptr = ptr;
-        }
+        Ptr = ptr;
+    }
 
-        public IntPtr Ptr { get; private set; }
+    public IntPtr Ptr { get; private set; }
 
-        public void Dispose()
-        {
-            if (Ptr == IntPtr.Zero) return;
+    public void Dispose()
+    {
+        if (Ptr == IntPtr.Zero) return;
 
-            Interopt.RfcDestroyServer(Ptr, out _);
-            Ptr = IntPtr.Zero;
-        }
+        Interopt.RfcDestroyServer(Ptr, out _);
+        Ptr = IntPtr.Zero;
     }
 }

@@ -9,7 +9,7 @@ public readonly struct LiveSAPRfcServerIO : SAPRfcServerIO
 {
     private readonly Option<ILogger> _logger;
 
-    LiveSAPRfcServerIO(Option<ILogger> logger)
+    public LiveSAPRfcServerIO(Option<ILogger> logger)
     {
         _logger = logger;
     }
