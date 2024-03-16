@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.Functional;
 using Dbosoft.YaNco.Live;
+using Dbosoft.YaNco.Test;
 using LanguageExt;
 
 namespace Dbosoft.YaNco
@@ -26,10 +27,7 @@ namespace Dbosoft.YaNco
         public IRfcRuntime RfcRuntime => new RfcRuntime(SAPRfcRuntime.New(
             _runtime.Env.Source, _runtime.Env.Settings));
 
-        public T GetRuntimeSettings<T>() where T : SAPRfcRuntimeSettings
-        {
-            return _runtime.Env.Settings as T;
-        }
+        public HasEnvRuntimeSettings ConnectionRuntime => _runtime;
 
         public Connection(
             RT runtime,
@@ -288,5 +286,4 @@ namespace Dbosoft.YaNco
             }
         }
     }
-
 }

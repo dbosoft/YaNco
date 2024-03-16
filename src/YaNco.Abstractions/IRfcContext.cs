@@ -223,5 +223,6 @@ namespace Dbosoft.YaNco
         /// <returns>A <see cref="EitherAsync{RfcError,IConnection}"/> with any rfc error as left state and <seealso cref="IConnection"/> as right state.</returns>
         EitherAsync<RfcError, IConnection> GetConnection();
 
+
     }
 }
