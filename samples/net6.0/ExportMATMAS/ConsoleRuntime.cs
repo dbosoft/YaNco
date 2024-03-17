@@ -9,6 +9,11 @@ using LanguageExt.Sys.Traits;
 
 namespace ExportMATMAS;
 
+/// <summary>
+/// Runtime environment for the console application
+/// It provides access to the SAP RFC runtime environment, the console and file IO
+/// It is expected that you create your own runtime environment for your application.
+/// </summary>
 public readonly struct ConsoleRuntime :
     HasConsole<ConsoleRuntime>,
     HasFile<ConsoleRuntime>,

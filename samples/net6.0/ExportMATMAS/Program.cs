@@ -22,6 +22,7 @@ using static LanguageExt.Sys.Console<ExportMATMAS.ConsoleRuntime>;
 var configurationBuilder =
     new ConfigurationBuilder();
 
+configurationBuilder.AddJsonFile("appsettings.json", true, false);
 configurationBuilder.AddUserSecrets<Program>();
 
 var configuration = configurationBuilder.Build();
