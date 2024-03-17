@@ -14,7 +14,7 @@ namespace Dbosoft.YaNco;
 [PublicAPI]
 public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     where RT : struct, HasSAPRfcServer<RT>,
-    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvRuntimeSettings
+    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, IHasEnvRuntimeSettings
     where TBuilder: ServerBuilderBase<TBuilder, RT>
 
 {
@@ -152,10 +152,10 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
                         return Prelude.SuccessEff(server);
 
                     return serverIO.AddTransactionHandlers(_systemId,
-                        (handle, tid) => RunTHandler(rt, ()=> _transactionalRfcHandler.OnCheck(handle, tid)),
-                        (handle, tid) => RunTHandler(rt, () => _transactionalRfcHandler.OnCommit(handle, tid)),
-                        (handle, tid) => RunTHandler(rt, () => _transactionalRfcHandler.OnRollback(handle, tid)),
-                        (handle, tid) => RunTHandler(rt, () => _transactionalRfcHandler.OnConfirm(handle, tid))
+                        (handle, tid) => RunTHandler(rt,"CHECK", ()=> _transactionalRfcHandler.OnCheck(handle, tid)),
+                        (handle, tid) => RunTHandler(rt, "COMMIT", () => _transactionalRfcHandler.OnCommit(handle, tid)),
+                        (handle, tid) => RunTHandler(rt, "ROLLBACK", () => _transactionalRfcHandler.OnRollback(handle, tid)),
+                        (handle, tid) => RunTHandler(rt, "CONFIRM", () => _transactionalRfcHandler.OnConfirm(handle, tid))
                     ).Map(holder =>
                     {
                         server.AddReferences(new[] { holder });
@@ -174,8 +174,15 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
         select server;
     }
 
-    private static RfcRc RunTHandler(RT runtime, Func<Eff<RT, RfcRc>> handler) => 
-        handler().Run(runtime).IfFail(RfcRc.RFC_EXTERNAL_FAILURE);
+    private static RfcRc RunTHandler(RT runtime, string name, Func<Eff<RT, RfcRc>> handler) => 
+        (from oLog in default(RT).RfcLoggerEff
+        from rc in handler().MapFail( e =>
+        {
+            oLog.IfSome(logger => logger.LogError($"tRFC handler {name} failed", e)); 
+            return e;
+        })
+        select rc)
+            .Run(runtime).IfFail(RfcRc.RFC_EXTERNAL_FAILURE);
 
     private Eff<RT,IRfcServer<RT>> RegisterFunctionHandlers(IRfcServer<RT> server)
     {

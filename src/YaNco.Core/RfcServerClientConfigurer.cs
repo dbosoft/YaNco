@@ -4,7 +4,7 @@ using LanguageExt;
 namespace Dbosoft.YaNco;
 
 public class RfcServerClientConfigurer<RT> where RT : struct, 
-    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcServer<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvRuntimeSettings
+    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcServer<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, IHasEnvRuntimeSettings
 {
     private readonly ConnectionBuilder<RT> _builder;
 

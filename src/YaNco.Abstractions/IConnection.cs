@@ -119,5 +119,5 @@ public interface IConnection : IDisposable
     [Obsolete(Deprecations.RfcRuntime)]
     IRfcRuntime RfcRuntime { get;  }
 
-    HasEnvRuntimeSettings ConnectionRuntime { get; }
+    IHasEnvRuntimeSettings ConnectionRuntime { get; }
 }

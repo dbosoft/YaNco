@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Text;
+using JetBrains.Annotations;
 using LanguageExt;
 using LanguageExt.Common;
 
@@ -44,5 +45,14 @@ public record RfcError(RfcErrorInfo RfcErrorInfo, Option<Error> Inner = new()) :
         return new RfcError(RfcErrorInfo.Error(error.Message), error);
     }
 
-    public Error AsError => this; 
+    public Error AsError => this;
+
+    protected override bool PrintMembers(StringBuilder builder)
+    {
+        builder.Append($"Code: {Code},");
+        builder.Append($"Message: {Message}");
+
+
+        return true;
+    }
 }

@@ -13,7 +13,7 @@ public readonly struct TestSAPRfcRuntime
         HasSAPRfcConnection<TestSAPRfcRuntime>,
         HasSAPRfcServer<TestSAPRfcRuntime>,
         HasFieldMapper<TestSAPRfcRuntime>,
-        HasEnvRuntimeSettings
+        IHasEnvRuntimeSettings
 {
     private readonly SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> _env;
     /// <summary>

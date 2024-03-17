@@ -18,7 +18,7 @@ public class ConnectionBuilderBase<TBuilder, RT> : RfcBuilderBase<TBuilder, RT>
     HasSAPRfcConnection<RT>,
     HasSAPRfcLogger<RT>,
     HasSAPRfcData<RT>,
-    HasEnvRuntimeSettings
+    IHasEnvRuntimeSettings
 {
     private readonly IDictionary<string, string> _connectionParam;
     private IFunctionRegistration _functionRegistration = FunctionRegistration.Instance;

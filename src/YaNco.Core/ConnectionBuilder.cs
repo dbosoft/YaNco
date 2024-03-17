@@ -70,7 +70,7 @@ public class ConnectionBuilder : ConnectionBuilderBase<ConnectionBuilder, SAPRfc
 /// </summary>
 /// <typeparam name="RT">The runtime to be used for the connection</typeparam>
 public class ConnectionBuilder<RT> : ConnectionBuilderBase<ConnectionBuilder<RT>, RT>
-    where RT : struct, HasSAPRfcFunctions<RT>, HasSAPRfcServer<RT>, HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasEnvRuntimeSettings
+    where RT : struct, HasSAPRfcFunctions<RT>, HasSAPRfcServer<RT>, HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, IHasEnvRuntimeSettings
 
 {
     public ConnectionBuilder(IDictionary<string, string> connectionParam) : base(connectionParam)

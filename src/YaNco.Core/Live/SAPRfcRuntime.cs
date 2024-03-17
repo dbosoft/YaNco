@@ -16,7 +16,7 @@ public readonly struct SAPRfcRuntime
         HasSAPRfcConnection<SAPRfcRuntime>,
         HasSAPRfcServer<SAPRfcRuntime>,
         HasFieldMapper<SAPRfcRuntime>,
-        HasEnvRuntimeSettings
+        IHasEnvRuntimeSettings
 
 {
 
@@ -54,7 +54,7 @@ public readonly struct SAPRfcRuntime
     /// </summary>
     public static SAPRfcRuntime New() => new(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(
         new CancellationTokenSource(), new SAPRfcRuntimeSettings(Default.Env.Settings.Logger, 
-            Default.Env.Settings.FieldMapper, Default.Env.Settings.TableOptions)
+            Default.Env.Settings.FieldMapper, Default.Env.Settings.Options)
         ));
 
 
@@ -82,7 +82,7 @@ public readonly struct SAPRfcRuntime
     
     public Option<ILogger> Logger => Env.Settings.Logger == null? Option<ILogger>.None : Prelude.Some(Env.Settings.Logger);
 
-    private SAPRfcDataIO DataIO => Env.Settings.RfcDataIO ?? new LiveSAPRfcDataIO(Logger, Env.Settings.FieldMapper, Env.Settings.TableOptions);
+    private SAPRfcDataIO DataIO => Env.Settings.RfcDataIO ?? new LiveSAPRfcDataIO(Logger, Env.Settings.FieldMapper, Env.Settings.Options);
     private SAPRfcFunctionIO FunctionIO => Env.Settings.RfcFunctionIO ?? new LiveSAPRfcFunctionIO(Logger, DataIO);
     private SAPRfcConnectionIO ConnectionIO => Env.Settings.RfcConnectionIO ?? new LiveSAPRfcConnectionIO(Logger);
     private SAPRfcServerIO ServerIO => Env.Settings.RfcServerIO ?? new LiveSAPRfcServerIO(Logger);

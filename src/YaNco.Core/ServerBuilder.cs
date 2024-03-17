@@ -69,7 +69,7 @@ public class ServerBuilder : ServerBuilderBase<ServerBuilder, SAPRfcRuntime>
 /// <typeparam name="RT">The runtime to use</typeparam>
 public class ServerBuilder<RT> : ServerBuilderBase<ServerBuilder<RT>, RT>
     where RT : struct, HasSAPRfcServer<RT>,
-    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvRuntimeSettings
+    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, IHasEnvRuntimeSettings
 {
     public ServerBuilder(IDictionary<string, string> serverParam) : base(serverParam)
     {

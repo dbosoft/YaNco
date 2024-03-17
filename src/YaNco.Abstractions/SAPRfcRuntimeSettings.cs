@@ -6,13 +6,18 @@ public class SAPRfcRuntimeSettings
 {
     public readonly IFieldMapper FieldMapper;
     public readonly ILogger Logger;
-    public readonly RfcRuntimeOptions TableOptions;
+    public readonly RfcRuntimeOptions Options = new();
 
-    public SAPRfcRuntimeSettings(ILogger logger, IFieldMapper fieldMapper, RfcRuntimeOptions tableOptions)
+    public SAPRfcRuntimeSettings(IFieldMapper fieldMapper)
+    {
+        FieldMapper = fieldMapper;
+    }
+
+    public SAPRfcRuntimeSettings(ILogger logger, IFieldMapper fieldMapper, RfcRuntimeOptions options)
     {
         FieldMapper = fieldMapper;
         Logger = logger;
-        TableOptions = tableOptions;
+        Options = options;
     }
 
     public SAPRfcDataIO RfcDataIO { get; set; }

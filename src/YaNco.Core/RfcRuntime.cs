@@ -24,7 +24,7 @@ public class RfcRuntime<RT> : IRfcRuntime
     where RT : struct, 
     HasSAPRfcServer<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, 
     HasSAPRfcLogger<RT>, HasSAPRfcData<RT>,
-    HasEnvRuntimeSettings
+    IHasEnvRuntimeSettings
 {
     private readonly RT _runtime;
 
@@ -33,7 +33,7 @@ public class RfcRuntime<RT> : IRfcRuntime
         _runtime = runtime;
     }
 
-    public RfcRuntimeOptions Options => _runtime.Env.Settings.TableOptions;
+    public RfcRuntimeOptions Options => _runtime.Env.Settings.Options;
     public IFieldMapper FieldMapper => _runtime.Env.Settings.FieldMapper;
     public Option<ILogger> Logger => _runtime.Env.Settings.Logger != null ? Prelude.Some(_runtime.Env.Settings.Logger) : Option<ILogger>.None;
 
