@@ -1,7 +1,6 @@
 ﻿using Dbosoft.YaNco.TypeMapping;
 using JetBrains.Annotations;
 using LanguageExt;
-using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco.Traits;
 

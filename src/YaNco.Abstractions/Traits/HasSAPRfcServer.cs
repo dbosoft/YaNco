@@ -1,8 +1,8 @@
 ﻿using LanguageExt;
-using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco.Traits;
 
+// ReSharper disable once InconsistentNaming
 public interface HasSAPRfcServer<RT>
     where RT : struct, HasSAPRfc<RT>
 {
