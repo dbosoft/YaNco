@@ -100,7 +100,7 @@ namespace YaNco.Core.Tests
             {
                 await rfcContext.GetConnection().IfLeft(l => l.Throw());
 
-                var actFieldMapper = await rfcContext.RunIO( () =>
+                var actFieldMapper = await rfcContext.RunIO( _ =>
                            from rt in Prelude.runtime<SAPRfcRuntime>()
                            select rt.Env.Settings.FieldMapper
                         )

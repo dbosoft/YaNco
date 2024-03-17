@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Dbosoft.YaNco.Traits;
 using Dbosoft.YaNco.TypeMapping;
 using JetBrains.Annotations;
@@ -12,11 +13,46 @@ namespace Dbosoft.YaNco;
 [PublicAPI]
 public static class SAPRfc<RT> where RT : struct, HasSAPRfc<RT>, HasCancel<RT>
 {
+    /// <summary>
+    /// Builds a SAP RFC connection from connection parameters.
+    /// </summary>
+    /// <param name="connectionParam">parameters of the connection</param>
+    /// <param name="configure">a action to configure the client</param>
+    /// <returns>The async effect <see cref="Aff{RT,IConnection}"/> to open the client connection.</returns>
+    public static Eff<RT, Aff<RT, IConnection>> buildClient(IDictionary<string, string> connectionParam,
+        Action<ConnectionBuilder<RT>> configure  = null)
+    {
+        return Prelude.Eff(() =>
+        {
+            var builder = new ConnectionBuilder<RT>(connectionParam);
+            configure?.Invoke(builder);
+            return builder.Build();
+
+        });
+
+    }
+
+    /// <summary>
+    /// This methods wraps a connection effect and runs the effect to be executed with the connection.
+    /// The connection is disposed after the function is executed.
+    /// </summary>
+    /// <typeparam name="TR"></typeparam>
+    /// <param name="connectionEffect"><see cref="Aff{RT,IConnection}"/> that opens the connection.</param>
+    /// <param name="mapFunc"></param>
+    /// <returns></returns>
     public static Aff<RT, TR> useConnection<TR>(Aff<RT, IConnection> connectionEffect, Func<IConnection, Aff<RT, TR>> mapFunc)
     {
         return Prelude.use(connectionEffect, mapFunc);
     }
 
+    /// <summary>
+    /// this methods creates a RFC context from a connection effect
+    /// and runs the effect that should be executed with the context.
+    /// </summary>
+    /// <typeparam name="TR"></typeparam>
+    /// <param name="connectionEffect"></param>
+    /// <param name="mapFunc"></param>
+    /// <returns></returns>
     public static Aff<RT, TR> useContext<TR>(Aff<RT, IConnection> connectionEffect, Func<RfcContext<RT>, Aff<RT, TR>> mapFunc)
     {
         return Prelude.use(Prelude.Eff(() => new RfcContext<RT>(connectionEffect)), mapFunc);
