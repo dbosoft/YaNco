@@ -67,8 +67,18 @@ var serverIO =
                 .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS", processInboundIDoc)))
                from _ in useServer(serverAff, rfcServer =>
 
-                       from uInfo in writeLine("MATMAS IDOC Server is ready")
-                       from uStop in writeLine("Press any key to stop the server")
+                       from uInfo in writeLine(
+                           $"""
+                           MATMAS IDOC Server is ready. 
+                           You can now send MATMAS IDocs to the server. 
+                           You should also see a registration in the SAP system with the program id {configuration["saprfc:program_id"]}.
+                           
+                           If not, check the RFC trace files in the current directory or 
+                           SAP transaction smgw to see if the connection is blocked by 
+                           gateway security settings (reginfo).
+                           
+                           >> Press any key to stop the server
+                           """)
                        from uStopped in readKey
                        from _ in stopServer(rfcServer)
                        select uInfo
