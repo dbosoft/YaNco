@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 // ReSharper disable InconsistentNaming
 
 namespace Dbosoft.YaNco;
 
 public static class SAPRfcServer<RT>
-    where RT : struct, HasSAPRfcServer<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, IHasEnvRuntimeSettings
+    where RT : struct, HasSAPRfcServer<RT>, HasSAPRfc<RT>, HasCancel<RT>
 {
     public static Eff<RT, RfcServerAttributes> getServerAttributes(IRfcHandle handle)
     {

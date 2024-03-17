@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using Dbosoft.YaNco.Live;
+using Dbosoft.YaNco.Traits;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
 using Moq;

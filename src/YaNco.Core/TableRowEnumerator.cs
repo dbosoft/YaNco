@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
 
 namespace Dbosoft.YaNco;

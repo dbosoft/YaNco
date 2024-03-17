@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
 using LanguageExt.Effects.Traits;
 
@@ -9,7 +10,7 @@ using LanguageExt.Effects.Traits;
 namespace Dbosoft.YaNco;
 
 public class RfcContext<RT> : IRfcContext<RT>
-    where RT : struct, HasSAPRfcData<RT>, HasCancel<RT>
+    where RT : struct, HasSAPRfc<RT>, HasCancel<RT>
 {
     private readonly Aff<RT, IConnection> _connectionEffect;
     private Option<IConnection> _openedConnection;

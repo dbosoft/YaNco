@@ -1,4 +1,5 @@
-﻿using Dbosoft.YaNco.TypeMapping;
+﻿using Dbosoft.YaNco.Traits;
+using Dbosoft.YaNco.TypeMapping;
 
 namespace Dbosoft.YaNco;
 

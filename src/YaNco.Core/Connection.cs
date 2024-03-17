@@ -5,7 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.Functional;
 using Dbosoft.YaNco.Live;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
@@ -13,7 +15,7 @@ namespace Dbosoft.YaNco;
 /// Default implementation of <see cref="IConnection"/>
 /// </summary>
 public class Connection<RT> : IConnection
-    where RT : struct,HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, IHasEnvRuntimeSettings
+    where RT : struct, HasSAPRfc<RT>, HasCancel<RT>
 {
     private readonly RT _runtime;
     private readonly IConnectionHandle _connectionHandle;

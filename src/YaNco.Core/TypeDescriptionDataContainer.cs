@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using Dbosoft.YaNco.Traits;
+using LanguageExt;
 
 namespace Dbosoft.YaNco;
 

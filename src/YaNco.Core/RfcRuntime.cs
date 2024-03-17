@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Dbosoft.YaNco.Live;
+using Dbosoft.YaNco.Traits;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 // ReSharper disable UnusedMember.Global
 
@@ -22,9 +24,7 @@ public class RfcRuntime : RfcRuntime<SAPRfcRuntime>
 [Obsolete(Deprecations.RfcRuntime)]
 public class RfcRuntime<RT> : IRfcRuntime
     where RT : struct, 
-    HasSAPRfcServer<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, 
-    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>,
-    IHasEnvRuntimeSettings
+    HasSAPRfcServer<RT>, HasSAPRfc<RT>, HasCancel<RT>
 {
     private readonly RT _runtime;
 

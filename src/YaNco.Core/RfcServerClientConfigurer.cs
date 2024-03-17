@@ -1,10 +1,12 @@
 ﻿using System;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
-public class RfcServerClientConfigurer<RT> where RT : struct, 
-    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcServer<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, IHasEnvRuntimeSettings
+public class RfcServerClientConfigurer<RT> where RT : struct,
+    HasSAPRfcServer<RT>, HasSAPRfc<RT>, HasCancel<RT>
 {
     private readonly ConnectionBuilder<RT> _builder;
 

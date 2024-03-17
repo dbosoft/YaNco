@@ -1,7 +1,7 @@
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.Traits;
 using ExportMATMAS.MaterialMaster;
 using LanguageExt;
-using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 // ReSharper disable InconsistentNaming
@@ -14,9 +14,8 @@ namespace ExportMATMAS;
 /// </summary>
 /// <typeparam name="RT"></typeparam>
 public static class SAPIDocServer<RT> where RT : 
-    struct, HasSAPRfcServer<RT>, HasSAPRfcFunctions<RT>, 
-    HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>,
-    HasMaterialManager<RT>, IHasEnvRuntimeSettings
+    struct, HasSAPRfcServer<RT>, HasSAPRfc<RT>,
+    HasMaterialManager<RT>
 {
     public static Aff<RT, Unit> processInboundIDoc(CalledFunction<RT> cf) => cf
         .Input(i =>

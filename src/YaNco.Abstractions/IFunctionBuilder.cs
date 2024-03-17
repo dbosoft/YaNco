@@ -1,11 +1,12 @@
-﻿using JetBrains.Annotations;
+﻿using Dbosoft.YaNco.Traits;
+using JetBrains.Annotations;
 using LanguageExt;
 
 namespace Dbosoft.YaNco;
 
 [PublicAPI]
 public interface IFunctionBuilder<RT>
-    where RT : struct, HasSAPRfcFunctions<RT>
+    where RT : struct, HasSAPRfc<RT>
 {
     IFunctionBuilder<RT> AddParameter(RfcParameterDescription parameter);
     IFunctionBuilder<RT> AddChar(string name, RfcDirection direction, uint length, bool optional = true, string defaultValue = null);

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dbosoft.Functional;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
 public class RfcServer<RT> : IRfcServer<RT>
-    where RT : struct, HasSAPRfcServer<RT>, HasSAPRfcLogger<RT>
+    where RT : struct, HasSAPRfcServer<RT>, HasSAPRfc<RT>, HasCancel<RT>
 
 {
     private readonly IAgent<AgentMessage, Either<RfcError, object>> _stateAgent;

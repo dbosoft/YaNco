@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using Dbosoft.YaNco;
 using Dbosoft.YaNco.Live;
+using Dbosoft.YaNco.Traits;
+using Dbosoft.YaNco.TypeMapping;
 using ExportMATMAS.MaterialMaster;
 using LanguageExt;
 using LanguageExt.Sys.Traits;
@@ -10,14 +12,9 @@ namespace ExportMATMAS;
 public readonly struct ConsoleRuntime :
     HasConsole<ConsoleRuntime>,
     HasFile<ConsoleRuntime>,
-    HasSAPRfcLogger<ConsoleRuntime>,
-    HasSAPRfcData<ConsoleRuntime>,
-    HasSAPRfcFunctions<ConsoleRuntime>,
-    HasSAPRfcConnection<ConsoleRuntime>,
+    HasSAPRfc<ConsoleRuntime>,
     HasSAPRfcServer<ConsoleRuntime>,
-    HasMaterialManager<ConsoleRuntime>,
-    IHasEnvRuntimeSettings
-
+    HasMaterialManager<ConsoleRuntime>
 {
 
     private readonly SAPRfcRuntimeEnv<SAPServerSettings> _env;
@@ -88,6 +85,9 @@ public readonly struct ConsoleRuntime :
 
     public Eff<ConsoleRuntime, SAPRfcFunctionIO> RfcFunctionsEff =>
         Prelude.Eff<ConsoleRuntime, SAPRfcFunctionIO>(rt => rt.FunctionIO);
+
+    public Eff<ConsoleRuntime, IFieldMapper> FieldMapperEff => 
+        Prelude.Eff<ConsoleRuntime, IFieldMapper>(rt => rt.Env.Settings.FieldMapper);
 
     public Eff<ConsoleRuntime, SAPRfcConnectionIO> RfcConnectionEff => Prelude.Eff<ConsoleRuntime, SAPRfcConnectionIO>(
         rt => rt.ConnectionIO);

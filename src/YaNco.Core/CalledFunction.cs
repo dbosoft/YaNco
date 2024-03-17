@@ -1,12 +1,14 @@
 ﻿using System;
+using Dbosoft.YaNco.Traits;
 using JetBrains.Annotations;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
 [PublicAPI]
 public readonly struct CalledFunction<RT> where RT : struct,
-    HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>
+    HasSAPRfc<RT>, HasCancel<RT>
 {
     public readonly IFunction Function;
     private readonly Func<IRfcContext<RT>> _rfcContextFunc;

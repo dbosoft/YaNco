@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
@@ -12,13 +14,7 @@ namespace Dbosoft.YaNco;
 /// <typeparam name="RT">Runtime type</typeparam>
 public class ConnectionBuilderBase<TBuilder, RT> : RfcBuilderBase<TBuilder, RT>
     where TBuilder: ConnectionBuilderBase<TBuilder, RT>
-    where RT : struct,
-    HasSAPRfcFunctions<RT>,
-    HasSAPRfcServer<RT>,
-    HasSAPRfcConnection<RT>,
-    HasSAPRfcLogger<RT>,
-    HasSAPRfcData<RT>,
-    IHasEnvRuntimeSettings
+    where RT : struct, HasSAPRfc<RT>, HasCancel<RT>
 {
     private readonly IDictionary<string, string> _connectionParam;
     private IFunctionRegistration _functionRegistration = FunctionRegistration.Instance;

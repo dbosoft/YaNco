@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading;
+using Dbosoft.YaNco.Traits;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco.Live;
 
@@ -10,13 +12,9 @@ namespace Dbosoft.YaNco.Live;
 /// </summary>
 public readonly struct SAPRfcRuntime
         
-    : HasSAPRfcLogger<SAPRfcRuntime>,
-        HasSAPRfcData<SAPRfcRuntime>,
-        HasSAPRfcFunctions<SAPRfcRuntime>,
-        HasSAPRfcConnection<SAPRfcRuntime>,
-        HasSAPRfcServer<SAPRfcRuntime>,
-        HasFieldMapper<SAPRfcRuntime>,
-        IHasEnvRuntimeSettings
+    : HasSAPRfc<SAPRfcRuntime>,
+      HasSAPRfcServer<SAPRfcRuntime>,
+      HasCancel<SAPRfcRuntime>
 
 {
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Dbosoft.YaNco.Traits;
 using Dbosoft.YaNco.TypeMapping;
 using JetBrains.Annotations;
 using LanguageExt;
@@ -9,7 +10,7 @@ namespace Dbosoft.YaNco;
 #pragma warning disable IDE1006
 
 [PublicAPI]
-public static class SAPRfc<RT> where RT : struct, HasCancel<RT>, HasSAPRfcData<RT>
+public static class SAPRfc<RT> where RT : struct, HasSAPRfc<RT>, HasCancel<RT>
 {
     public static Aff<RT, TR> useConnection<TR>(Aff<RT, IConnection> connectionEffect, Func<IConnection, Aff<RT, TR>> mapFunc)
     {

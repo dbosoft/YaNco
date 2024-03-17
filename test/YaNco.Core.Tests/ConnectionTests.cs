@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using Dbosoft.YaNco.Test;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
 using Moq;
 using Xunit;

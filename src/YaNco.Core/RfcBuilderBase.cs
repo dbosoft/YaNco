@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
@@ -10,9 +12,8 @@ namespace Dbosoft.YaNco;
 /// </summary>
 /// <typeparam name="TBuilder">The builder type for chaining</typeparam>
 /// <typeparam name="RT">Runtime type</typeparam>
-public abstract class RfcBuilderBase<TBuilder, RT> where RT : struct, 
-    HasSAPRfcFunctions<RT>, HasSAPRfcServer<RT>, 
-    HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>
+public abstract class RfcBuilderBase<TBuilder, RT> where RT : struct,
+    HasSAPRfc<RT>, HasCancel<RT>
     where TBuilder: RfcBuilderBase<TBuilder, RT>
 {
     protected TBuilder Self { get; set; }

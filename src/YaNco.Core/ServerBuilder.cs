@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using Dbosoft.YaNco.Live;
+using Dbosoft.YaNco.Traits;
 using JetBrains.Annotations;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
@@ -68,8 +70,7 @@ public class ServerBuilder : ServerBuilderBase<ServerBuilder, SAPRfcRuntime>
 /// </summary>
 /// <typeparam name="RT">The runtime to use</typeparam>
 public class ServerBuilder<RT> : ServerBuilderBase<ServerBuilder<RT>, RT>
-    where RT : struct, HasSAPRfcServer<RT>,
-    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, IHasEnvRuntimeSettings
+    where RT : struct, HasSAPRfcServer<RT>, HasSAPRfc<RT>, HasCancel<RT>
 {
     public ServerBuilder(IDictionary<string, string> serverParam) : base(serverParam)
     {

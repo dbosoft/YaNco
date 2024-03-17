@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dbosoft.YaNco.Traits;
 using JetBrains.Annotations;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
@@ -13,8 +15,7 @@ namespace Dbosoft.YaNco;
 /// <typeparam name="RT">Runtime type</typeparam>
 [PublicAPI]
 public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
-    where RT : struct, HasSAPRfcServer<RT>,
-    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, IHasEnvRuntimeSettings
+    where RT : struct, HasSAPRfcServer<RT>, HasSAPRfc<RT>, HasCancel<RT>
     where TBuilder: ServerBuilderBase<TBuilder, RT>
 
 {
