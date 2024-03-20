@@ -1,7 +1,10 @@
 using LanguageExt;
 // ReSharper disable StringLiteralTypo
 
-namespace ExportMATMAS;
+namespace ExportMATMAS.MaterialMaster;
+
+// for a known IDoc type you used fixed segment to type mapping
+// a more generic way would be looking up segment names from RFM IDOCTYPE_READ_COMPLETE
 
 public static class MatmasTypes
 {

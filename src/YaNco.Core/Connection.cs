@@ -4,7 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.Functional;
 using Dbosoft.YaNco.Live;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
@@ -12,7 +14,7 @@ namespace Dbosoft.YaNco;
 /// Default implementation of <see cref="IConnection"/>
 /// </summary>
 public class Connection<RT> : IConnection
-    where RT : struct,HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvRuntimeSettings
+    where RT : struct, HasSAPRfc<RT>, HasCancel<RT>
 {
     private readonly RT _runtime;
     private readonly IConnectionHandle _connectionHandle;
@@ -25,7 +27,7 @@ public class Connection<RT> : IConnection
     public IRfcRuntime RfcRuntime => new RfcRuntime(SAPRfcRuntime.New(
         _runtime.Env.Source, _runtime.Env.Settings));
 
-    public HasEnvRuntimeSettings ConnectionRuntime => _runtime;
+    public IHasEnvRuntimeSettings ConnectionRuntime => _runtime;
 
     public Connection(
         RT runtime,
@@ -120,6 +122,7 @@ public class Connection<RT> : IConnection
 
                 var res = effect.ToEither(runtime);
 
+                
                 if (res.IsBottom)
                     return (handle, RfcError.New($"connection message {msg.GetType()} returned a bottom state. " +
                                                  $"This typical occurs in Unit testing if not all required methods have been setup. Message details: {msg}"));

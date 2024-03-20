@@ -7,6 +7,7 @@
     <DockerfileContext>..\..\..</DockerfileContext>
     <IsPackable>false</IsPackable>
     <LangVersion>latest</LangVersion>
+    <NuGetAuditLevel>Critical</NuGetAuditLevel>
   </PropertyGroup>
 
   <ItemGroup>

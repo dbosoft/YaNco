@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dbosoft.YaNco.Traits;
 using JetBrains.Annotations;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
 /// <summary>
-/// This class is used to configure a SAP RFC server
+/// Base class for building a <see cref="IRfcServer{RT}"/>
 /// </summary>
+/// <typeparam name="TBuilder">The builder type for chaining</typeparam>
+/// <typeparam name="RT">Runtime type</typeparam>
 [PublicAPI]
 public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
-    where RT : struct, HasSAPRfcServer<RT>,
-    HasSAPRfcLogger<RT>, HasSAPRfcData<RT>, HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasEnvRuntimeSettings
+    where RT : struct, HasSAPRfcServer<RT>, HasSAPRfc<RT>, HasCancel<RT>
     where TBuilder: ServerBuilderBase<TBuilder, RT>
 
 {
@@ -30,7 +33,7 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     private ITransactionalRfcHandler<RT> _transactionalRfcHandler;
 
     /// <summary>
-    /// Creates a new <see cref="ServerBuilder"/> with the connection parameters supplied
+    /// Creates a new <see cref="ServerBuilder{RT}"/> with the connection parameters supplied
     /// </summary>
     /// <param name="serverParam"></param>
     /// <exception cref="ArgumentException"></exception>
@@ -47,10 +50,10 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     }
 
     /// <summary>
-    /// Use a alternative factory method to create the <see cref="IRfcServer"/>. 
+    /// Use a alternative factory method to create the <see cref="IRfcServer{RT}"/>. 
     /// </summary>
     /// <param name="factory">factory method</param>
-    /// <returns>current instance for chaining.</returns
+    /// <returns><typeparamref name="TBuilder"/> for chaining</returns>
     /// <remarks>The default implementation call <see cref="RfcServer{RT}.Create"/>.
     /// </remarks>
     public TBuilder UseFactory(Func<IDictionary<string, string>, RT, Eff<RT, IRfcServer<RT>>> factory)
@@ -60,11 +63,11 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     }
 
     /// <summary>
-    /// Configures the client connection of the <see cref="IRfcServer"/>
+    /// Configures the client connection of the <see cref="IRfcServer{RT}"/>
     /// </summary>
     /// <param name="connectionParams">connection parameters</param>
     /// <param name="configure">action to configure connection</param>
-    /// <returns>current instance for chaining.</returns>
+    /// <returns><typeparamref name="TBuilder"/> for chaining</returns>
     public TBuilder WithClientConnection(
         IDictionary<string, string> connectionParams, Action<RfcServerClientConfigurer<RT>> configure)
     {
@@ -74,16 +77,17 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     }
 
     /// <summary>
-    /// Adds a existing client connection factory as client connection of <see cref="IRfcServer"/>
+    /// Adds a existing client connection factory as client connection of <see cref="IRfcServer{RT}"/>
     /// </summary>
-    /// <param name="connectionFactory">function of connection factory</param>
+    /// <param name="connectionEffect">connection IO effect to use</param>
     /// <returns>current instance for chaining.</returns>
-    /// <remarks>This method signature should only be used in special cases.
-    /// The created function may have a different <see cref="IRfcRuntime"/> or other settings that
-    /// are not configured automatically on <see cref="IRfcServer"/>.
+    /// <remarks>This method signature should only be used carefully.
+    /// The created function may have a different runtime instance or other settings that
+    /// are not configured automatically on <see cref="IRfcServer{RT}"/>.
     /// Consider using the configured client connection with
-    /// <see cref="WithClientConnection(IDictionary{string,string},Action{Dbosoft.YaNco.RfcServerClientConfigurer})"/>
+    /// <see cref="WithClientConnection(IDictionary{string,string},Action{Dbosoft.YaNco.RfcServerClientConfigurer{RT}})"/>
     /// </remarks>
+    /// <returns><typeparamref name="TBuilder"/> for chaining</returns>
     public TBuilder WithClientConnection(
         Aff<RT, IConnection> connectionEffect)
     {
@@ -95,13 +99,20 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     /// Adds a transaction handler instance and enables transactional RFC for the server. 
     /// </summary>
     /// <param name="transactionalRfcHandler"></param>
-    /// <returns></returns>
+    /// <returns><typeparamref name="TBuilder"/> for chaining</returns>
     public TBuilder WithTransactionalRfc(ITransactionalRfcHandler<RT> transactionalRfcHandler)
     {
         _transactionalRfcHandler = transactionalRfcHandler;
         return  (TBuilder)this;
     }
 
+    /// <summary>
+    /// This methods builds the async effect to create the <see cref="IRfcServer{RT}"/>
+    /// </summary>
+    /// <remarks>
+    /// Multiple calls of this method will return the same effect. 
+    /// </remarks>
+    /// <returns><see cref="Aff{RT,A}"/> with the <see cref="IRfcServer{RT}"/></returns>
     public Aff<RT, IRfcServer<RT>> Build()
     {
         if (_buildServer != null)
@@ -116,8 +127,6 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
 
                 //take control of registration made by clients
                 clientBuilder.WithFunctionRegistration(_functionRegistration);
-                //take runtime of client
-                //clientBuilder.ConfigureRuntime(cfg => cfg.UseFactory((l, m, o) => runtime));
 
                 _configureServerClient(new RfcServerClientConfigurer<RT>(clientBuilder));
 
@@ -144,10 +153,10 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
                         return Prelude.SuccessEff(server);
 
                     return serverIO.AddTransactionHandlers(_systemId,
-                        (handle, tid) => _transactionalRfcHandler.OnCheck(rt, handle, tid),
-                        (handle, tid) => _transactionalRfcHandler.OnCommit(rt, handle, tid),
-                        (handle, tid) => _transactionalRfcHandler.OnRollback(rt, handle, tid),
-                        (handle, tid) => _transactionalRfcHandler.OnConfirm(rt, handle, tid)
+                        (handle, tid) => RunTHandler(rt,"CHECK", ()=> _transactionalRfcHandler.OnCheck(handle, tid)),
+                        (handle, tid) => RunTHandler(rt, "COMMIT", () => _transactionalRfcHandler.OnCommit(handle, tid)),
+                        (handle, tid) => RunTHandler(rt, "ROLLBACK", () => _transactionalRfcHandler.OnRollback(handle, tid)),
+                        (handle, tid) => RunTHandler(rt, "CONFIRM", () => _transactionalRfcHandler.OnConfirm(handle, tid))
                     ).Map(holder =>
                     {
                         server.AddReferences(new[] { holder });
@@ -163,10 +172,18 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
                     _buildServer = server;
                     return server;
                 })
-            select server;
-
+        select server;
     }
 
+    private static RfcRc RunTHandler(RT runtime, string name, Func<Eff<RT, RfcRc>> handler) => 
+        (from oLog in default(RT).RfcLoggerEff
+        from rc in handler().MapFail( e =>
+        {
+            oLog.IfSome(logger => logger.LogError($"tRFC handler {name} failed", e)); 
+            return e;
+        })
+        select rc)
+            .Run(runtime).IfFail(RfcRc.RFC_EXTERNAL_FAILURE);
 
     private Eff<RT,IRfcServer<RT>> RegisterFunctionHandlers(IRfcServer<RT> server)
     {

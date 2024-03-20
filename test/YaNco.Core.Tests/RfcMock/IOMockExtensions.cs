@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
 using Moq;
 

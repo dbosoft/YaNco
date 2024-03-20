@@ -85,6 +85,11 @@ internal class Program
             // call server function
             _ = await context.CallFunctionOneWay("ZYANCO_IT_3", f => f).ToEither();
 
+            // functional bridge test
+            _ = await context.RunIO( c=>
+                    from call in invokeFunction(c, "ZYANCO_IT_3")
+                    select call).IfLeft(l => l.Throw());
+
             await RunIntegrationTests(context);
         }
 
@@ -140,22 +145,25 @@ internal class Program
         result = await call.Run(SAPRfcRuntime.Default);
         Console.WriteLine("call_getUsername_with_context: " + result );
 
+        // test that performs field mapping of a ABAPValue
+        var withFieldMapping =
+            from client in buildClient(settings)
+            from fromContext in useContext(client, context =>
+                from attributes in context.GetConnection().Bind(c => c.GetAttributes().ToAff(l => l))
+                from structure in context.CallFunction("BAPI_USER_GET_DETAIL", f =>
+                        f.SetField("USERNAME", attributes.User),
+                    f => f.MapStructure("address", s => s.ToDictionary()))
+                from userName in getValue<string>(structure["FULLNAME"])
 
-        var withFieldMapping = useContext(connectionEffect, context =>
-            from attributes in context.GetConnection().Bind(c => c.GetAttributes().ToAff(l => l))
-            from structure in context.CallFunction("BAPI_USER_GET_DETAIL", f =>
-                    f.SetField("USERNAME", attributes.User),
-                f => f.MapStructure("address", s=>s.ToDictionary()))
-            from userName in getValue<string>(structure["FULLNAME"])
-                
-            select userName);
+                select userName)
+            select fromContext;
 
         result = await withFieldMapping.Run(SAPRfcRuntime.Default);
 
         Console.WriteLine("call_getFullName_with_abapValue: " + result);
         return;
 
-        RfcError Callback(string command)
+        static RfcError Callback(string command)
         {
             _callbackCommand = command;
 

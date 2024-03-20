@@ -20,16 +20,21 @@ public class CachingConverterResolver : IRfcConverterResolver
     public IEnumerable<IToAbapValueConverter<T>> GetToRfcConverters<T>(RfcType rfcType)
     {
         var sourceType = typeof(T);
-        var key = $"{rfcType}_{sourceType}";
+        var key = $"{rfcType}_{sourceType.AssemblyQualifiedName}";
 
-        if (!_toRfcConverters.ContainsKey(key))
+        if (!_toRfcConverters.TryGetValue(key, out var entry))
         {
             var converters = _decoratedResolver.GetToRfcConverters<T>(rfcType).ToArray();
-            _toRfcConverters.Add(key, converters.Length == 0 ? null : converters);
-
+            entry = converters.Length == 0 ? null : converters;
+            try
+            {
+                _toRfcConverters.Add(key, entry);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
-
-        var entry = _toRfcConverters[key];
 
         if (entry != null)
             return (IEnumerable<IToAbapValueConverter<T>>)entry;
@@ -41,15 +46,21 @@ public class CachingConverterResolver : IRfcConverterResolver
     public IEnumerable<IFromAbapValueConverter<T>> GetFromRfcConverters<T>(RfcType rfcType, Type abapValueType)
     {
         var targetType = typeof(T);
-        var key = $"{rfcType}_{targetType}";
+        var key = $"{rfcType}_{targetType.AssemblyQualifiedName}";
 
-        if (!_fromRfcConverters.ContainsKey(key))
+        if (!_fromRfcConverters.TryGetValue(key, out var entry))
         {
             var converters = _decoratedResolver.GetFromRfcConverters<T>(rfcType, abapValueType).ToArray();
-            _fromRfcConverters.Add(key, converters.Length == 0 ? null : converters);
+            entry = converters.Length == 0 ? null : converters;
+            try
+            {
+                _fromRfcConverters.Add(key, entry);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
-
-        var entry = _fromRfcConverters[key];
 
         if (entry != null)
             return (IEnumerable<IFromAbapValueConverter<T>>)entry;

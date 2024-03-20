@@ -57,9 +57,9 @@ public class FunctionRegistration : IFunctionRegistration
 
     public void Dispose()
     {
-        foreach (var registration in _registrations)
+        foreach (var (_, value) in _registrations)
         {
-            registration.Value.Holder.Dispose();
+            value.Holder.Dispose();
         }
         _registrations = HashMap<string, RegistrationRecord>.Empty;
     }

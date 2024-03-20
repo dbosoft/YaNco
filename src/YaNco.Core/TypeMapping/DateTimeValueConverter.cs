@@ -39,15 +39,12 @@ public class DateTimeValueConverter: IToAbapValueConverter<DateTime>, IFromAbapV
     private static bool IsSupportedRfcType(RfcType rfcType)
     {
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-        switch (rfcType)
+        return rfcType switch
         {
-            case RfcType.DATE:
-            case RfcType.TIME:
-                return true;
-            default:
-                return false;
-        }
-
+            RfcType.DATE => true,
+            RfcType.TIME => true,
+            _ => false
+        };
     }
 
     public Try<DateTime> ConvertTo(AbapValue abapValue)

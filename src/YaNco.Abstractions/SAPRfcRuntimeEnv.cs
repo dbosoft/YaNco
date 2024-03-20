@@ -21,4 +21,10 @@ public class SAPRfcRuntimeEnv<TSettings>
     {
     }
 
+    /// <summary>
+    ///  converts the settings to base runtime settings
+    /// </summary>
+    public SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> ToRuntimeSettings() =>
+        new(Source, Settings);
+
 }

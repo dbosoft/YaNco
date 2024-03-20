@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Threading;
+using Dbosoft.YaNco.Traits;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco.Test;
 
 public readonly struct TestSAPRfcRuntime
         
-    : HasSAPRfcLogger<TestSAPRfcRuntime>,
-        HasSAPRfcData<TestSAPRfcRuntime>,
-        HasSAPRfcFunctions<TestSAPRfcRuntime>,
-        HasSAPRfcConnection<TestSAPRfcRuntime>,
-        HasSAPRfcServer<TestSAPRfcRuntime>,
-        HasFieldMapper<TestSAPRfcRuntime>,
-        HasEnvRuntimeSettings
+    : HasSAPRfcServer<TestSAPRfcRuntime>, 
+        HasSAPRfc<TestSAPRfcRuntime>, 
+        HasCancel<TestSAPRfcRuntime>
 {
     private readonly SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> _env;
     /// <summary>

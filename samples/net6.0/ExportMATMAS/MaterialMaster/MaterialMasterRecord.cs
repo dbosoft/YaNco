@@ -1,3 +1,3 @@
-namespace ExportMATMAS;
+namespace ExportMATMAS.MaterialMaster;
 
 public record MaterialMasterRecord(string MaterialNo, ClientData ClientData, DescriptionData[] Descriptions, PlantData[] PlantData);

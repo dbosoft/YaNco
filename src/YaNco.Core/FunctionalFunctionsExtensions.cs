@@ -171,10 +171,10 @@ public static class FunctionalFunctionsExtensions
     /// CallFunction with input and output and <see cref="RfcErrorInfo"/> lifted input and output functions.
     /// </summary>
     /// <remarks>
-    /// The input parameter of this method is a function that maps from a <see cref="Either{RfcErrorInfo,IFunction}"/>
+    /// The input parameter of this method is a function that maps from a <see cref="Either{RfcError,IFunction}"/>
     /// to any kind of type. The input type <typeparam name="TRInput"></typeparam> itself is not used any more
     /// after calling the input mapping.
-    /// The output parameter of this method is also a function that maps from a <see cref="Either{RfcErrorInfo,IFunction}"/>
+    /// The output parameter of this method is also a function that maps from a <see cref="Either{RfcError,IFunction}"/>
     /// to any kind of type. The output type <typeparam name="TResult"></typeparam> is returned after processing the ABAP function.
     ///
     /// You should use the methods defined on <seealso cref="FunctionalDataContainerExtensions"/> within the mapping functions to map from .NET
@@ -210,7 +210,7 @@ public static class FunctionalFunctionsExtensions
     /// CallFunction with RfcError lifted output.
     /// </summary>
     /// <remarks>
-    /// The output parameter of this method is a function that maps from a <see cref="Either{RfcErrorInfo,IFunction}"/>
+    /// The output parameter of this method is a function that maps from a <see cref="Either{RfcError,IFunction}"/>
     /// to any kind of type. The output type <typeparam name="TResult"></typeparam> is returned after processing the ABAP function.
     ///
     /// You should use the methods defined on <seealso cref="FunctionalDataContainerExtensions"/> within the output mapping function to map
@@ -258,7 +258,7 @@ public static class FunctionalFunctionsExtensions
     /// CallFunction with RfcInfo lifted input and no output.
     /// </summary>
     /// <remarks>
-    /// The input parameter of this method is a function that maps from a <see cref="Either{RfcErrorInfo,IFunction}"/>
+    /// The input parameter of this method is a function that maps from a <see cref="Either{RfcError,IFunction}"/>
     /// to any kind of type. The input type <typeparam name="TRInput"></typeparam> itself is not used any more
     /// after calling the input mapping.
     /// You should use the methods defined on <seealso cref="FunctionalDataContainerExtensions"/> within the input mapping functions to map from .NET

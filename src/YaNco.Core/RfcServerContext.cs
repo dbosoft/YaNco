@@ -1,10 +1,12 @@
 ﻿using System;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
 using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
-internal class RfcServerContext<RT> : IRfcContext<RT> where RT : struct, HasSAPRfcData<RT>, HasCancel<RT>
+internal class RfcServerContext<RT> : IRfcContext<RT> where RT : struct, 
+    HasSAPRfc<RT>, HasCancel<RT>
 {
     private readonly IRfcServer<RT> _rfcServer;
     private IRfcContext<RT> _currentContext;

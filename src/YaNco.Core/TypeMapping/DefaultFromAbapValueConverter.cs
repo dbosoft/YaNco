@@ -14,25 +14,23 @@ public class DefaultFromAbapValueConverter<T> : IFromAbapValueConverter<T>
     public bool CanConvertTo(RfcType rfcType)
     {
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-        switch (rfcType)
+        return rfcType switch
         {
-            case RfcType.CHAR:
-            case RfcType.DATE:
-            case RfcType.BCD:
-            case RfcType.TIME:
-            case RfcType.BYTE:
-            case RfcType.NUM:
-            case RfcType.FLOAT:
-            case RfcType.INT:
-            case RfcType.INT2:
-            case RfcType.INT1:
-            case RfcType.DECF16:
-            case RfcType.DECF34:
-            case RfcType.STRING:
-            case RfcType.INT8:
-                return true;
-            default:
-                return false;
-        }
+            RfcType.CHAR => true,
+            RfcType.DATE => true,
+            RfcType.BCD => true,
+            RfcType.TIME => true,
+            RfcType.BYTE => true,
+            RfcType.NUM => true,
+            RfcType.FLOAT => true,
+            RfcType.INT => true,
+            RfcType.INT2 => true,
+            RfcType.INT1 => true,
+            RfcType.DECF16 => true,
+            RfcType.DECF34 => true,
+            RfcType.STRING => true,
+            RfcType.INT8 => true,
+            _ => false
+        };
     }
 }

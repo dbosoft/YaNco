@@ -1,12 +1,14 @@
 ﻿using System;
+using Dbosoft.YaNco.Traits;
 using JetBrains.Annotations;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
 [PublicAPI]
 public readonly struct CalledFunction<RT> where RT : struct,
-    HasSAPRfcFunctions<RT>, HasSAPRfcConnection<RT>, HasSAPRfcLogger<RT>, HasSAPRfcData<RT>
+    HasSAPRfc<RT>, HasCancel<RT>
 {
     public readonly IFunction Function;
     private readonly Func<IRfcContext<RT>> _rfcContextFunc;
@@ -24,7 +26,7 @@ public readonly struct CalledFunction<RT> where RT : struct,
     /// </summary>
     /// <typeparam name="TInput">Type of data extracted from function. Could be any type.</typeparam>
     /// <param name="inputFunc">Function to map from RFC function to the desired input type</param>
-    /// <returns><see cref="FunctionInput{TInput}"/> wrapped in a <see cref="Either{L,R}"/> </returns>
+    /// <returns><see cref="FunctionInput{RT,TInput}"/> wrapped in a <see cref="Either{L,R}"/> </returns>
     public Either<RfcError, FunctionInput<RT,TInput>> Input<TInput>(Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> inputFunc)
     {
         var function = Function;

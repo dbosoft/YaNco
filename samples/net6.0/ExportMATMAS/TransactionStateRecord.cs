@@ -12,3 +12,5 @@ public class TransactionStateRecord<TData>
     }
 
 }
+
+// ReSharper restore InconsistentNaming

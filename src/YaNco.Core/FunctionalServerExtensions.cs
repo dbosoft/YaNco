@@ -16,6 +16,7 @@ public static class FunctionalServerExtensions
     /// </summary>
     /// <typeparam name="TOutput">Type of data returned from processing. Could be any type.</typeparam>
     /// <typeparam name="TInput">Type of data returned from rfc input. Could be any type.</typeparam>
+    /// <typeparam name="RT">the runtime for the call</typeparam>
     /// <param name="input">input from previous chain step.</param>
     /// <param name="processFunc">Function to map from <typeparamref name="TInput"></typeparamref> to <typeparam name="TOutput"></typeparam>"/></param>
     /// <returns><see cref="FunctionProcessed{TOutput}"/></returns>
@@ -31,6 +32,7 @@ public static class FunctionalServerExtensions
     /// </summary>
     /// <typeparam name="TOutput">Type of data returned from processing. Could be any type.</typeparam>
     /// <typeparam name="TInput">Type of data returned from rfc input. Could be any type.</typeparam>
+    /// <typeparam name="RT">the runtime</typeparam>
     /// <param name="processFunc">Function to map from <typeparamref name="TInput"></typeparamref> to <typeparam name="TOutput"></typeparam>"/></param>
     /// <param name="input">input from previous chain step.</param>
     /// <returns><see cref="FunctionProcessed{TOutput}"/></returns>
@@ -47,9 +49,10 @@ public static class FunctionalServerExtensions
     /// </summary>
     /// <typeparam name="TOutput">Type of data returned from processing. Could be any type.</typeparam>
     /// <typeparam name="TInput">Type of data returned from rfc input. Could be any type.</typeparam>
+    /// <typeparam name="RT">the runtime</typeparam>
     /// <param name="processFunc">Function to map from <typeparamref name="TInput"></typeparamref> to <typeparam name="TOutput"></typeparam>"/></param>
     /// <param name="input">input from previous chain step.</param>
-    /// <returns><see cref="FunctionProcessed{TOutput}"/></returns>
+    /// <returns><see cref="FunctionProcessed{TOutput}"/>in a <see cref="Aff{RT,A}"/></returns>
     public static Aff<RT, FunctionProcessed<TOutput>> ProcessAsync<RT, TInput, TOutput>(
         this Either<RfcError, FunctionInput<RT, TInput>> input,
         Func<TInput, ValueTask<TOutput>> processFunc) where RT : struct, HasCancel<RT>
@@ -62,9 +65,10 @@ public static class FunctionalServerExtensions
     /// Data processing for a called function. Use this method to do any work you would like to do when the function is called.
     /// </summary>
     /// <typeparam name="TInput">Type of data returned from rfc input. Could be any type.</typeparam>
+    /// <typeparam name="RT">the runtime</typeparam>
     /// <param name="input">input from previous chain step.</param>
     /// <param name="processAction">Action to process <typeparamref name="TInput"></typeparamref>.</param>
-    /// <returns><see cref="FunctionProcessed{Unit}"/>"/></returns>
+    /// <returns><see cref="FunctionProcessed{Unit}"/>"/> in a <see cref="Eff{RT,A}"/></returns>
     public static Eff<RT, FunctionProcessed<Unit>> Process<RT,TInput>(
         this Either<RfcError, FunctionInput<RT,TInput>> input,
         Action<TInput> processAction) where RT : struct, HasCancel<RT>
@@ -77,14 +81,23 @@ public static class FunctionalServerExtensions
         }).ToEff(l=>l);
     }
 
+    /// <summary>
+    /// Data processing for a called function. Use this method to do any work you would like to do when the function is called.
+    /// </summary>
+    /// <typeparam name="TInput">Type of data returned from rfc input. Could be any type.</typeparam>
+    /// <typeparam name="RT">the runtime</typeparam>
+    /// <param name="input">input from previous chain step.</param>
+    /// <param name="processFunc">Function to process <typeparamref name="TInput"></typeparamref> that returns a <see cref="ValueTask"/>.</param>
+    /// <returns><see cref="FunctionProcessed{Unit}"/>"/> in a <see cref="Eff{RT,A}"/></returns>
+
     public static Aff<RT, FunctionProcessed<Unit>> ProcessAsync<RT, TInput>(
         this Either<RfcError, FunctionInput<RT, TInput>> input,
-        Func<TInput,ValueTask> processAction) where RT : struct, HasCancel<RT>
+        Func<TInput,ValueTask> processFunc) where RT : struct, HasCancel<RT>
     {
         return input.ToEff(l => l).Bind(i => Prelude.Aff(async () =>
         {
             var (function, input1) = i;
-            await processAction(input1).ConfigureAwait(false);
+            await processFunc(input1).ConfigureAwait(false);
             return new FunctionProcessed<Unit>(Unit.Default, function);
         }));
     }
@@ -93,6 +106,7 @@ public static class FunctionalServerExtensions
     /// Use this method to send a response to sap backend after processing the function call.
     /// </summary>
     /// <typeparam name="TOutput">type of Output of processing chain step.</typeparam>
+    /// <typeparam name="RT">runtime used</typeparam>
     /// <param name="self">previous chain step</param>
     /// <param name="replyFunc">Function to map from <typeparam name="TOutput"/> to rfc function.</param>
     /// <returns></returns>
@@ -106,6 +120,7 @@ public static class FunctionalServerExtensions
     /// Use this method to send a response to sap backend after processing the function call.
     /// </summary>
     /// <typeparam name="TOutput">type of Output of processing chain step.</typeparam>
+    /// <typeparam name="RT">runtime used</typeparam>
     /// <param name="self">previous chain step</param>
     /// <param name="replyFunc">Function to map from <typeparam name="TOutput"/> to rfc function.</param>
     /// <returns><see cref="Unit"/> wrapped in a <see cref="EitherAsync{RfcError,Unit}"/></returns>
@@ -119,6 +134,7 @@ public static class FunctionalServerExtensions
     /// Use this method to end the function call chain without sending a response back to SAP backend.
     /// </summary>
     /// <typeparam name="TOutput">type of Output of processing chain step.</typeparam>
+    /// <typeparam name="RT">runtime used</typeparam>
     /// <param name="self">previous chain step</param>
     /// <returns><see cref="Unit"/> wrapped in a <see cref="EitherAsync{RfcError,Unit}"/></returns>
     public static Eff<RT, Unit> NoReply<RT,TOutput>(this Eff<RT, FunctionProcessed<TOutput>> self) where RT : struct
@@ -130,6 +146,7 @@ public static class FunctionalServerExtensions
     /// Use this method to end the function call chain without sending a response back to SAP backend.
     /// </summary>
     /// <typeparam name="TOutput">type of Output of processing chain step.</typeparam>
+    /// <typeparam name="RT">runtime used</typeparam>
     /// <param name="self">previous chain step</param>
     /// <returns><see cref="Unit"/> wrapped in a <see cref="EitherAsync{RfcError,Unit}"/></returns>
     public static Aff<RT, Unit> NoReply<RT,TOutput>(this Aff<RT, FunctionProcessed<TOutput>> self) where RT : struct, HasCancel<RT>
@@ -153,7 +170,7 @@ public static class FunctionalServerExtensions
     /// </summary>
     /// <param name="eitherServer">RFC Server, wrapping in a <see cref="EitherAsync{RfcError,IRfcServer}"/></param>
     /// <returns>Started RFC Server if Either is not left. Otherwise a exception will be thrown.</returns>
-    /// <remarks>Use this method to integrate the <see cref="IRfcServer"/> with services that expect exceptions on failure.</remarks>
+    /// <remarks>Use this method to integrate the <see cref="IRfcServer{RT}"/> with services that expect exceptions on failure.</remarks>
     /// <exception cref="RfcErrorException"></exception>
     public static async Task<IRfcServer<RT>> StartOrException<RT>(this EitherAsync<RfcError, IRfcServer<RT>> eitherServer) 
         where RT : struct, HasCancel<RT>

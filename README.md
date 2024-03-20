@@ -425,11 +425,11 @@ var serverBuilder = new ServerBuilder(serverSettings)
  .WithTransactionalRfc(new MyTransactionRfcHandler())
 
  // MyTransactionRfcHandler has to implement interface 
- // ITransactionalRfcHandler
+ // ITransactionalRfcHandler<RT>
 
-public interface ITransactionalRfcHandler
+public interface ITransactionalRfcHandler<RT>
 {
-    RfcRc OnCheck(IRfcRuntime rfcRuntime, 
+    Eff<RT,RfcRc> OnCheck( 
             IRfcHandle rfcHandle, string transactionId);
     
     ...

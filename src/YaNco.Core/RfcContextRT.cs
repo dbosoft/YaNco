@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
 using LanguageExt.Effects.Traits;
 
@@ -9,7 +10,7 @@ using LanguageExt.Effects.Traits;
 namespace Dbosoft.YaNco;
 
 public class RfcContext<RT> : IRfcContext<RT>
-    where RT : struct, HasSAPRfcData<RT>, HasCancel<RT>
+    where RT : struct, HasSAPRfc<RT>, HasCancel<RT>
 {
     private readonly Aff<RT, IConnection> _connectionEffect;
     private Option<IConnection> _openedConnection;
@@ -51,18 +52,19 @@ public class RfcContext<RT> : IRfcContext<RT>
         from res in  SAPRfc<RT>.invokeFunction(connection, function)
         select res;
 
-
+    /// <inheritdoc />
     public Aff<RT, Unit> Ping() =>
         from connection in GetConnection()
         from res in SAPRfc<RT>.ping(connection)
         select res;
 
-
+    /// <inheritdoc />
     public Aff<RT, IFunction> CreateFunction(string name) =>
         from connection in GetConnection()
         from res in  SAPRfc<RT>.createFunction(connection,name)
         select res;
 
+    /// <inheritdoc />
     public Aff<RT, TResult> CallFunction<TInput, TResult>(
         string functionName,
         Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> Input,
@@ -71,7 +73,7 @@ public class RfcContext<RT> : IRfcContext<RT>
         from res in SAPRfc<RT>.callFunction(connection, functionName, Input, Output)
         select res;
 
-
+    /// <inheritdoc />
     public Aff<RT, TResult> CallFunction<TResult>(
         string functionName,
         Func<Either<RfcError, IFunction>, Either<RfcError, TResult>> Output) =>
@@ -79,14 +81,14 @@ public class RfcContext<RT> : IRfcContext<RT>
         from res in SAPRfc<RT>.callFunction(connection, functionName, Output)
         select res;
 
-
+    /// <inheritdoc />
     public Aff<RT, Unit> InvokeFunction(
         string functionName) =>
         from connection in GetConnection() 
         from res in SAPRfc<RT>.invokeFunction(connection, functionName)
         select res;
 
-
+    /// <inheritdoc />
     public Aff<RT, Unit> InvokeFunction<TInput>(
         string functionName,
         Func<Either<RfcError, IFunction>, Either<RfcError, TInput>> Input) =>
@@ -94,19 +96,19 @@ public class RfcContext<RT> : IRfcContext<RT>
         from res in SAPRfc<RT>.invokeFunction(connection, functionName, Input)
         select res;
 
-
+    /// <inheritdoc />
     public Aff<RT, Unit> Commit() =>
         from connection in GetConnection()
         from res in SAPRfc<RT>.commit(connection)
         select res;
 
-
+    /// <inheritdoc />
     public Aff<RT, Unit> CommitAndWait() =>
         from connection in GetConnection() 
         from res in SAPRfc<RT>.commitAndWait(connection) 
         select res;
 
-
+    /// <inheritdoc />
     public Aff<RT, Unit> Rollback() =>
         from connection in GetConnection() 
         from res in SAPRfc<RT>.rollback(connection) 
@@ -122,6 +124,7 @@ public class RfcContext<RT> : IRfcContext<RT>
         _openedConnection = Option<IConnection>.None;
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         Dispose(true);

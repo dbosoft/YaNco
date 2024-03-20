@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dbosoft.YaNco.Internal;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
 
 namespace Dbosoft.YaNco;
 
 public class FunctionBuilder<RT> : IFunctionBuilder<RT>
-    where RT : struct, HasSAPRfcFunctions<RT>
+    where RT : struct, HasSAPRfc<RT>
 
 {
     private readonly string _functionName;

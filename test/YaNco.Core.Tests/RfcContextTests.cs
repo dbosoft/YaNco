@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
 using Dbosoft.YaNco.Live;
+using Dbosoft.YaNco.Traits;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
 using Moq;
@@ -99,7 +100,7 @@ namespace YaNco.Core.Tests
             {
                 await rfcContext.GetConnection().IfLeft(l => l.Throw());
 
-                var actFieldMapper = await rfcContext.RunIO( () =>
+                var actFieldMapper = await rfcContext.RunIO( _ =>
                            from rt in Prelude.runtime<SAPRfcRuntime>()
                            select rt.Env.Settings.FieldMapper
                         )

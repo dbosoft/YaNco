@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dbosoft.YaNco.Traits;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco;
 
 /// <summary>
-/// This class is used to build client connections to a SAP ABAP backend.  
+/// This class is used to build client connections to a SAP ABAP backend. 
 /// </summary>
+/// <typeparam name="TBuilder">The builder type for chaining</typeparam>
+/// <typeparam name="RT">Runtime type</typeparam>
 public class ConnectionBuilderBase<TBuilder, RT> : RfcBuilderBase<TBuilder, RT>
     where TBuilder: ConnectionBuilderBase<TBuilder, RT>
-    where RT : struct,
-    HasSAPRfcFunctions<RT>,
-    HasSAPRfcServer<RT>,
-    HasSAPRfcConnection<RT>,
-    HasSAPRfcLogger<RT>,
-    HasSAPRfcData<RT>,
-    HasEnvRuntimeSettings
+    where RT : struct, HasSAPRfc<RT>, HasCancel<RT>
 {
     private readonly IDictionary<string, string> _connectionParam;
     private IFunctionRegistration _functionRegistration = FunctionRegistration.Instance;
@@ -39,8 +37,8 @@ public class ConnectionBuilderBase<TBuilder, RT> : RfcBuilderBase<TBuilder, RT>
     /// Use a alternative factory method to create connection. 
     /// </summary>
     /// <param name="factory">factory method</param>
-    /// <returns>current instance for chaining.</returns
-    /// <remarks>The default implementation call <see cref="Connection.Create"/>.
+    /// <returns>current instance of <typeparamref name="TBuilder"/> for chaining.</returns>
+    /// <remarks>The default implementation call <see cref="Connection{RT}.Create"/>.
     /// </remarks>
     public TBuilder UseFactory(
         Func<IDictionary<string, string>, RT, Eff<RT, IConnection>> factory)
@@ -71,7 +69,7 @@ public class ConnectionBuilderBase<TBuilder, RT> : RfcBuilderBase<TBuilder, RT>
     /// <remarks>
     /// The metadata of the function is retrieved from the backend. Therefore the function
     /// must exists on the SAP backend system.
-    /// To register a generic function use the signature that builds from a <see cref="IFunctionBuilder"/>.
+    /// To register a generic function use the signature that builds from a <see cref="IFunctionBuilder{RT}"/>.
     /// Function handlers are registered process wide (in the SAP NW RFC Library) and mapped to backend system id. 
     /// Multiple registrations of same function and same backend id will therefore have no effect.
     /// </remarks>
@@ -84,12 +82,11 @@ public class ConnectionBuilderBase<TBuilder, RT> : RfcBuilderBase<TBuilder, RT>
 
 
     /// <summary>
-    /// This method Builds the connection function from the <see cref="ConnectionBuilder"/> settings.
+    /// This method Builds the connection IO effect from the <see cref="ConnectionBuilder"/> settings.
     /// </summary>
-    /// <returns><see cref="Func{EitherAsync{RfcError,IConnection}}"/>.</returns>
+    /// <returns><see cref="Aff{RT,A}"/> with <see cref="IConnection"/></returns>
     /// <remarks>
-    /// The connection builder first creates RfcRuntime and calls any registered runtime configure action.
-    /// The result is a function that first opens a connection and afterwards registers function handlers.
+    /// The result is a effect that first opens a connection and afterwards registers function handlers.
     /// </remarks>
     public Aff<RT, IConnection> Build()
     {

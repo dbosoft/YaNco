@@ -1,26 +1,32 @@
 ﻿using System;
 using System.Threading;
+using Dbosoft.YaNco.Traits;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
+using LanguageExt.Effects.Traits;
 
 namespace Dbosoft.YaNco.Live;
 
+/// <summary>
+/// This is the default runtime that uses the live IO implementations for SAP RFC
+/// </summary>
 public readonly struct SAPRfcRuntime
         
-    : HasSAPRfcLogger<SAPRfcRuntime>,
-        HasSAPRfcData<SAPRfcRuntime>,
-        HasSAPRfcFunctions<SAPRfcRuntime>,
-        HasSAPRfcConnection<SAPRfcRuntime>,
-        HasSAPRfcServer<SAPRfcRuntime>,
-        HasFieldMapper<SAPRfcRuntime>,
-        HasEnvRuntimeSettings
+    : HasSAPRfc<SAPRfcRuntime>,
+      HasSAPRfcServer<SAPRfcRuntime>,
+      HasCancel<SAPRfcRuntime>
 
 {
+
+    /// <summary>
+    /// Static default runtime that can be used to create a runtime with default settings
+    /// </summary>
     public static SAPRfcRuntime Default => New(
         new CancellationTokenSource(),
         new SAPRfcRuntimeSettings(null, RfcMappingConfigurer.CreateDefaultFieldMapper(), new RfcRuntimeOptions()));
 
     private readonly SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> _env;
+
     /// <summary>
     /// Constructor
     /// </summary>
@@ -39,8 +45,14 @@ public readonly struct SAPRfcRuntime
     /// </summary>
     public static SAPRfcRuntime New(CancellationTokenSource cancellationTokenSource, SAPRfcRuntimeSettings settings) =>
             new(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(cancellationTokenSource, settings));    
+    
+    
+    /// <summary>
+    /// Creates a new runtime by using the default settings for the environment
+    /// </summary>
     public static SAPRfcRuntime New() => new(new SAPRfcRuntimeEnv<SAPRfcRuntimeSettings>(
-        new CancellationTokenSource(), Default.Env.Settings
+        new CancellationTokenSource(), new SAPRfcRuntimeSettings(Default.Env.Settings.Logger, 
+            Default.Env.Settings.FieldMapper, Default.Env.Settings.Options)
         ));
 
 
@@ -65,9 +77,10 @@ public readonly struct SAPRfcRuntime
     public CancellationTokenSource CancellationTokenSource =>
         Env.Source;
 
+    
     public Option<ILogger> Logger => Env.Settings.Logger == null? Option<ILogger>.None : Prelude.Some(Env.Settings.Logger);
 
-    private SAPRfcDataIO DataIO => Env.Settings.RfcDataIO ?? new LiveSAPRfcDataIO(Logger, Env.Settings.FieldMapper, Env.Settings.TableOptions);
+    private SAPRfcDataIO DataIO => Env.Settings.RfcDataIO ?? new LiveSAPRfcDataIO(Logger, Env.Settings.FieldMapper, Env.Settings.Options);
     private SAPRfcFunctionIO FunctionIO => Env.Settings.RfcFunctionIO ?? new LiveSAPRfcFunctionIO(Logger, DataIO);
     private SAPRfcConnectionIO ConnectionIO => Env.Settings.RfcConnectionIO ?? new LiveSAPRfcConnectionIO(Logger);
     private SAPRfcServerIO ServerIO => Env.Settings.RfcServerIO ?? new LiveSAPRfcServerIO(Logger);
@@ -86,7 +99,6 @@ public readonly struct SAPRfcRuntime
 
     public Eff<SAPRfcRuntime, SAPRfcServerIO> RfcServerEff => Prelude.Eff<SAPRfcRuntime, SAPRfcServerIO>(
         rt => rt.ServerIO);
-
 
     public Eff<SAPRfcRuntime, IFieldMapper> FieldMapperEff => Prelude.Eff < SAPRfcRuntime, IFieldMapper>(
                rt => rt.Env.Settings.FieldMapper);

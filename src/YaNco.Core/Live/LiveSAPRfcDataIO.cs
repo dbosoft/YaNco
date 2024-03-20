@@ -1,10 +1,14 @@
 ﻿using Dbosoft.YaNco.Internal;
+using Dbosoft.YaNco.Traits;
 using Dbosoft.YaNco.TypeMapping;
 using LanguageExt;
 using System;
 
 namespace Dbosoft.YaNco.Live;
 
+/// <summary>
+/// This is the implementation of the SAPRfcDataIO interface for live connections.
+/// </summary>
 public readonly struct LiveSAPRfcDataIO : SAPRfcDataIO
 {
     public Option<ILogger> Logger { get; }
