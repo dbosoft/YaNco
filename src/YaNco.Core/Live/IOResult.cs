@@ -49,4 +49,19 @@ public static class IOResult
         logger.IfSome(l => l.LogTrace("received result value from rfc call", result));
         return result;
     }
+
+    public static Either<RfcError, TResult> ResultOrError<TResult>(
+        Option<ILogger> logger,
+        TResult result, RfcRc rc)
+    {
+        if (rc != RfcRc.RFC_OK)
+        {
+            logger.IfSome(l => l.LogDebug("received error from rfc call", 
+                rc));
+            return RfcError.Error(rc);
+        }
+
+        logger.IfSome(l => l.LogTrace("received result value from rfc call", result));
+        return result;
+    }
 }

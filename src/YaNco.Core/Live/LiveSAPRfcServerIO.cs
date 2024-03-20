@@ -6,7 +6,6 @@ using LanguageExt;
 
 namespace Dbosoft.YaNco.Live;
 
-
 public readonly struct LiveSAPRfcServerIO : SAPRfcServerIO
 {
     private readonly Option<ILogger> _logger;

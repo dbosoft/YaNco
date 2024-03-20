@@ -123,6 +123,18 @@ internal class Program
 
         // functional style Tests:
 
+        // library tests
+        var libVersion = SAPRfcRuntime.Default.RfcLibraryEff.Bind(io =>
+            {
+                return (
+                    from _ in io.SetTraceDirectory(AppDomain.CurrentDomain.BaseDirectory)
+                    from version in io.GetVersion()
+                    select version).ToEff(l => l);
+            })
+            .Run(SAPRfcRuntime.Default);
+
+        Console.WriteLine("Library Version: " + libVersion);
+
         var connectionEffect = new ConnectionBuilder(settings)
             .ConfigureRuntime(c=>c.WithLogger(new SimpleConsoleLogger()))
             .BuildIO();
