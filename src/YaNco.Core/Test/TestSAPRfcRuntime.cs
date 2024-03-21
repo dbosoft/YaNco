@@ -11,6 +11,7 @@ public readonly struct TestSAPRfcRuntime
         
     : HasSAPRfcServer<TestSAPRfcRuntime>, 
         HasSAPRfc<TestSAPRfcRuntime>, 
+        HasSAPRfcLibrary<TestSAPRfcRuntime>,
         HasCancel<TestSAPRfcRuntime>
 {
     private readonly SAPRfcRuntimeEnv<SAPRfcRuntimeSettings> _env;
@@ -84,4 +85,7 @@ public readonly struct TestSAPRfcRuntime
 
     public Eff<TestSAPRfcRuntime, IFieldMapper> FieldMapperEff => Prelude.Eff<TestSAPRfcRuntime, IFieldMapper>(
                rt => rt.Env.Settings.FieldMapper);
+
+    public Eff<TestSAPRfcRuntime, SAPRfcLibraryIO> RfcLibraryEff => Prelude.Eff<TestSAPRfcRuntime, SAPRfcLibraryIO>(
+               rt => rt.Env.Settings.RfcLibraryIO);
 }

@@ -9,7 +9,41 @@ namespace Dbosoft.YaNco.Internal;
 [ExcludeFromCodeCoverage]
 public static class Api
 {
-        
+    public static Version GetVersion()
+    {
+        _ = Interopt.RfcGetVersion(out var major, out var minor, out var patch);
+        return new Version((int) major, (int) minor, (int) patch);
+    }
+
+    public static RfcRc SetTraceDirectory(string traceDirectory, out RfcErrorInfo errorInfo)
+    {
+        return Interopt.RfcSetTraceDir(traceDirectory, out errorInfo);
+    }
+    public static RfcRc SetMaximumTraceFiles(int maxTraceFiles, out RfcErrorInfo errorInfo)
+    {
+        return Interopt.RfcSetMaximumStoredTraceFiles(maxTraceFiles, out errorInfo);
+    }
+
+    public static RfcRc SetCpicTraceLevel(int traceLevel, out RfcErrorInfo errorInfo)
+    {
+        return Interopt.RfcSetCpicTraceLevel((uint) traceLevel, out errorInfo);
+    }
+
+    public static RfcRc SetIniDirectory(string iniDirectory, out RfcErrorInfo errorInfo)
+    {
+        return Interopt.RfcSetIniPath(iniDirectory, out errorInfo);
+    }
+
+    public static RfcRc ReloadIniFile(out RfcErrorInfo errorInfo)
+    {
+        return Interopt.RfcReloadIniFile(out errorInfo);
+    }
+
+    public static RfcRc LoadCryptoLibrary(string libraryPath, out RfcErrorInfo errorInfo)
+    {
+        return Interopt.RfcLoadCryptoLibrary(libraryPath, out errorInfo);
+    }
+
     public static ConnectionHandle OpenConnection(IDictionary<string, string> connectionParams,
         out RfcErrorInfo errorInfo)
     {

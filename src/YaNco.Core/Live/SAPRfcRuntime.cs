@@ -12,7 +12,8 @@ namespace Dbosoft.YaNco.Live;
 /// </summary>
 public readonly struct SAPRfcRuntime
         
-    : HasSAPRfc<SAPRfcRuntime>,
+    : HasSAPRfc<SAPRfcRuntime>, 
+      HasSAPRfcLibrary<SAPRfcRuntime>,
       HasSAPRfcServer<SAPRfcRuntime>,
       HasCancel<SAPRfcRuntime>
 
@@ -84,6 +85,7 @@ public readonly struct SAPRfcRuntime
     private SAPRfcFunctionIO FunctionIO => Env.Settings.RfcFunctionIO ?? new LiveSAPRfcFunctionIO(Logger, DataIO);
     private SAPRfcConnectionIO ConnectionIO => Env.Settings.RfcConnectionIO ?? new LiveSAPRfcConnectionIO(Logger);
     private SAPRfcServerIO ServerIO => Env.Settings.RfcServerIO ?? new LiveSAPRfcServerIO(Logger);
+    private SAPRfcLibraryIO LibraryIO => Env.Settings.RfcLibraryIO ?? new LiveSAPRfcLibraryIO(Logger);
 
 
     public Eff<SAPRfcRuntime, Option<ILogger>> RfcLoggerEff => Prelude.Eff<SAPRfcRuntime, Option<ILogger>>(rt => rt.Logger);
@@ -102,4 +104,7 @@ public readonly struct SAPRfcRuntime
 
     public Eff<SAPRfcRuntime, IFieldMapper> FieldMapperEff => Prelude.Eff < SAPRfcRuntime, IFieldMapper>(
                rt => rt.Env.Settings.FieldMapper);
+
+    public Eff<SAPRfcRuntime, SAPRfcLibraryIO> RfcLibraryEff => Prelude.Eff<SAPRfcRuntime, SAPRfcLibraryIO>(
+               rt => rt.LibraryIO);
 }

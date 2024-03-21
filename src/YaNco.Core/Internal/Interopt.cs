@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.InteropServices;
+using Microsoft.Win32.SafeHandles;
+
 // ReSharper disable IdentifierTypo
 // ReSharper disable CommentTypo
+// ReSharper disable InconsistentNaming
 
 namespace Dbosoft.YaNco.Internal;
 
@@ -12,8 +16,28 @@ internal static class Interopt
     private const string SapNwRfcName = "sapnwrfc";
 
     [DllImport(SapNwRfcName)]
-    public static extern RfcRc RfcGetVersion(out uint majorVersion, out uint minorVersion, out uint patchLevel);
+    public static extern IntPtr RfcGetVersion(out uint majorVersion, out uint minorVersion, out uint patchLevel);
 
+    [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+    public static extern RfcRc RfcSetTraceDir(string traceDir, out RfcErrorInfo errorInfo);
+
+
+    [DllImport(SapNwRfcName)]
+    public static extern RfcRc RfcSetMaximumStoredTraceFiles(int numberOfFiles, out RfcErrorInfo errorInfo);
+
+
+    [DllImport(SapNwRfcName)]
+    public static extern RfcRc RfcSetCpicTraceLevel(uint traceLevel, out RfcErrorInfo errorInfo);
+
+
+    [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+    public static extern RfcRc RfcLoadCryptoLibrary(string pathToLibrary, out RfcErrorInfo errorInfo);
+
+    [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+    public static extern RfcRc RfcSetIniPath(string pathName, out RfcErrorInfo errorInfo);
+
+    [DllImport(SapNwRfcName)]
+    public static extern RfcRc RfcReloadIniFile(out RfcErrorInfo errorInfo);
 
     [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
     public static extern IntPtr RfcOpenConnection(RfcConnectionParameter[] connectionParams, uint paramCount, out RfcErrorInfo errorInfo);

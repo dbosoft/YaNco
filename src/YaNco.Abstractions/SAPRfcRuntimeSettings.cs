@@ -53,4 +53,5 @@ public class SAPRfcRuntimeSettings
     public SAPRfcFunctionIO RfcFunctionIO { get; set; }
     public SAPRfcConnectionIO RfcConnectionIO { get; set; }
     public SAPRfcServerIO RfcServerIO { get; set; }
+    public SAPRfcLibraryIO RfcLibraryIO { get; set; }
 }
