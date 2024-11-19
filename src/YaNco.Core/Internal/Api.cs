@@ -162,7 +162,7 @@ public static class Api
             Name = parameterDescription.Name,
             Type = parameterDescription.Type,
             Direction = parameterDescription.Direction,
-            Optional = parameterDescription.Optional ? 'X' : '\0',
+            Optional = parameterDescription.Optional ? '1' : '0',
             Decimals = parameterDescription.Decimals,
             NucLength = parameterDescription.NucLength,
             UcLength = parameterDescription.UcLength,
@@ -190,7 +190,7 @@ public static class Api
     {
         var rc = Interopt.RfcGetParameterDescByName(descriptionHandle.Ptr, name.ToUpperInvariant(), out var parameterDescr, out errorInfo);
         parameterInfo = new RfcParameterInfo(
-            parameterDescr.Name, parameterDescr.Type, parameterDescr.Direction, parameterDescr.NucLength, parameterDescr.UcLength, parameterDescr.Decimals, parameterDescr.DefaultValue, parameterDescr.ParameterText, parameterDescr.Optional == 'X');
+            parameterDescr.Name, parameterDescr.Type, parameterDescr.Direction, parameterDescr.NucLength, parameterDescr.UcLength, parameterDescr.Decimals, parameterDescr.DefaultValue, parameterDescr.ParameterText, parameterDescr.Optional == 1);
         return rc;
 
     }
@@ -200,7 +200,7 @@ public static class Api
     {
         var rc = Interopt.RfcGetParameterDescByIndex(descriptionHandle.Ptr, (uint)index, out var parameterDescr, out errorInfo);
         parameterInfo = new RfcParameterInfo(
-            parameterDescr.Name, parameterDescr.Type, parameterDescr.Direction, parameterDescr.NucLength, parameterDescr.UcLength, parameterDescr.Decimals, parameterDescr.DefaultValue, parameterDescr.ParameterText, parameterDescr.Optional == 'X');
+            parameterDescr.Name, parameterDescr.Type, parameterDescr.Direction, parameterDescr.NucLength, parameterDescr.UcLength, parameterDescr.Decimals, parameterDescr.DefaultValue, parameterDescr.ParameterText, parameterDescr.Optional == 1);
         return rc;
 
     }
