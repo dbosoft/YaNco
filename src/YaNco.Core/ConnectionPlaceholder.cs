@@ -85,5 +85,5 @@ internal class ConnectionPlaceholder : IConnection
     [Obsolete(Deprecations.RfcRuntime)]
     public IRfcRuntime RfcRuntime { get; } = new RfcRuntime(SAPRfcRuntime.Default);
     public IHasEnvRuntimeSettings ConnectionRuntime { get; } = SAPRfcRuntime.Default;
-
+    public IConnectionHandle Handle { get; }
 }

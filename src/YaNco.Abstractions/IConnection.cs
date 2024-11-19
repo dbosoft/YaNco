@@ -120,4 +120,13 @@ public interface IConnection : IDisposable
     IRfcRuntime RfcRuntime { get;  }
 
     IHasEnvRuntimeSettings ConnectionRuntime { get; }
+
+    /// <summary>
+    /// Direct access to the connection handle.
+    /// </summary>
+    /// <remarks>
+    /// Use this property only if you would like to call runtime api methods that are not covered by the <see cref="IConnection"/> interface.
+    /// When operating on the handle, you have to make sure that the connection is accessed in a thread safe manner.
+    /// </remarks>
+    IConnectionHandle Handle { get; }
 }

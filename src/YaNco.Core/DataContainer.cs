@@ -53,6 +53,8 @@ internal abstract class DataContainer : IDataContainer
         return IO.GetTypeDescription(_handle);
     }
 
+    public IDataContainerHandle Handle => _handle;
+
     protected virtual void Dispose(bool disposing)
     {
         if (disposing)
