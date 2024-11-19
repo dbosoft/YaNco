@@ -14,4 +14,12 @@ public interface IDataContainer : IDisposable
     Either<RfcError, IStructure> GetStructure(string name);
     Either<RfcError, ITable> GetTable(string name);
     Either<RfcError, ITypeDescriptionHandle> GetTypeDescription();
+
+    /// <summary>
+    /// Direct access to the container handle.
+    /// </summary>
+    /// <remarks>
+    /// Use this property only if you would like to call runtime api methods that are not covered by the <see cref="IDataContainer"/> interface.
+    /// </remarks>
+    IDataContainerHandle Handle { get; }
 }

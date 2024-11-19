@@ -28,6 +28,7 @@ public class Connection<RT> : IConnection
         _runtime.Env.Source, _runtime.Env.Settings));
 
     public IHasEnvRuntimeSettings ConnectionRuntime => _runtime;
+    public IConnectionHandle Handle => _connectionHandle;
 
     public Connection(
         RT runtime,

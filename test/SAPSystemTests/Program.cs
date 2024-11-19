@@ -173,6 +173,20 @@ internal class Program
         result = await withFieldMapping.Run(SAPRfcRuntime.Default);
 
         Console.WriteLine("call_getFullName_with_abapValue: " + result);
+
+        var paramsCall = useConnection(connectionEffect, connection =>
+            from getUserFunction in connection.CreateFunction("BAPI_USER_GET_DETAIL").ToAff(l=>l)
+            from rt in Prelude.runtime<SAPRfcRuntime>()
+            from functionEff in rt.RfcFunctionsEff
+            from dataEff in rt.RfcDataEff
+            from funcDescription in functionEff.GetFunctionDescription(getUserFunction.Handle).ToEff(l => l)
+            from userParam in functionEff.GetFunctionParameterDescription(funcDescription, "USERNAME").ToEff(l=>l)
+            from paramsParam in functionEff.GetFunctionParameterDescription(funcDescription, "PARAMETER").ToEff(l => l)
+            select (UserName: userParam, Params: paramsParam));
+
+        var paramsResult = await paramsCall.Run(SAPRfcRuntime.Default);
+        Console.WriteLine("call_getParams_with_connection: " + paramsResult);
+
         return;
 
         static RfcError Callback(string command)
