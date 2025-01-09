@@ -5,6 +5,10 @@ Stable                     |  Latest                   |
 ---------------------------|---------------------------|
 [![NuGet stable](https://img.shields.io/nuget/v/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco) | [![NuGet pre](https://img.shields.io/nuget/vpre/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco)
 
+# This the README for version v4!
+The readme for current release v5 can be found here: https://github.com/dbosoft/YaNco  
+Version v4 is on maintenance, which means that new features will only be added at customer request and for security reasons. YaNco v4 EOL is scheduled for 31.12.2025. After this date we will only provide support to customers with active developer subscriptions!
+
 ## Description
 
 This library provides an alternative SAP .NET Connector based on the _SAP NetWeaver RFC Library_.
