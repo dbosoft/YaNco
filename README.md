@@ -5,9 +5,8 @@ Stable                     |  Latest                   |
 ---------------------------|---------------------------|
 [![NuGet stable](https://img.shields.io/nuget/v/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco) | [![NuGet pre](https://img.shields.io/nuget/vpre/Dbosoft.YaNco.svg?style=flat-square)](https://www.nuget.org/packages/Dbosoft.YaNco)
 
-# This the README for **UNSTABLE** version v5!
-The latest stable version can be found here: https://github.com/dbosoft/YaNco/tree/support/4.3
-
+# This the README for version v5!
+The readme for maintenance release v4 can be found here: https://github.com/dbosoft/YaNco/tree/support/4.3
 
 ## Description
 
