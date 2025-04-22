@@ -11,7 +11,7 @@ internal static class RuntimeToEitherExtensions
     public static Either<RfcError, T> ToEither<T,RT>(this Eff<RT, T> eff, RT runtime)
        where RT : struct
     {
-        return eff.Run(runtime).Map(fin => fin.ToEither().ToRfcError()).FirstOrDefault();
+        return eff.Run(runtime).ToEither().ToRfcError();
 
     }
     public static EitherAsync<RfcError, T> ToEither<RT,T>(this Aff<RT, T> aff, RT runtime)
