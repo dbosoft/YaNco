@@ -25,6 +25,12 @@ internal static class Interopt
     [DllImport(SapNwRfcName)]
     public static extern RfcRc RfcSetMaximumStoredTraceFiles(int numberOfFiles, out RfcErrorInfo errorInfo);
 
+    [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+    public static extern IntPtr RfcSaveRepository(string repositoryID, IntPtr targetStream, out RfcErrorInfo errorInfo);
+
+    [DllImport(SapNwRfcName)]
+    public static extern RfcRc RfcLoadRepository(string repositoryId, IntPtr targetStream, out RfcErrorInfo errorInfo);
+
 
     [DllImport(SapNwRfcName)]
     public static extern RfcRc RfcSetCpicTraceLevel(uint traceLevel, out RfcErrorInfo errorInfo);

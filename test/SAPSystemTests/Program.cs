@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Dbosoft.YaNco;
+using Dbosoft.YaNco.Internal;
 using Dbosoft.YaNco.Live;
 using Dbosoft.YaNco.TypeMapping;
 using KellermanSoftware.CompareNetObjects;
@@ -49,6 +50,7 @@ internal class Program
             {"passwd", config["saprfc:password"]},
             {"lang", "EN"}
         };
+        Api.SaveRepository("NA1", "repository", out var repository);
 
         var rows = Convert.ToInt32(config["tests:rows"]);
         var repeats = Convert.ToInt32(config["tests:repeats"]);

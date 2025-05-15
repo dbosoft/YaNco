@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 
@@ -13,6 +14,18 @@ public static class Api
     {
         _ = Interopt.RfcGetVersion(out var major, out var minor, out var patch);
         return new Version((int) major, (int) minor, (int) patch);
+    }
+
+    public static void SaveRepository(string repositoryId, string filePath, out RfcErrorInfo errorInfo)
+    {
+        using var fileStream = File.OpenWrite(filePath);
+        var fileHandle = fileStream.SafeFileHandle;
+        
+        if(fileHandle== null)
+            throw new InvalidOperationException($"Unable to open file {filePath}");
+        
+        var streamPointer = fileHandle.DangerousGetHandle();
+        Interopt.RfcSaveRepository(repositoryId, streamPointer, out errorInfo);
     }
 
     public static RfcRc SetTraceDirectory(string traceDirectory, out RfcErrorInfo errorInfo)
