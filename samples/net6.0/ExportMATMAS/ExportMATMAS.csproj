@@ -16,7 +16,7 @@
 
     <ItemGroup>
         <PackageReference Include="LanguageExt.Sys" Version="4.4.9" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.8" />
     </ItemGroup>
 
     <ItemGroup>
