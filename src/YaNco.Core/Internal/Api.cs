@@ -319,16 +319,32 @@ public static class Api
     {
         var holder = new ServerEventListeners(serverHandle.Ptr, onStateChange, onError);
 
+        RfcErrorInfo stateError = default;
+        RfcErrorInfo errorListenerError = default;
+        var stateRegistered = false;
+        var errorRegistered = false;
+
+        // Try to register state listener if provided
         if (onStateChange != null)
         {
-            var rc = Interopt.RfcAddServerStateChangedListener(serverHandle.Ptr, holder.StateCallback, out errorInfo);
-            if (rc != RfcRc.RFC_OK) return holder;
+            var rc = Interopt.RfcAddServerStateChangedListener(serverHandle.Ptr, holder.StateCallback, out stateError);
+            stateRegistered = rc == RfcRc.RFC_OK;
         }
 
+        // Try to register error listener if provided (independent of state listener result)
         if (onError != null)
         {
-            var rc = Interopt.RfcAddServerErrorListener(serverHandle.Ptr, holder.ErrorCallback, out errorInfo);
-            if (rc != RfcRc.RFC_OK) return holder;
+            var rc = Interopt.RfcAddServerErrorListener(serverHandle.Ptr, holder.ErrorCallback, out errorListenerError);
+            errorRegistered = rc == RfcRc.RFC_OK;
+        }
+
+        // If at least one listener was requested but both failed, dispose and return error
+        if ((onStateChange != null || onError != null) && !stateRegistered && !errorRegistered)
+        {
+            holder.Dispose();
+            // Return the first error encountered
+            errorInfo = onStateChange != null ? stateError : errorListenerError;
+            return null;
         }
 
         errorInfo = default;

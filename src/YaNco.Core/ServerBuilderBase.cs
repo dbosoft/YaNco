@@ -30,7 +30,7 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     private readonly string _systemId;
     private Aff<RT, IConnection>? _connectionEffect;
     private IRfcServer<RT> _buildServer;
-    private ITransactionalRfcHandler<RT> _transactionalRfcHandler;
+    private ITransactionalRfcHandler<RT> _transactionalRfcHandler; 
     private Action<RfcServerStateChange> _stateChangeListener;
     private Action<ConnectionAttributes, RfcErrorInfo> _errorListener;
 

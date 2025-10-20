@@ -57,7 +57,7 @@ public readonly struct LiveSAPRfcServerIO : SAPRfcServerIO
 
     public Either<RfcError, IDisposable> AddServerListeners(
         IRfcServerHandle serverHandle,
-        Action<RfcServerStateChange> onStateChange, 
+        Action<RfcServerStateChange> onStateChange,
         Action<ConnectionAttributes, RfcErrorInfo> onError)
     {
         _logger.IfSome(l => l.LogTrace("registering server event listeners", serverHandle));
