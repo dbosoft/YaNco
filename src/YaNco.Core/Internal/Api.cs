@@ -301,13 +301,37 @@ public static class Api
     }
         
         
-    public static IDisposable RegisterServerFunctionHandler(string sysId, 
+    public static IDisposable RegisterServerFunctionHandler(string sysId,
         FunctionDescriptionHandle functionDescription,
         RfcFunctionDelegate functionHandler, out RfcErrorInfo errorInfo)
     {
         var holder = new FunctionHandler(sysId, functionDescription, functionHandler);
         Interopt.RfcInstallServerFunction(sysId, functionDescription.Ptr, holder.ServerFunction,
             out errorInfo);
+        return holder;
+    }
+
+    public static IDisposable RegisterServerListeners(
+        RfcServerHandle serverHandle,
+        Action<RfcServerStateChange> onStateChange,
+        Action<ConnectionAttributes, RfcErrorInfo> onError,
+        out RfcErrorInfo errorInfo)
+    {
+        var holder = new ServerEventListeners(serverHandle.Ptr, onStateChange, onError);
+
+        if (onStateChange != null)
+        {
+            var rc = Interopt.RfcAddServerStateChangedListener(serverHandle.Ptr, holder.StateCallback, out errorInfo);
+            if (rc != RfcRc.RFC_OK) return holder;
+        }
+
+        if (onError != null)
+        {
+            var rc = Interopt.RfcAddServerErrorListener(serverHandle.Ptr, holder.ErrorCallback, out errorInfo);
+            if (rc != RfcRc.RFC_OK) return holder;
+        }
+
+        errorInfo = default;
         return holder;
     }
 

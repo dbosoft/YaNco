@@ -56,7 +56,7 @@ var runtime = ConsoleRuntime.New(new CancellationTokenSource(),
         new RfcRuntimeOptions(), new TransactionManager<MaterialMasterRecord>()));
 
 // build the server IO effect
-var serverIO = 
+var serverIO =
         from serverAff in buildServer(serverSettings,
 
             // IDocs have to be processed with a transactional RFC handler
@@ -64,7 +64,24 @@ var serverIO =
                 new MaterialMasterTransactionalRfcHandler<ConsoleRuntime>())
         .WithClientConnection(clientSettings,
             cc => cc
-                .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS", processInboundIDoc)))
+                .WithFunctionHandler("IDOC_INBOUND_ASYNCHRONOUS", processInboundIDoc))
+
+        // Add server state and error listeners to monitor gateway connection
+        .WithServerStateListener(stateChange => {
+            var oldState = stateChange.OldState.ToString();
+            var newState = stateChange.NewState.ToString();
+            Console.WriteLine($"[SERVER STATE] {oldState} -> {newState}");
+
+            if (stateChange.NewState == RfcServerState.Broken)
+                Console.WriteLine("WARNING: Server connection BROKEN - gateway unreachable!");
+            else if (stateChange is { NewState: RfcServerState.Starting, OldState: RfcServerState.Broken })
+                Console.WriteLine("Server RECONNECTING to gateway");
+        })
+        .WithServerErrorListener((clientInfo, errorInfo) => {
+            Console.WriteLine($"[SERVER ERROR] {errorInfo.Key}: {errorInfo.Message}");
+            if (clientInfo != null)
+                Console.WriteLine($"  Client: {clientInfo.PartnerHost} ({clientInfo.SystemId})");
+        }))
                from _ in useServer(serverAff, rfcServer =>
 
                        from uInfo in writeLine(

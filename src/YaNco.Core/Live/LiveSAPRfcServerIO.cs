@@ -55,6 +55,17 @@ public readonly struct LiveSAPRfcServerIO : SAPRfcServerIO
         return IOResult.ResultOrError(_logger, attributes, rc, errorInfo);
     }
 
+    public Either<RfcError, IDisposable> AddServerListeners(
+        IRfcServerHandle serverHandle,
+        Action<RfcServerStateChange> onStateChange, 
+        Action<ConnectionAttributes, RfcErrorInfo> onError)
+    {
+        _logger.IfSome(l => l.LogTrace("registering server event listeners", serverHandle));
+        var holder = Api.RegisterServerListeners(
+            serverHandle as RfcServerHandle, onStateChange, onError, out var errorInfo);
+        return IOResult.ResultOrError(_logger, holder, errorInfo);
+    }
+
     public Either<RfcError, IDisposable> AddTransactionHandlers(string sysid,
         Func<IRfcHandle, string, RfcRc> onCheck,
         Func<IRfcHandle, string, RfcRc> onCommit,
