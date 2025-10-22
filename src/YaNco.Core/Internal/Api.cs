@@ -301,13 +301,53 @@ public static class Api
     }
         
         
-    public static IDisposable RegisterServerFunctionHandler(string sysId, 
+    public static IDisposable RegisterServerFunctionHandler(string sysId,
         FunctionDescriptionHandle functionDescription,
         RfcFunctionDelegate functionHandler, out RfcErrorInfo errorInfo)
     {
         var holder = new FunctionHandler(sysId, functionDescription, functionHandler);
         Interopt.RfcInstallServerFunction(sysId, functionDescription.Ptr, holder.ServerFunction,
             out errorInfo);
+        return holder;
+    }
+
+    public static IDisposable RegisterServerListeners(
+        RfcServerHandle serverHandle,
+        Action<RfcServerStateChange> onStateChange,
+        Action<ConnectionAttributes, RfcErrorInfo> onError,
+        out RfcErrorInfo errorInfo)
+    {
+        var holder = new ServerEventListeners(serverHandle.Ptr, onStateChange, onError);
+
+        RfcErrorInfo stateError = default;
+        RfcErrorInfo errorListenerError = default;
+        var stateRegistered = false;
+        var errorRegistered = false;
+
+        // Try to register state listener if provided
+        if (onStateChange != null)
+        {
+            var rc = Interopt.RfcAddServerStateChangedListener(serverHandle.Ptr, holder.StateCallback, out stateError);
+            stateRegistered = rc == RfcRc.RFC_OK;
+        }
+
+        // Try to register error listener if provided (independent of state listener result)
+        if (onError != null)
+        {
+            var rc = Interopt.RfcAddServerErrorListener(serverHandle.Ptr, holder.ErrorCallback, out errorListenerError);
+            errorRegistered = rc == RfcRc.RFC_OK;
+        }
+
+        // If at least one listener was requested but both failed, dispose and return error
+        if ((onStateChange != null || onError != null) && !stateRegistered && !errorRegistered)
+        {
+            holder.Dispose();
+            // Return the first error encountered
+            errorInfo = onStateChange != null ? stateError : errorListenerError;
+            return null;
+        }
+
+        errorInfo = default;
         return holder;
     }
 

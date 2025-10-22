@@ -17,5 +17,9 @@ public interface SAPRfcServerIO
         Func<IRfcHandle, string, RfcRc> onRollback,
         Func<IRfcHandle, string, RfcRc> onConfirm);
 
+    Either<RfcError, IDisposable> AddServerListeners(
+        IRfcServerHandle serverHandle,
+        Action<RfcServerStateChange> onStateChange,
+        Action<ConnectionAttributes, RfcErrorInfo> onError);
 
 }

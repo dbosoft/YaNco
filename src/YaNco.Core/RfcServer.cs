@@ -12,6 +12,7 @@ public class RfcServer<RT> : IRfcServer<RT>
 
 {
     private readonly IAgent<AgentMessage, Either<RfcError, object>> _stateAgent;
+    private readonly IRfcServerHandle _serverHandle;
     public bool Disposed { get; private set; }
 
     private Aff<RT, IConnection> _connectionEffect;
@@ -20,6 +21,7 @@ public class RfcServer<RT> : IRfcServer<RT>
 
     private RfcServer(IRfcServerHandle serverHandle, RT runtime)
     {
+        _serverHandle = serverHandle;
         _connectionEffect = Prelude.SuccessAff((IConnection) new ConnectionPlaceholder());
 
         _stateAgent = Agent.Start<IRfcServerHandle, AgentMessage, Either<RfcError, object>>(
@@ -177,6 +179,11 @@ public class RfcServer<RT> : IRfcServer<RT>
     {
         _references = _references.Concat(disposables);
     }
+
+    /// <summary>
+    /// Gets the RFC server handle for internal use
+    /// </summary>
+    internal IRfcServerHandle ServerHandle => _serverHandle;
 
 
 }

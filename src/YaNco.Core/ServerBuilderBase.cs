@@ -30,7 +30,9 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     private readonly string _systemId;
     private Aff<RT, IConnection>? _connectionEffect;
     private IRfcServer<RT> _buildServer;
-    private ITransactionalRfcHandler<RT> _transactionalRfcHandler;
+    private ITransactionalRfcHandler<RT> _transactionalRfcHandler; 
+    private Action<RfcServerStateChange> _stateChangeListener;
+    private Action<ConnectionAttributes, RfcErrorInfo> _errorListener;
 
     /// <summary>
     /// Creates a new <see cref="ServerBuilder{RT}"/> with the connection parameters supplied
@@ -96,7 +98,7 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     }
 
     /// <summary>
-    /// Adds a transaction handler instance and enables transactional RFC for the server. 
+    /// Adds a transaction handler instance and enables transactional RFC for the server.
     /// </summary>
     /// <param name="transactionalRfcHandler"></param>
     /// <returns><typeparamref name="TBuilder"/> for chaining</returns>
@@ -104,6 +106,36 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
     {
         _transactionalRfcHandler = transactionalRfcHandler;
         return  (TBuilder)this;
+    }
+
+    /// <summary>
+    /// Adds a state change listener to monitor RFC server state transitions.
+    /// </summary>
+    /// <param name="listener">Callback invoked when server state changes (e.g., gateway disconnect/reconnect)</param>
+    /// <returns><typeparamref name="TBuilder"/> for chaining</returns>
+    /// <remarks>
+    /// The listener callback executes on RFC library worker threads.
+    /// State changes include: INITIAL → STARTING → RUNNING, RUNNING → BROKEN (gateway down), BROKEN → RUNNING (reconnected).
+    /// </remarks>
+    public TBuilder WithServerStateListener(Action<RfcServerStateChange> listener)
+    {
+        _stateChangeListener = listener;
+        return (TBuilder)this;
+    }
+
+    /// <summary>
+    /// Adds an error listener to monitor RFC server errors.
+    /// </summary>
+    /// <param name="listener">Callback invoked when server encounters network/gateway errors</param>
+    /// <returns><typeparamref name="TBuilder"/> for chaining</returns>
+    /// <remarks>
+    /// The listener callback executes on RFC library worker threads.
+    /// Provides error details and optional client information if error occurred during active connection.
+    /// </remarks>
+    public TBuilder WithServerErrorListener(Action<ConnectionAttributes, RfcErrorInfo> listener)
+    {
+        _errorListener = listener;
+        return (TBuilder)this;
     }
 
     /// <summary>
@@ -166,9 +198,27 @@ public class ServerBuilderBase<TBuilder,RT> : RfcBuilderBase<TBuilder, RT>
 
                 // add function handlers
                 .Bind(RegisterFunctionHandlers)
+
+                // add server state/error listeners
+                .Bind(server =>
+                {
+                    if (_stateChangeListener == null && _errorListener == null)
+                        return Prelude.SuccessEff(server);
+
+                    return serverIO.AddServerListeners(
+                        ((RfcServer<RT>)server).ServerHandle,
+                        _stateChangeListener,
+                        _errorListener
+                    ).Map(holder =>
+                    {
+                        server.AddReferences([holder]);
+                        return server;
+                    }).ToEff(l => l);
+                })
+
                 .Map(server =>
                 {
-                    server.AddReferences(new[] { _functionRegistration });
+                    server.AddReferences([_functionRegistration]);
                     _buildServer = server;
                     return server;
                 })

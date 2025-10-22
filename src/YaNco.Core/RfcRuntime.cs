@@ -97,6 +97,10 @@ public class RfcRuntime<RT> : IRfcRuntime
         return _runtime.RfcServerEff.Bind(io => io.AddTransactionHandlers(sysid, onCheck, onCommit, onRollback, onConfirm).ToEff(l => l)).ToEither(_runtime);
     }
 
+    public Either<RfcError, IDisposable> AddServerListeners(IRfcServerHandle serverHandle, Action<RfcServerStateChange>? onStateChange, Action<ConnectionAttributes?, RfcErrorInfo>? onError)
+    {
+        return _runtime.RfcServerEff.Bind(io => io.AddServerListeners(serverHandle, onStateChange, onError).ToEff(l => l)).ToEither(_runtime);
+    }
 
     public Either<RfcError, IFunctionHandle> CreateFunction(IFunctionDescriptionHandle descriptionHandle)
     {

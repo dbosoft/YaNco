@@ -71,6 +71,15 @@ internal static class Interopt
     public static extern RfcRc RfcShutdownServer(IntPtr rfcHandle, uint timeout, out RfcErrorInfo errorInfo);
 
     [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+    public static extern RfcRc RfcAddServerStateChangedListener(IntPtr serverHandle, ServerStateChangedCallback listener, out RfcErrorInfo errorInfo);
+
+    [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+    public static extern RfcRc RfcAddServerErrorListener(IntPtr serverHandle, ServerErrorCallback listener, out RfcErrorInfo errorInfo);
+
+    [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+    public static extern RfcRc RfcGetServerAttributes(IntPtr serverHandle, out RfcServerStateAttributes attributes, out RfcErrorInfo errorInfo);
+
+    [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
     public static extern IntPtr RfcGetFunctionDesc(IntPtr rfcHandle, string funcName, out RfcErrorInfo errorInfo);
 
     [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
@@ -297,6 +306,16 @@ internal static class Interopt
 
     }
 
+    internal enum RfcServerState
+    {
+        RFC_SERVER_INITIAL = 0,
+        RFC_SERVER_STARTING = 1,
+        RFC_SERVER_RUNNING = 2,
+        RFC_SERVER_BROKEN = 3,
+        RFC_SERVER_STOPPING = 4,
+        RFC_SERVER_STOPPED = 5
+    }
+
     internal enum RfcCallType
     {
         RFC_SYNCHRONOUS,                // It's a standard synchronous RFC call.
@@ -377,6 +396,21 @@ internal static class Interopt
 
             return new RfcServerAttributes(Tid, callType);
         }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct RfcServerStateChange
+    {
+        public RfcServerState OldState;
+        public RfcServerState NewState;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    internal struct RfcServerStateAttributes
+    {
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 100)]
+        public string ServerName;
+        public RfcServerState State;
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -491,6 +525,12 @@ internal static class Interopt
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
     public delegate RfcRc TransactionEventCallback(IntPtr rfcHandle, string tid);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+    public delegate void ServerStateChangedCallback(IntPtr serverHandle, ref RfcServerStateChange stateChange);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+    public delegate void ServerErrorCallback(IntPtr serverHandle, IntPtr clientInfoPtr, ref RfcErrorInfo errorInfo);
 
 
 }
