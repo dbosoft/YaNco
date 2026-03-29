@@ -187,6 +187,9 @@ internal class Program
         var paramsResult = await paramsCall.Run(SAPRfcRuntime.Default);
         Console.WriteLine("call_getParams_with_connection: " + paramsResult);
 
+        // Agent Pool Test (from antwort_wytrickus.md sample)
+        await RunAgentPoolTest(connectionFunc);
+
         return;
 
         static RfcError Callback(string command)
@@ -581,6 +584,47 @@ internal class Program
         watch.Stop();
         return watch.ElapsedMilliseconds;
 
+    }
+
+    private static async Task RunAgentPoolTest(Func<EitherAsync<RfcError, IConnection>> connectionFunc)
+    {
+        Console.WriteLine("*** BEGIN Agent Pool Test ***");
+        const int poolSize = 3;
+        const int concurrentCalls = 10;
+
+        using var pool = new SapAgentPool(connectionFunc, poolSize);
+
+        // Run multiple concurrent calls through the pool
+        var tasks = Enumerable.Range(0, concurrentCalls)
+            .Select(i => pool.Execute(ctx =>
+                ctx.CallFunction("BAPI_USER_GET_DETAIL",
+                    Input: f => f.SetField("USERNAME", "SAP*"),
+                    Output: f => f.GetField<string>("USERNAME"))
+                    .ToEither()))
+            .ToArray();
+
+        var results = await Task.WhenAll(tasks);
+
+        var successCount = results.Count(r => r.IsRight);
+        var failCount = results.Count(r => r.IsLeft);
+
+        Console.WriteLine($"Agent Pool: {concurrentCalls} calls, pool size {poolSize}");
+        Console.WriteLine($"  Successes: {successCount}, Failures: {failCount}");
+
+        foreach (var r in results.Where(r => r.IsLeft))
+            r.IfLeft(l => Console.WriteLine($"  Error: {l.Message}"));
+
+        if (successCount == concurrentCalls)
+        {
+            var allSame = results.All(r => r.Match(x => x == "SAP*", _ => false));
+            Console.WriteLine(allSame ? "Test succeed" : "Test failed (results differ)");
+        }
+        else
+        {
+            Console.WriteLine("Test failed");
+        }
+
+        Console.WriteLine("*** END Agent Pool Test ***");
     }
 
     private static Either<RfcError, IFunction> SetRows(Either<RfcError, IFunction> func, in int rows)
