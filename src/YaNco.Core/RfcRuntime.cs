@@ -303,4 +303,9 @@ public class RfcRuntime<RT> : IRfcRuntime
         return _runtime.RfcConnectionEff.Bind(io => io.GetConnectionAttributes(connectionHandle).ToEff(l => l)).ToEither(_runtime);
     }
 
+    public Either<RfcError, Unit> ResetServerContext(IConnectionHandle connectionHandle)
+    {
+        return _runtime.RfcConnectionEff.Bind(io => io.ResetServerContext(connectionHandle).ToEff(l => l)).ToEither(_runtime);
+    }
+
 }

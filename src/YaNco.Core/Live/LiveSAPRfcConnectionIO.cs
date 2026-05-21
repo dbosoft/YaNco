@@ -59,4 +59,11 @@ public readonly struct LiveSAPRfcConnectionIO : SAPRfcConnectionIO
         var rc = Api.GetConnectionAttributes(connectionHandle as ConnectionHandle, out var attributes, out var errorInfo);
         return IOResult.ResultOrError(_logger, attributes, rc, errorInfo);
     }
+
+    public Either<RfcError, Unit> ResetServerContext(IConnectionHandle connectionHandle)
+    {
+        _logger.IfSome(l => l.LogTrace("resetting server context", new { connectionHandle }));
+        var rc = Api.ResetServerContext(connectionHandle as ConnectionHandle, out var errorInfo);
+        return IOResult.ResultOrError(_logger, Unit.Default, rc, errorInfo);
+    }
 }

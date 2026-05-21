@@ -245,6 +245,11 @@ public static class Api
         return rc;
     }
 
+    public static RfcRc ResetServerContext(ConnectionHandle connectionHandle, out RfcErrorInfo errorInfo)
+    {
+        return Interopt.RfcResetServerContext(connectionHandle.Ptr, out errorInfo);
+    }
+
     public static RfcRc GetStructure(IDataContainerHandle dataContainer, string name,
         out StructureHandle structure, out RfcErrorInfo errorInfo)
     {
