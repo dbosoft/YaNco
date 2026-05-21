@@ -161,6 +161,9 @@ internal static class Interopt
     public static extern RfcRc RfcMoveToFirstRow(IntPtr tableHandle, out RfcErrorInfo errorInfo);
 
     [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+    public static extern RfcRc RfcDeleteAllRows(IntPtr tableHandle, out RfcErrorInfo errorInfo);
+
+    [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
     public static extern RfcRc RfcGetDate(IntPtr dataHandle, string name, char[] emptyDate,
         out RfcErrorInfo errorInfo);
 

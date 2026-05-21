@@ -209,6 +209,7 @@ internal class Program
         await RunIntegrationTest03(context);
         await RunCallbackTest(context);
         await RunResetServerContextTest(context);
+        await RunClearTableTest(context);
 
         Console.WriteLine("*** END OF Integration Tests ***");
     }
@@ -244,6 +245,51 @@ internal class Program
             },
             l => Console.WriteLine("Reset server context test error: " + l.Message));
     }
+    private static async Task RunClearTableTest(IRfcContext context)
+    {
+        Console.WriteLine("Integration Tests 06 (ClearTable removes pre-populated rows before invoke)");
+
+        var prePopulated = new[] { 0, 0 };
+        var inputRows = new[] { 0, 0, 0 };
+
+        // ZYANCO_IT_7 appends TAB_IN to TAB_OUT. Baseline keeps the rows we pre-populated in TAB_OUT,
+        // so we expect (prePopulated + inputRows) rows back.
+        var baseline = await context.CallFunction("ZYANCO_IT_7",
+            Input: f => f
+                .SetTable("TAB_OUT", prePopulated, (s, _) => s)
+                .SetTable("TAB_IN", inputRows, (s, _) => s),
+            Output: f => f.MapTable("TAB_OUT", s => s.ToDictionary())).ToEither();
+
+        // Same setup, but ClearTable wipes the pre-populated TAB_OUT rows before invoke.
+        // We expect only the rows the server appends from TAB_IN.
+        var cleared = await context.CallFunction("ZYANCO_IT_7",
+            Input: f => f
+                .SetTable("TAB_OUT", prePopulated, (s, _) => s)
+                .ClearTable("TAB_OUT")
+                .SetTable("TAB_IN", inputRows, (s, _) => s),
+            Output: f => f.MapTable("TAB_OUT", s => s.ToDictionary())).ToEither();
+
+        var expectedBaseline = prePopulated.Length + inputRows.Length;
+        var expectedCleared = inputRows.Length;
+
+        var failure = baseline.Match(
+            b => cleared.Match<string>(
+                c =>
+                {
+                    var baselineCount = b.Count();
+                    var clearedCount = c.Count();
+                    if (baselineCount != expectedBaseline)
+                        return $"baseline expected {expectedBaseline} rows (pre-populated + appended), got {baselineCount}";
+                    if (clearedCount != expectedCleared)
+                        return $"after ClearTable expected {expectedCleared} rows (appended only), got {clearedCount}";
+                    return string.Empty;
+                },
+                l => "ClearTable call error: " + l.Message),
+            l => "baseline call error: " + l.Message);
+
+        Console.WriteLine(failure.Length == 0 ? "Test succeed" : "Test failed: " + failure);
+    }
+
     private static async Task RunIntegrationTest01(IRfcContext context)
     {
         Console.WriteLine("Integration Tests 01 (I/O field)");

@@ -72,6 +72,11 @@ public class RfcRuntime<RT> : IRfcRuntime
         return _runtime.RfcDataEff.Bind(io => io.MoveToFirstTableRow(tableHandle).ToEff(l => l)).ToEither(_runtime);
     }
 
+    public Either<RfcError, Unit> DeleteAllTableRows(ITableHandle tableHandle)
+    {
+        return _runtime.RfcDataEff.Bind(io => io.DeleteAllTableRows(tableHandle).ToEff(l => l)).ToEither(_runtime);
+    }
+
     public Either<RfcError, IRfcServerHandle> CreateServer(IDictionary<string, string> connectionParams)
     {
         return _runtime.RfcServerEff.Bind(io => io.CreateServer(connectionParams).ToEff(l => l)).ToEither(_runtime);

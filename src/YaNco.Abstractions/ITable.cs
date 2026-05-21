@@ -7,4 +7,5 @@ public interface ITable : IDataContainer
 {
     IEnumerable<IStructure> Rows { get; }
     Either<RfcError, IStructure> AppendRow();
+    Either<RfcError, Unit> Clear();
 }

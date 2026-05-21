@@ -56,6 +56,25 @@ public static class FunctionalDataContainerExtensions
 
     }
 
+    /// <summary>
+    /// Removes all rows from the table with the given <paramref name="tableName"/>.
+    /// </summary>
+    /// <remarks>
+    /// Use this when a table parameter is both read and written in the same function call and you need to
+    /// discard the inbound rows before populating it with new data. Can be combined fluently with
+    /// <see cref="SetTable{TDataContainer,TInput,TResult}(Either{RfcError,TDataContainer},string,IEnumerable{TInput},Func{Either{RfcError,IStructure},TInput,Either{RfcError,TResult}})"/>.
+    /// </remarks>
+    /// <typeparam name="TDataContainer">Type of data container (a structure or function).</typeparam>
+    /// <param name="self">Data container lifted in <see cref="Either{RfcError,TDataContainer}"/> monad.</param>
+    /// <param name="tableName">Name of the table to clear.</param>
+    public static Either<RfcError, TDataContainer> ClearTable<TDataContainer>(
+        this Either<RfcError, TDataContainer> self, string tableName)
+        where TDataContainer : IDataContainer
+    {
+        return self.Bind(dc => dc.GetTable(tableName)
+            .Use(used => used.Bind(table => table.Clear()).Map(_ => dc)));
+    }
+
     public static Either<RfcError, IEnumerable<TResult>> MapStructure<TResult>(this Either<RfcError, ITable> eitherTable, Func<IStructure,Either<RfcError, TResult>> mapperFunc)
     {
         return eitherTable.Bind(table=> table.Rows.Map(mapperFunc).Traverse(l=>l));

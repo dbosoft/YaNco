@@ -390,6 +390,12 @@ public static class Api
 
     }
 
+    public static RfcRc DeleteAllTableRows(TableHandle table, out RfcErrorInfo errorInfo)
+    {
+        return Interopt.RfcDeleteAllRows(table.Ptr, out errorInfo);
+
+    }
+
     public static RfcRc SetString(IDataContainerHandle containerHandle, string name, string value, out
         RfcErrorInfo errorInfo)
     {
