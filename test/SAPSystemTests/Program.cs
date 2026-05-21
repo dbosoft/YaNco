@@ -187,7 +187,7 @@ internal class Program
         var paramsResult = await paramsCall.Run(SAPRfcRuntime.Default);
         Console.WriteLine("call_getParams_with_connection: " + paramsResult);
 
-        // Agent Pool Test (from antwort_wytrickus.md sample)
+        // Agent Pool Test
         await RunAgentPoolTest(connectionFunc);
 
         return;
@@ -208,8 +208,41 @@ internal class Program
         await RunIntegrationTest02(context);
         await RunIntegrationTest03(context);
         await RunCallbackTest(context);
+        await RunResetServerContextTest(context);
 
         Console.WriteLine("*** END OF Integration Tests ***");
+    }
+
+    private static async Task RunResetServerContextTest(IRfcContext context)
+    {
+        Console.WriteLine("Integration Tests 05 (reset server context clears session state)");
+
+        var value = RandomString(40);
+
+        var result = await (
+            from _set in context.CallFunctionOneWay("ZYANCO_IT_5",
+                f => f.SetField("IV_IN", value))
+            from before in context.CallFunction("ZYANCO_IT_6",
+                Input: f => f,
+                Output: f => f.GetField<string>("EV_OUT"))
+            from connection in context.GetConnection()
+            from _reset in connection.ResetServerContext()
+            from after in context.CallFunction("ZYANCO_IT_6",
+                Input: f => f,
+                Output: f => f.GetField<string>("EV_OUT"))
+            select (Before: before, After: after)).ToEither();
+
+        result.Match(
+            ok =>
+            {
+                if (ok.Before != value)
+                    Console.WriteLine($"Test failed: before reset expected '{value}', got '{ok.Before}'");
+                else if (!string.IsNullOrEmpty(ok.After?.TrimEnd()))
+                    Console.WriteLine($"Test failed: after reset expected empty, got '{ok.After}'");
+                else
+                    Console.WriteLine("Test succeed");
+            },
+            l => Console.WriteLine("Reset server context test error: " + l.Message));
     }
     private static async Task RunIntegrationTest01(IRfcContext context)
     {

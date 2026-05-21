@@ -66,11 +66,23 @@ public class SapAgentPool : IDisposable
             try
             {
                 var result = await fn(state.Context);
-                result.IfLeft(err =>
+                var needsRecreate = result.Match(_ => false, IsConnectionError);
+                if (needsRecreate)
                 {
-                    if (IsConnectionError(err))
-                        state.RecreateContext();
-                });
+                    state.RecreateContext();
+                }
+                else
+                {
+                    // Reset the server context before returning the connection to the
+                    // pool, so the next caller starts from a clean server-side state.
+                    var resetResult = await state.Context.GetConnection()
+                        .Bind(c => c.ResetServerContext()).ToEither();
+                    resetResult.IfLeft(err =>
+                    {
+                        if (IsConnectionError(err))
+                            state.RecreateContext();
+                    });
+                }
                 tcs.SetResult(result);
             }
             catch (Exception ex)

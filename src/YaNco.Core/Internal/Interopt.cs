@@ -66,6 +66,8 @@ internal static class Interopt
     [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
     public static extern RfcRc RfcGetServerContext(IntPtr rfcHandle, out RfcServerContext context, out RfcErrorInfo errorInfo);
 
+    [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
+    public static extern RfcRc RfcResetServerContext(IntPtr rfcHandle, out RfcErrorInfo errorInfo);
 
     [DllImport(SapNwRfcName, CharSet = CharSet.Unicode)]
     public static extern RfcRc RfcShutdownServer(IntPtr rfcHandle, uint timeout, out RfcErrorInfo errorInfo);

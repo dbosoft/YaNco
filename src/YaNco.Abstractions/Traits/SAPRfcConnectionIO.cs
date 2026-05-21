@@ -10,5 +10,6 @@ public interface SAPRfcConnectionIO
     Either<RfcError, Unit> CancelConnection(IConnectionHandle connectionHandle);
     Either<RfcError, bool> IsConnectionHandleValid(IConnectionHandle connectionHandle);
     Either<RfcError, ConnectionAttributes> GetConnectionAttributes(IConnectionHandle connectionHandle);
+    Either<RfcError, Unit> ResetServerContext(IConnectionHandle connectionHandle);
 
 }
