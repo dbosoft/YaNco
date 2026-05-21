@@ -208,8 +208,25 @@ internal class Program
         await RunIntegrationTest02(context);
         await RunIntegrationTest03(context);
         await RunCallbackTest(context);
+        await RunResetServerContextTest(context);
 
         Console.WriteLine("*** END OF Integration Tests ***");
+    }
+
+    private static async Task RunResetServerContextTest(IRfcContext context)
+    {
+        Console.WriteLine("Integration Tests 05 (reset server context)");
+
+        var result = await (
+            from connection in context.GetConnection()
+            from _1 in context.Ping()
+            from _2 in connection.ResetServerContext()
+            from _3 in context.Ping()
+            select Unit.Default).ToEither();
+
+        result.Match(
+            _ => Console.WriteLine("Test succeed"),
+            l => Console.WriteLine("Reset server context test failed: " + l.Message));
     }
     private static async Task RunIntegrationTest01(IRfcContext context)
     {

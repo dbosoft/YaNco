@@ -80,6 +80,11 @@ internal class ConnectionPlaceholder : IConnection
         return ErrorResponse;
     }
 
+    public EitherAsync<RfcError, Unit> ResetServerContext()
+    {
+        return ErrorResponse;
+    }
+
     public bool Disposed { get; private set; }
 
     [Obsolete(Deprecations.RfcRuntime)]

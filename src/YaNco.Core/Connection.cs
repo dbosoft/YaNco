@@ -242,6 +242,14 @@ public class Connection<RT> : IConnection
             .ToEither(_runtime).ToAsync();
     }
 
+    /// <inheritdoc cref="ResetServerContext()"/>
+    public EitherAsync<RfcError, Unit> ResetServerContext()
+    {
+        return default(RT).RfcConnectionEff
+            .Bind(io => io.ResetServerContext(_connectionHandle).ToEff(l => l))
+            .ToEither(_runtime).ToAsync();
+    }
+
     private record AgentMessage;
 
     private record CreateStructureMessage(string StructureName) : AgentMessage

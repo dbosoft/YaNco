@@ -220,7 +220,7 @@ public static class SAPRfc<RT> where RT : struct, HasSAPRfc<RT>, HasCancel<RT>
     }
 
     /// <summary>
-    /// Rollback of current SAP transaction in backend. 
+    /// Rollback of current SAP transaction in backend.
     /// </summary>
     /// <returns>A <see cref="EitherAsync{RfcError,Unit}"/> with any rfc error as left state and <seealso cref="Unit"/> as right state.</returns>
     public static Aff<RT, Unit> rollback(IConnection connection)
@@ -229,6 +229,16 @@ public static class SAPRfc<RT> where RT : struct, HasSAPRfc<RT>, HasCancel<RT>
                from _ in connection.Rollback(ct).ToAff(l => l)
                select Unit.Default;
 
+    }
+
+    /// <summary>
+    /// Resets the server context of the connection. See <see cref="IConnection.ResetServerContext"/> for details.
+    /// </summary>
+    /// <returns>A <see cref="Aff{RT,Unit}"/> with any rfc error as left state and <seealso cref="Unit"/> as right state.</returns>
+    public static Aff<RT, Unit> resetServerContext(IConnection connection)
+    {
+        return from _ in connection.ResetServerContext().ToAff(l => l)
+               select Unit.Default;
     }
     
     /// <summary>

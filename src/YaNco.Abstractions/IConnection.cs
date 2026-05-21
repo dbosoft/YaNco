@@ -107,6 +107,17 @@ public interface IConnection : IDisposable
     /// <returns>A <see cref="EitherAsync{RfcError,ConnectionAttributes}"/> with any rfc error as left state and the attributes as right state.</returns>
     EitherAsync<RfcError, ConnectionAttributes> GetAttributes();
 
+    /// <summary>
+    /// Resets the server context of the connection.
+    /// </summary>
+    /// <remarks>
+    /// SAP RFC connections are stateful by default. When a connection is reused for different logical units of work
+    /// (e.g. different users in a web application), the server-side context should be reset between uses to discard
+    /// any state left by a previous call. The connection itself stays open and can be used for further calls.
+    /// </remarks>
+    /// <returns>A <see cref="EitherAsync{RfcError,Unit}"/> with any rfc error as left state and Unit as right state.</returns>
+    EitherAsync<RfcError, Unit> ResetServerContext();
+
 
     /// <summary>
     /// Flag if connection is already disposed. 
