@@ -15,5 +15,6 @@ public interface SAPRfcTableIO
     Either<RfcError, IStructureHandle> AppendTableRow(ITableHandle tableHandle);
     Either<RfcError, Unit> MoveToNextTableRow(ITableHandle tableHandle);
     Either<RfcError, Unit> MoveToFirstTableRow(ITableHandle tableHandle);
+    Either<RfcError, Unit> DeleteAllTableRows(ITableHandle tableHandle);
 
 }

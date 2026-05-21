@@ -216,6 +216,14 @@ public readonly struct LiveSAPRfcDataIO : SAPRfcDataIO
 
     }
 
+    public Either<RfcError, Unit> DeleteAllTableRows(ITableHandle tableHandle)
+    {
+        Logger.IfSome(l => l.LogTrace("delete all table rows by table handle", tableHandle));
+        var rc = Api.DeleteAllTableRows(tableHandle as TableHandle, out var errorInfo);
+        return IOResult.ResultOrError(Logger, Unit.Default, rc, errorInfo);
+
+    }
+
     public Either<RfcError, ITypeDescriptionHandle> GetTypeDescription(IDataContainerHandle dataContainer)
     {
         Logger.IfSome(l => l.LogTrace("reading type description by container handle", dataContainer));

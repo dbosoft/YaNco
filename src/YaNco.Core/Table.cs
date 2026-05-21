@@ -34,4 +34,9 @@ internal class Table : TypeDescriptionDataContainer, ITable
         return IO.AppendTableRow(_handle).Map(sh => (IStructure) new Structure(sh, IO));
     }
 
+    public Either<RfcError, Unit> Clear()
+    {
+        return IO.DeleteAllTableRows(_handle);
+    }
+
 }
