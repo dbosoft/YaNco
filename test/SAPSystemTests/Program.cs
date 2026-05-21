@@ -187,7 +187,7 @@ internal class Program
         var paramsResult = await paramsCall.Run(SAPRfcRuntime.Default);
         Console.WriteLine("call_getParams_with_connection: " + paramsResult);
 
-        // Agent Pool Test (from antwort_wytrickus.md sample)
+        // Agent Pool Test
         await RunAgentPoolTest(connectionFunc);
 
         return;
@@ -208,25 +208,8 @@ internal class Program
         await RunIntegrationTest02(context);
         await RunIntegrationTest03(context);
         await RunCallbackTest(context);
-        await RunResetServerContextTest(context);
 
         Console.WriteLine("*** END OF Integration Tests ***");
-    }
-
-    private static async Task RunResetServerContextTest(IRfcContext context)
-    {
-        Console.WriteLine("Integration Tests 05 (reset server context)");
-
-        var result = await (
-            from connection in context.GetConnection()
-            from _1 in context.Ping()
-            from _2 in connection.ResetServerContext()
-            from _3 in context.Ping()
-            select Unit.Default).ToEither();
-
-        result.Match(
-            _ => Console.WriteLine("Test succeed"),
-            l => Console.WriteLine("Reset server context test failed: " + l.Message));
     }
     private static async Task RunIntegrationTest01(IRfcContext context)
     {
@@ -611,13 +594,18 @@ internal class Program
 
         using var pool = new SapAgentPool(connectionFunc, poolSize);
 
-        // Run multiple concurrent calls through the pool
+        // Run multiple concurrent calls through the pool. Each pooled task resets
+        // the server context first so any state left by a previous logical unit of
+        // work on the same connection is discarded (the use case ResetServerContext
+        // is designed for: reusing a stateful connection across users/requests).
         var tasks = Enumerable.Range(0, concurrentCalls)
             .Select(i => pool.Execute(ctx =>
-                ctx.CallFunction("BAPI_USER_GET_DETAIL",
-                    Input: f => f.SetField("USERNAME", "SAP*"),
-                    Output: f => f.GetField<string>("USERNAME"))
-                    .ToEither()))
+                (from connection in ctx.GetConnection()
+                 from _ in connection.ResetServerContext()
+                 from userName in ctx.CallFunction("BAPI_USER_GET_DETAIL",
+                     Input: f => f.SetField("USERNAME", "SAP*"),
+                     Output: f => f.GetField<string>("USERNAME"))
+                 select userName).ToEither()))
             .ToArray();
 
         var results = await Task.WhenAll(tasks);
